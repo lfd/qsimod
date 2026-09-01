@@ -1,0 +1,67 @@
+# Documentation site. Build: uv run --extra docs zensical build --clean --strict
+# Serve: uv run --extra docs zensical serve
+# `mkdocstrings` renders the API reference from the docstrings.
+
+[project]
+site_name = "Q-SiMod"
+site_description = "A typed metamodel for model-driven engineering of quantum simulations"
+site_url = "https://example.invalid/qsimod/"
+docs_dir = "docs"
+site_dir = "site"
+
+nav = [
+  { Overview = "index.md" },
+  { "The layers" = "layers.md" },
+  { Guides = [
+    { "The lattice Schwinger model" = "schwinger.md" },
+    { "The Heisenberg magnet" = "heisenberg.md" },
+    { "The Ising chain, on a shared device" = "ising.md" },
+  ] },
+  { "API reference" = [
+    { Overview = "api/index.md" },
+    { "Declaration layer" = "api/declaration.md" },
+    { "Structural layer" = "api/structural.md" },
+    { "Solving layer" = "api/solving.md" },
+    { "Realisation layer" = "api/realise.md" },
+    { "Model library" = "api/models.md" },
+    { "Transformation library" = "api/transformations.md" },
+    { "Use cases" = "api/usecases.md" },
+  ] },
+]
+
+[project.theme]
+features = [
+  "navigation.sections",
+  "navigation.top",
+  "content.code.copy",
+  "toc.permalink",
+]
+
+[project.plugins.search]
+
+[project.plugins.mkdocstrings.handlers.python]
+paths = ["."]
+
+[project.plugins.mkdocstrings.handlers.python.options]
+docstring_style = "google"
+docstring_section_style = "table"
+show_root_heading = true
+show_root_full_path = false
+show_source = false
+show_signature_annotations = true
+separate_signature = true
+members_order = "source"
+filters = ["!^_"]
+heading_level = 3
+
+[project.markdown_extensions]
+admonition = {}
+attr_list = {}
+def_list = {}
+toc.permalink = true
+pymdownx.highlight.anchor_linenums = true
+pymdownx.inlinehilite = {}
+# The mermaid custom fence renders the figures on the site as well as on GitHub.
+pymdownx.superfences.custom_fences = [
+  { name = "mermaid", class = "mermaid", format = "pymdownx.superfences.fence_code_format" },
+]

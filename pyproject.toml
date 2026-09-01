@@ -1,0 +1,145 @@
+[build-system]
+requires = ["hatchling>=1.21"]
+build-backend = "hatchling.build"
+
+[project]
+name = "qsimod"
+version = "0.1.0"
+description = "Q-SiMod: a typed metamodel for model-driven engineering of quantum simulations"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [{ name = "Maja Franz", email = "maja.franz@oth-regensburg.de" }]
+keywords = ["quantum-simulation", "model-driven-engineering", "metamodel", "hamiltonian"]
+dependencies = [
+  "jax>=0.4.30",
+  "jaxlib>=0.4.30",
+  "numpy>=1.26",
+  "pandas>=2.0",
+  # The solver backend (SLSQP); imported only by qsimod/solving/backends/scipy_nlp.py.
+  "scipy>=1.11",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.0",
+  "ruff>=0.14",
+  "ty>=0.0.79",
+  # Type stubs for scipy.optimize.
+  "scipy-stubs>=1.15",
+]
+# Documentation site: zensical builds it, mkdocstrings renders the API reference from docstrings.
+docs = [
+  "zensical>=0.0.56",
+  "mkdocstrings[python]>=1.0",
+]
+
+# uv dependency groups, each a self-reference to the extra of the same name.
+[dependency-groups]
+dev = ["qsimod[dev]"]
+docs = ["qsimod[docs]"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["qsimod"]
+
+[tool.hatch.build.targets.sdist]
+include = ["qsimod", "tests", "examples", "scripts", "README.md"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+src = ["qsimod", "tests", "examples", "scripts"]
+
+[tool.ruff.format]
+# Code blocks in docstrings are formatted alongside the code around them.
+docstring-code-format = true
+line-ending = "lf"
+
+[tool.ruff.lint]
+select = [
+  "F",    # pyflakes
+  "E",    # pycodestyle errors
+  "W",    # pycodestyle warnings
+  "I",    # isort
+  "N",    # pep8-naming
+  "D",    # pydocstyle
+  "UP",   # pyupgrade
+  "ANN",  # flake8-annotations
+  "S",    # flake8-bandit
+  "B",    # flake8-bugbear
+  "A",    # flake8-builtins
+  "C4",   # flake8-comprehensions
+  "PIE",  # flake8-pie
+  "PT",   # flake8-pytest-style
+  "RET",  # flake8-return
+  "SIM",  # flake8-simplify
+  "TID",  # flake8-tidy-imports
+  "ARG",  # flake8-unused-arguments
+  "PTH",  # flake8-use-pathlib
+  "PL",   # pylint
+  "TRY",  # tryceratops
+  "NPY",  # numpy
+  "RUF",  # ruff-specific
+]
+ignore = [
+  "D203",    # incompatible with D211
+  "D213",    # incompatible with D212
+  "D105",    # magic methods are self-describing
+  "D107",    # __init__ of a dataclass is generated
+  "PLR0913", # physics builders legitimately take many parameters
+  "PLR0917", # ... and so pass many positionally
+  "PLR2004", # comparisons against small integers are the norm here
+  "TRY003",  # long messages in raises are good diagnostics
+  "D401",    # property and attribute docstrings are noun phrases by design
+]
+
+[tool.ruff.lint.pylint]
+max-branches = 24
+max-statements = 70
+max-returns = 12
+max-locals = 30
+
+[tool.ruff.lint.per-file-ignores]
+# Bare `assert` (S101) is the test idiom in tests/.
+"tests/**" = ["S101"]
+
+# The figure generator emits en dashes, one-half and arrows in string literals.
+"scripts/figures.py" = ["RUF001", "RUF002"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["qsimod", "tests"]
+
+[tool.ruff.lint.flake8-tidy-imports]
+ban-relative-imports = "parents"
+
+[tool.ty.src]
+include = ["qsimod", "tests", "examples", "scripts"]
+
+[tool.ty.environment]
+python-version = "3.11"
+
+[tool.ty.terminal]
+# Warning-level rules fail the run too.
+error-on-warning = true
+
+# Rules ty leaves off by default.
+[tool.ty.rules]
+blanket-ignore-comment = "error"      # every suppression names its rule
+disjoint-cast = "error"
+division-by-zero = "error"
+dynamic-function-decorator-return = "error"
+missing-direct-dependency = "error"
+missing-type-argument = "error"       # no implicitly generic annotations
+possibly-missing-attribute = "error"
+possibly-missing-import = "error"
+possibly-unresolved-reference = "error"
+redundant-condition-strict = "error"  # conditions with a statically known outcome
+unsupported-dynamic-base = "error"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra --strict-markers --strict-config"
+markers = [
+  "slow: tests that build larger Hilbert spaces or run a full sweep",
+]
+filterwarnings = ["error"]

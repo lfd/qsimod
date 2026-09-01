@@ -1,0 +1,152 @@
+"""The model library of the framework, indexed by abstraction level.
+
+| Module | Level | Contents |
+|---|---|---|
+| [`application`][qsimod.models.application] | 1 | the application layer: physical system models |
+| [`intermediate`][qsimod.models.intermediate] | 2 | the intermediate representations |
+| [`hardware`][qsimod.models.hardware] | 3 | the hardware layer: simulator models with knob sets |
+
+Every builder takes the chain length and a [`Namespace`][qsimod.parameters.Namespace] for its
+parameters.  [`gauge`][qsimod.models.gauge] and [`magnetism`][qsimod.models.magnetism] hold
+the ingredients shared within each family of models; [`names`][qsimod.models.names] fixes the
+local parameter names.
+"""
+
+from qsimod.levels import AbstractionLevel
+from qsimod.models import application, gauge, hardware, intermediate, magnetism, names
+from qsimod.models.application import (
+    HEISENBERG_MAGNET_PATTERN,
+    ISING_MAGNET_PATTERN,
+    LATTICE_GAUGE_THEORY_PATTERN,
+    heisenberg_magnet,
+    ising_magnet,
+    kogut_susskind_gauge_theory,
+)
+from qsimod.models.gauge import (
+    BOUNDARY_GAUSS_VALUE,
+    GAUGE_ROLE,
+    GAUSS_FAMILY,
+    GAUSS_SYMMETRY,
+    MATTER_ROLE,
+    ElectricField,
+    GaussForm,
+    canonical_state_configuration,
+    gauss_operators,
+    gauss_sector,
+    local_occupation_subspace,
+    matter_gauge_pattern,
+    matter_gauge_structure,
+    matter_occupation_observable,
+)
+from qsimod.models.hardware import (
+    SPIN_CHAIN_PATTERN,
+    TWO_COMPONENT_CHAIN_PATTERN,
+    bose_hubbard_admissible_set,
+    ising_admissible_set,
+    tilted_bose_hubbard_chain,
+    transverse_field_ising_chain,
+    two_component_admissible_set,
+    two_component_bose_hubbard_chain,
+)
+from qsimod.models.intermediate import (
+    BOSONIC_CHAIN_PATTERN,
+    FERMION_CHAIN_PATTERN,
+    FERMION_SPIN_CHAIN_PATTERN,
+    HOMOGENEOUS_CONVENTION,
+    ISING_CHAIN_PATTERN,
+    QUBIT_CHAIN_PATTERN,
+    SPIN_HALF_CHAIN_PATTERN,
+    STAGGERED_CONVENTION,
+    CouplingForm,
+    LinkPattern,
+    MassPattern,
+    QuantumLinkConvention,
+    bosonic_pair_coupling_model,
+    interacting_fermion_chain,
+    ising_spin_chain,
+    k_local_qubit_model,
+    quantum_link_model,
+    xxz_spin_chain,
+)
+from qsimod.models.magnetism import (
+    MAGNETISATION_SYMMETRY,
+    coordination_numbers,
+    end_magnetisation_term,
+    ising_chain_terms,
+    magnetisation_observable,
+    mott_manifold_operators,
+    spin_chain_pattern,
+    spin_chain_structure,
+    two_component_pattern,
+    two_component_structure,
+    weighted_magnetisation_term,
+    xxz_chain_terms,
+)
+
+__all__ = [
+    "BOSONIC_CHAIN_PATTERN",
+    "BOUNDARY_GAUSS_VALUE",
+    "FERMION_CHAIN_PATTERN",
+    "FERMION_SPIN_CHAIN_PATTERN",
+    "GAUGE_ROLE",
+    "GAUSS_FAMILY",
+    "GAUSS_SYMMETRY",
+    "HEISENBERG_MAGNET_PATTERN",
+    "HOMOGENEOUS_CONVENTION",
+    "ISING_CHAIN_PATTERN",
+    "ISING_MAGNET_PATTERN",
+    "LATTICE_GAUGE_THEORY_PATTERN",
+    "MAGNETISATION_SYMMETRY",
+    "MATTER_ROLE",
+    "QUBIT_CHAIN_PATTERN",
+    "SPIN_CHAIN_PATTERN",
+    "SPIN_HALF_CHAIN_PATTERN",
+    "STAGGERED_CONVENTION",
+    "TWO_COMPONENT_CHAIN_PATTERN",
+    "AbstractionLevel",
+    "CouplingForm",
+    "ElectricField",
+    "GaussForm",
+    "LinkPattern",
+    "MassPattern",
+    "QuantumLinkConvention",
+    "application",
+    "bose_hubbard_admissible_set",
+    "bosonic_pair_coupling_model",
+    "canonical_state_configuration",
+    "coordination_numbers",
+    "end_magnetisation_term",
+    "gauge",
+    "gauss_operators",
+    "gauss_sector",
+    "hardware",
+    "heisenberg_magnet",
+    "interacting_fermion_chain",
+    "intermediate",
+    "ising_admissible_set",
+    "ising_chain_terms",
+    "ising_magnet",
+    "ising_spin_chain",
+    "k_local_qubit_model",
+    "kogut_susskind_gauge_theory",
+    "local_occupation_subspace",
+    "magnetisation_observable",
+    "magnetism",
+    "matter_gauge_pattern",
+    "matter_gauge_structure",
+    "matter_occupation_observable",
+    "mott_manifold_operators",
+    "names",
+    "quantum_link_model",
+    "spin_chain_pattern",
+    "spin_chain_structure",
+    "tilted_bose_hubbard_chain",
+    "transverse_field_ising_chain",
+    "two_component_admissible_set",
+    "two_component_bose_hubbard_chain",
+    "two_component_pattern",
+    "two_component_structure",
+    "weighted_magnetisation_term",
+    "xxz_chain_terms",
+    "xxz_spin_chain",
+]
