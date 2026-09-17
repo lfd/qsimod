@@ -5,7 +5,7 @@
 [project]
 site_name = "Q-SiMod"
 site_description = "A typed metamodel for model-driven engineering of quantum simulations"
-site_url = "https://example.invalid/qsimod/"
+site_url = "https://lfd.github.io/qsimod/"
 docs_dir = "docs"
 site_dir = "site"
 

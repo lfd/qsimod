@@ -1,0 +1,77 @@
+# Builds the Zensical documentation site.
+#
+# Pull requests to main only build it (with --strict, so a broken link or a
+# missing nav entry fails the check) and attach the result as a downloadable
+# artifact. Publishing to GitHub Pages happens on push to main, so an unmerged
+# pull request can never replace the live site.
+name: Documentation
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: docs-${{ github.ref }}
+  # Superseded pull request builds are pointless; main builds run to completion.
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  build:
+    name: Build site
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v5
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+          cache-dependency-glob: uv.lock
+          python-version: "3.12"
+
+      - name: Build the documentation
+        # --strict turns warnings (broken links, unresolved mkdocstrings
+        # references) into failures; --clean rebuilds site/ from scratch.
+        run: uv run --extra docs zensical build --clean --strict
+
+      - name: Upload the site for review
+        if: github.event_name == 'pull_request'
+        uses: actions/upload-artifact@v4
+        with:
+          name: site-pr-${{ github.event.pull_request.number }}
+          path: site/
+          retention-days: 14
+          if-no-files-found: error
+
+      - name: Package the site for GitHub Pages
+        if: github.event_name != 'pull_request'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site/
+
+  deploy:
+    name: Deploy to GitHub Pages
+    if: github.event_name != 'pull_request'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    concurrency:
+      # One deployment at a time, and never cancel one mid-flight.
+      group: github-pages
+      cancel-in-progress: false
+    steps:
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v4

@@ -1,0 +1,66 @@
+# Code quality: the checks README.md documents under "Developing", run on CI.
+#
+#   uv run ruff check                 # lint
+#   uv run ruff format                # format
+#   uv run ty check                   # type check
+#
+# The dev dependency group carries ruff and ty, and uv installs it by default,
+# so neither needs an --extra. The test suite lives in tests.yml.
+name: Code quality
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: quality-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  lint:
+    name: Lint and format
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v5
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+          cache-dependency-glob: uv.lock
+          python-version: "3.12"
+
+      - name: Lint
+        # --output-format=github annotates the diff in the pull request.
+        run: uv run ruff check --output-format=github
+
+      - name: Check formatting
+        # Never reformat on CI; report what `ruff format` would change.
+        if: always()
+        run: uv run ruff format --check --diff
+
+  types:
+    name: Type check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v5
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+          cache-dependency-glob: uv.lock
+          python-version: "3.12"
+
+      - name: Type check
+        # ty targets the version pinned in [tool.ty.environment], not this one,
+        # and [tool.ty.terminal] promotes its warnings to errors.
+        run: uv run ty check
