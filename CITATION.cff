@@ -1,0 +1,15 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+authors:
+  - family-names: "Franz"
+    given-names: "Maja"
+    orcid: "https://orcid.org/0000-0002-2801-7192"
+  - family-names: "Mauerer"
+    given-names: "Wolfgang"
+    orcid: "https://orcid.org/0000-0002-9765-8313"
+title: "Q-SiMod: a typed metamodel for model-driven engineering of quantum simulations"
+version: 0.1.0
+date-released: 2026-09-16
+repository-code: "https://github.com/lfd/qsimod"
+url: "https://lfd.github.io/qsimod"
+license: MIT

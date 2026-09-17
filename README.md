@@ -16,15 +16,40 @@ settings** of a hardware model are found by a **solver** over the whole pipeline
 margin of every regime condition reported, and a **numerical realisation** layer validates the
 declarations by exact diagonalisation (JAX) at small chain length.
 
-The package implements the metamodel of
+The package implements the metamodel of the article it accompanies; see
+[Citation](#citation).
 
-> M. Franz, W. Mauerer. *Gotta Model them All: Model-Driven Engineering of Quantum
-> Simulation.* 2026.
+## Digital and analogue simulation
 
-which in turn builds on
+![Digital and analogue quantum simulation side by side: the evolution under H_sys Trotterised into n slices of gates on a universal gate set, and the same evolution mapped onto H_sim and compiled into control pulses.](docs/figures/analogue_vs_digital.svg)
 
-> M. Franz, L. Schmidbauer, J. Ammermann, I. Schaefer, W. Mauerer.
-> *Towards Quantum Software for Quantum Simulation.* Q-SE '26.
+Both modes start from the same object: the dynamics of a physical system, governed by a
+Hamiltonian `H_sys` and carried out by the unitary `U_sys` from the initial state at time `0`
+to the target state at time `t`.  **Digital** simulation discretises that evolution into `n`
+time slices, a *Trotterisation*, whose one- and two-qubit gates run on universal gate-based
+hardware and realise an implicit, approximate Hamiltonian `H_≈`.  **Analogue** simulation maps
+`H_sys` onto a Hamiltonian `H_sim` that a device realises natively and compiles it into
+time-dependent control fields.  Both chains terminate in an instruction set: a universal gate
+set, portable across gate-based machines, or an analogue instruction set tailored to one
+platform.  Q-SiMod covers the chain down to the hardware model; the instruction sets
+themselves are [out of scope](#out-of-scope).
+
+## The metamodel
+
+![The metamodel: three abstraction layers from an application model over intermediate representations to a hardware model that splits into an analogue and a digital simulator model, with the attributes of an artifact and of a transformation and a numerical realisation lane.](docs/figures/overview.svg)
+
+The chain above is organised in three abstraction layers: an application model, the
+intermediate representations it passes through, and a hardware model, which simulates either
+in analogue mode, `H_sim`, or in digital mode, `U_≈`.  The nodes of that chain are the
+artifacts and its edges the transformations, with the attributes each of them declares shown
+beside them.  Because artifacts and transformations are declarative, nothing is computed to
+type-check a pipeline; the **numerical realisation** layer on the right is separate and
+optional, and it is what realises the operators, validates the transformations, solves the
+parameter relations and measures the errors.
+
+## The model graph
+
+The artifacts and transformations the package implements, arranged by abstraction layer:
 
 ```mermaid
 flowchart TB
@@ -263,6 +288,37 @@ mitigation or correction, and a textual modelling language; the modelling langua
 Python API.  A test inspects the imports and the public API of the package to keep these
 boundaries.
 
-## License
+## Citation
 
-MIT.
+The package implements the metamodel of this [paper](https://arxiv.org/abs/XXXX.XXXXX)
+
+```bibtex
+@misc{franz26_qsimod,
+  author       = {Franz, Maja and Mauerer, Wolfgang},
+  title        = {Gotta Model them All: Model-Driven Engineering of Quantum Simulation},
+  year         = {2026},
+  eprint       = {XXXX.XXXXX},
+  archivePrefix = {arXiv},
+  primaryClass = {quant-ph},
+  url          = {https://arxiv.org/abs/XXXX.XXXXX},
+}
+```
+
+which in turn builds on the vision presented in this paper [article](https://doi.org/10.1145/3786150.3788611)
+
+```bibtex
+@inproceedings{franz26_qse,
+  author    = {Franz, Maja and Schmidbauer, Lukas and Ammermann, Joshua and
+               Schaefer, Ina and Mauerer, Wolfgang},
+  title     = {Towards Quantum Software for Quantum Simulation},
+  year      = {2026},
+  booktitle = {Proceedings of the 7th IEEE/ACM International Workshop on Quantum
+               Software Engineering},
+  pages     = {50--54},
+  publisher = {Association for Computing Machinery},
+  address   = {New York, NY, USA},
+  isbn      = {9798400723834},
+  doi       = {10.1145/3786150.3788611},
+  url       = {https://doi.org/10.1145/3786150.3788611},
+}
+```
