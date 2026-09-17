@@ -20,7 +20,7 @@ The package implements the metamodel of the article it accompanies; see
 
 ## Digital and analogue simulation
 
-![Digital and analogue quantum simulation side by side: the evolution under H_sys Trotterised into n slices of gates on a universal gate set, and the same evolution mapped onto H_sim and compiled into control pulses.](figures/analogue_vs_digital.svg)
+![Digital and analogue quantum simulation side by side: the evolution under H_sys Trotterised into n slices of gates on a universal gate set, and the same evolution mapped onto H_sim and compiled into control pulses.](figures/analogue_vs_digital.svg){width=100%}
 
 Both modes start from the same object: the dynamics of a physical system, governed by a
 Hamiltonian `H_sys` and carried out by the unitary `U_sys` from the initial state at time `0`
@@ -35,7 +35,7 @@ lattice Schwinger model](schwinger.md); the instruction sets themselves are out 
 
 ## The metamodel
 
-![The metamodel: three abstraction layers from an application model over intermediate representations to a hardware model that splits into an analogue and a digital simulator model, with the attributes of an artifact and of a transformation and a numerical realisation lane.](figures/overview.svg)
+![The metamodel: three abstraction layers from an application model over intermediate representations to a hardware model that splits into an analogue and a digital simulator model, with the attributes of an artifact and of a transformation and a numerical realisation lane.](figures/overview.svg){width=100%}
 
 The chain of modelling steps is organised in three abstraction layers: an application model,
 the intermediate representations it passes through, and a hardware model, which simulates
