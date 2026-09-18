@@ -2,6 +2,9 @@
 
 A typed metamodel for the model-driven engineering (MDE) of quantum simulation.
 
+**Documentation: <https://lfd.github.io/qsimod/>** guides to the three use cases, the layers
+of the package and the API reference.
+
 Quantum simulation lets a controllable quantum system stand in for a physical quantum system
 whose dynamics are classically intractable.  In practice it is a chain of modelling steps: the
 Hamiltonian of a physical theory is subjected to truncations, changes of basis, encodings and
@@ -17,7 +20,8 @@ margin of every regime condition reported, and a **numerical realisation** layer
 declarations by exact diagonalisation (JAX) at small chain length.
 
 The package implements the metamodel of the article it accompanies; see
-the [citation](#citation).
+the [citation](#citation).  The [documentation site](https://lfd.github.io/qsimod/) walks
+through each use case artifact by artifact and transformation by transformation.
 
 ## Digital and analogue simulation
 
@@ -213,7 +217,7 @@ print(trotterisation(time=2.0, steps=n, order=2).apply(qubits).resources())
 | `examples/` | Five runnable end-to-end examples, with the reference data of the three experiments in `zhou2022.py`, `jepsen2020.py` and `simon2011.py`. |
 | `scripts/` | The two numerical studies of the article, which write `pandas` frames to `results/`, and the generator of the documentation figures. |
 | `plots/` | The R scripts that draw the figures of the article from `results/`. |
-| `docs/` | The documentation site: one guide per application model ([`schwinger.md`](docs/schwinger.md), [`heisenberg.md`](docs/heisenberg.md), [`ising.md`](docs/ising.md)) and an API reference generated from the docstrings. |
+| `docs/` | The sources of the [documentation site](https://lfd.github.io/qsimod/): one guide per application model ([`schwinger.md`](docs/schwinger.md), [`heisenberg.md`](docs/heisenberg.md), [`ising.md`](docs/ising.md)) and an API reference generated from the docstrings. |
 
 ## Examples
 
