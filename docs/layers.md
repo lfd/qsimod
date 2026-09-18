@@ -12,7 +12,7 @@ chain](ising.md).
 |---|---|---|---|
 | Declaration | [`levels`][qsimod.levels], [`scalar`][qsimod.scalar], [`affine`][qsimod.affine], [`units`][qsimod.units], [`structure`][qsimod.structure], [`symbolic`][qsimod.symbolic], [`normal_form`][qsimod.normal_form], [`parameters`][qsimod.parameters], [`artifact`][qsimod.artifact], [`relations`][qsimod.relations], [`validity`][qsimod.validity], [`transform`][qsimod.transform], [`pipeline`][qsimod.pipeline] | no | no |
 | Structural | [`pauli`][qsimod.pauli], [`trotter`][qsimod.trotter] | no | no |
-| Solving | [`solving`][qsimod.solving] | no | yes, and only here |
+| Solving | [`solving`][qsimod.solving] | no | yes |
 | Realisation | [`realise`][qsimod.realise], [`jax_setup`][qsimod.jax_setup] | yes | no |
 | Model library | [`models`][qsimod.models]: [`application`][qsimod.models.application], [`intermediate`][qsimod.models.intermediate], [`hardware`][qsimod.models.hardware], with [`names`][qsimod.models.names] and the shared parts of a family of models, [`gauge`][qsimod.models.gauge] and [`magnetism`][qsimod.models.magnetism] | no | no |
 | Transformation library | [`transformations`][qsimod.transformations] | no | no |

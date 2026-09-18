@@ -16,7 +16,7 @@ a hardware model are found by a solver over the whole pipeline, and a numerical 
 layer validates the declarations by exact diagonalisation at small chain length.
 
 The package implements the metamodel of the article it accompanies; see
-[Citation](#citation).
+the [citation](#citation).
 
 ## Digital and analogue simulation
 
@@ -120,8 +120,8 @@ flowchart TB
     style OUT fill:#f6f4f9,stroke:#d8cee5,color:#5f576a
 ```
 
-A **solid** arrow is an exact transformation and a **dotted** arrow an approximate one; the
-italic line names the kind of approximation.  Every artifact is built by the model library
+A **solid** arrow is an exact transformation and a **dotted** arrow an approximate one, with
+the kind of approximation in italics. Every artifact is built by the model library
 ([`qsimod.models`][qsimod.models]) and every transformation by the transformation library
 ([`qsimod.transformations`][qsimod.transformations]); the use cases assemble them into model
 graphs:
@@ -142,7 +142,7 @@ graphs:
   the **[lattice Schwinger model](schwinger.md)** also introduces the machinery of the
   framework; the guides to the **[Heisenberg magnet](heisenberg.md)** and the **[Ising
   chain](ising.md)** state what differs.
-- **[The layers](layers.md)** of the package: which module constructs an operator and which
+- **[The Layers](layers.md)** of the package: which module constructs an operator and which
   imports a solver.
 - The **API reference**, generated from the docstrings.
 

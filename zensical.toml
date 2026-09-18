@@ -11,21 +11,21 @@ site_dir = "site"
 
 nav = [
   { Overview = "index.md" },
-  { "The layers" = "layers.md" },
+  { "The Layers" = "layers.md" },
   { Guides = [
-    { "The lattice Schwinger model" = "schwinger.md" },
-    { "The Heisenberg magnet" = "heisenberg.md" },
-    { "The Ising chain, on a shared device" = "ising.md" },
+    { "The Lattice Schwinger Model" = "schwinger.md" },
+    { "The Heisenberg Magnet" = "heisenberg.md" },
+    { "The Ising Chain, on a Shared Device" = "ising.md" },
   ] },
-  { "API reference" = [
+  { "API Reference" = [
     { Overview = "api/index.md" },
-    { "Declaration layer" = "api/declaration.md" },
-    { "Structural layer" = "api/structural.md" },
-    { "Solving layer" = "api/solving.md" },
-    { "Realisation layer" = "api/realise.md" },
-    { "Model library" = "api/models.md" },
-    { "Transformation library" = "api/transformations.md" },
-    { "Use cases" = "api/usecases.md" },
+    { "Declaration Layer" = "api/declaration.md" },
+    { "Structural Layer" = "api/structural.md" },
+    { "Solving Layer" = "api/solving.md" },
+    { "Realisation Layer" = "api/realise.md" },
+    { "Model Library" = "api/models.md" },
+    { "Transformation Library" = "api/transformations.md" },
+    { "Use Cases" = "api/usecases.md" },
   ] },
 ]
 
