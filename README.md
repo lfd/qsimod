@@ -21,14 +21,14 @@ the [citation](#citation).
 
 ## Digital and analogue simulation
 
-![Digital and analogue quantum simulation side by side: the evolution under H_sys Trotterised into n slices of gates on a universal gate set, and the same evolution mapped onto H_sim and compiled into control pulses.](docs/figures/analogue_vs_digital.svg){width=100%}
+<img src="docs/figures/analogue_vs_digital.svg" alt="Digital and analogue quantum simulation side by side: the evolution under H_sys Trotterised into n slices of gates on a universal gate set, and the same evolution mapped onto H_sim and compiled into control pulses." width="100%">
 
 Both modes start from the same object: the dynamics of a physical system, governed by a
-Hamiltonian $\hat H_\text{sys}$ and carried out by the unitary $\hat U_\text{sys}$ from the initial state at time $0$
-to the target state at time $t$.  **Digital** simulation discretises that evolution into `n`
+Hamiltonian $`\hat H_\text{sys}`$ and carried out by the unitary $`\hat U_\text{sys}`$ from the initial state at time $`0`$
+to the target state at time $`t`$.  **Digital** simulation discretises that evolution into `n`
 time slices, a *Trotterisation*, whose one- and two-qubit gates run on universal gate-based
-hardware and realise an implicit, approximate Hamiltonian $\hat H_\approx$.  **Analogue** simulation maps
-$\hat H_\text{sys}$ onto a Hamiltonian $\hat H_\text{sim}$ that a device realises natively and compiles it into
+hardware and realise an implicit, approximate Hamiltonian $`\hat H_\approx`$.  **Analogue** simulation maps
+$`\hat H_\text{sys}`$ onto a Hamiltonian $`\hat H_\text{sim}`$ that a device realises natively and compiles it into
 time-dependent control fields.  Both chains terminate in an instruction set: a universal gate
 set, portable across gate-based machines, or an analogue instruction set tailored to one
 platform.  Q-SiMod covers the chain down to the hardware model; the instruction sets
@@ -36,11 +36,11 @@ themselves are [out of scope](#out-of-scope).
 
 ## The metamodel
 
-![The metamodel: three abstraction layers from an application model over intermediate representations to a hardware model that splits into an analogue and a digital simulator model, with the attributes of an artifact and of a transformation and a numerical realisation lane.](docs/figures/overview.svg){width=100%}
+<img src="docs/figures/overview.svg" alt="The metamodel: three abstraction layers from an application model over intermediate representations to a hardware model that splits into an analogue and a digital simulator model, with the attributes of an artifact and of a transformation and a numerical realisation lane." width="100%">
 
 The chain of modelling steps is organised in three abstraction layers: an application model,
 the intermediate representations it passes through, and a hardware model, which simulates
-either in analogue mode, $\hat H_\text{sim}$, or in digital mode, $\hat U_\approx$.  The nodes of that chain are the
+either in analogue mode, $`\hat H_\text{sim}`$, or in digital mode, $`\hat U_\approx`$.  The nodes of that chain are the
 artifacts and its edges the transformations, with the attributes each of them declares shown
 beside them.  Because artifacts and transformations are declarative, nothing is computed to
 type-check a pipeline; the **numerical realisation** layer on the right is separate and
@@ -124,8 +124,8 @@ and two of them, the gauge theory via `effective_bosonic` and the Ising chain vi
 `ising_chain`, arrive at the same hardware model `bose_hubbard`.
 
 The chain from `lattice_qed` forms the case study of the article, a **one-dimensional lattice
-quantum electrodynamics** carried to an analogue simulator model $\hat H_\text{sim}$
-and a digital simulator model $\hat U_\approx$
+quantum electrodynamics** carried to an analogue simulator model $`\hat H_\text{sim}`$
+and a digital simulator model $`\hat U_\approx`$
 ([Zhou et al., Science **377**, 311 (2022)](https://doi.org/10.1126/science.abl6277)); the
 chain from `xxz_magnet` is a **Heisenberg magnet**
 ([Jepsen et al., Nature **588**, 403 (2020)](https://doi.org/10.1038/s41586-020-3033-y)), and
