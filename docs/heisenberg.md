@@ -37,11 +37,11 @@ flowchart TB
     M2a ---> |"<b>(b)</b> Jordan–Wigner to spinless fermions<br/><i>exact</i>"| M2b
     M2a -. "<b>(c)</b> second-order superexchange,<br/>solved for the knob settings<br/><i>approximate, regime conditions</i>" .-> M3
 
-    classDef ham fill:#e8eefc,stroke:#3b5ea8,color:#12233f
+    classDef ham fill:#e0f2ee,stroke:#009371,color:#003e2f
     class M1,M2a,M2b,M3 ham
-    style LV1 fill:#fcfcfd,stroke:#c9ccd4,color:#4a5060
-    style LV2 fill:#fcfcfd,stroke:#c9ccd4,color:#4a5060
-    style LV3 fill:#fcfcfd,stroke:#c9ccd4,color:#4a5060
+    style LV1 fill:#f2f7fa,stroke:#b1d0e5,color:#103c5a
+    style LV2 fill:#f2f7fa,stroke:#b1d0e5,color:#103c5a
+    style LV3 fill:#f2f7fa,stroke:#b1d0e5,color:#103c5a
 ```
 
 | | Schwinger | Heisenberg |

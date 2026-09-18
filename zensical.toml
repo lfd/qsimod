@@ -29,6 +29,13 @@ nav = [
   ] },
 ]
 
+# MathJax, for the equations `pymdownx.arithmatex` rewrites. The loader is
+# ordered first so that `window.MathJax` is set before the library reads it.
+extra_javascript = [
+  "javascripts/mathjax.js",
+  "https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js",
+]
+
 [project.theme]
 features = [
   "navigation.sections",
@@ -61,6 +68,9 @@ def_list = {}
 toc.permalink = true
 pymdownx.highlight.anchor_linenums = true
 pymdownx.inlinehilite = {}
+# Generic mode emits `\(...\)` for MathJax rather than relying on a
+# preview script, so the `$...$` of the sources renders here and on GitHub.
+pymdownx.arithmatex.generic = true
 # The mermaid custom fence renders the figures on the site as well as on GitHub.
 pymdownx.superfences.custom_fences = [
   { name = "mermaid", class = "mermaid", format = "pymdownx.superfences.fence_code_format" },

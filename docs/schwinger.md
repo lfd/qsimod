@@ -58,13 +58,13 @@ flowchart TB
     L2a ---> |"<b>(e')</b> Jordan–Wigner transformation, from L2a<br/><i>exact</i>"| L2d_st
     L2d_st -. "<b>(f')</b> Trotterisation, order 2<br/><i>approximate, resource-controlled</i>" .-> L3b_st
 
-    classDef ham fill:#e8eefc,stroke:#3b5ea8,color:#12233f
-    classDef pf fill:#fdeee4,stroke:#c2703a,color:#4a2410
+    classDef ham fill:#e0f2ee,stroke:#009371,color:#003e2f
+    classDef pf fill:#fbf1d9,stroke:#c48700,color:#573c00
     class L1,L2a,L2b,L2c,L2d,L2d_st,L3a ham
     class L3b,L3b_st pf
-    style LV1 fill:#fcfcfd,stroke:#c9ccd4,color:#4a5060
-    style LV2 fill:#fcfcfd,stroke:#c9ccd4,color:#4a5060
-    style LV3 fill:#fcfcfd,stroke:#c9ccd4,color:#4a5060
+    style LV1 fill:#f2f7fa,stroke:#b1d0e5,color:#103c5a
+    style LV2 fill:#f2f7fa,stroke:#b1d0e5,color:#103c5a
+    style LV3 fill:#f2f7fa,stroke:#b1d0e5,color:#103c5a
 ```
 
 The node identifiers of the package and the notation of the article correspond as follows.

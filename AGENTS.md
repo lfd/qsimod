@@ -89,6 +89,11 @@ These fail CI, and several of them are non-obvious:
 - Full type annotations. **The source carries no type-checker suppressions** — if `ty`
   complains, fix the types rather than silencing it. `blanket-ignore-comment` is an error, so
   any suppression must at minimum name its rule.
+- Maths is written `$\kappa = 8\sqrt{2}J^2/U$` and `$$...$$`. GitHub renders those natively
+  and `pymdownx.arithmatex` (generic mode, configured in `zensical.toml`) translates them for
+  the site, so one source renders in both places — the same arrangement as the mermaid fence.
+  Wrap inline maths containing `_` or `*` in a code span, ``$`\Theta_{sys}`$``, or Markdown
+  emphasis eats it.
 - British spelling throughout: *realisation*, *Trotterisation*, *normalise*, *truncation*.
   Match it in new code and prose. (The one `realized` in the tree is inside a quoted paper
   title and is correct.)

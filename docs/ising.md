@@ -36,13 +36,13 @@ flowchart TB
 
     L2c -. "<b>(d)</b> degenerate perturbation theory,<br/>solved for the knob settings<br/><i>approximate, regime conditions</i>" .-> L3a
 
-    classDef ham fill:#e8eefc,stroke:#3b5ea8,color:#12233f
-    classDef ctx fill:#f4f4f4,stroke:#aaa,color:#666,stroke-dasharray:4 3
+    classDef ham fill:#e0f2ee,stroke:#009371,color:#003e2f
+    classDef ctx fill:#f3f3f3,stroke:#919191,color:#545454,stroke-dasharray:4 3
     class K1,K2,L3a ham
     class L2c ctx
-    style LV1 fill:#fcfcfd,stroke:#c9ccd4,color:#4a5060
-    style LV2 fill:#fcfcfd,stroke:#c9ccd4,color:#4a5060
-    style LV3 fill:#fcfcfd,stroke:#c9ccd4,color:#4a5060
+    style LV1 fill:#f2f7fa,stroke:#b1d0e5,color:#103c5a
+    style LV2 fill:#f2f7fa,stroke:#b1d0e5,color:#103c5a
+    style LV3 fill:#f2f7fa,stroke:#b1d0e5,color:#103c5a
 ```
 
 ```python

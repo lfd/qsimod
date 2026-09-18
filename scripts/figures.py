@@ -287,17 +287,27 @@ CHROME_STYLE = """    LV3 ==> |"a hardware model with bound parameters"| OUT
 
 #: Node classes: Hamiltonian, product formula, foreign context node, and the two classes of
 #: the chrome.  A figure declares only the classes it uses.
+#:
+#: The hues are the ``lfd`` palette of the article's TikZ figures (``tikz.tex``), so a node
+#: carries the same colour here as in the paper: ``lfd4`` #009371 for a Hamiltonian (the
+#: ``hamiltonian`` style), ``lfd2`` #E69F00 for a product formula (``unitaryblock``, the
+#: gates and pulses), ``lfd6`` #ED665A for the executable layer (``instructionset``),
+#: ``lfd3`` #999999 for what the paper de-emphasises, ``lfd7`` #1F78B4 for an abstraction
+#: level (``abstractbox``), and ``lfd5`` #BEAED4, the one palette colour the TikZ styles
+#: leave unclaimed, for the realisation and solving lane.  Each fill is a tint of its colour
+#: on white and each text a shade of it, the way ``lfd4!12`` would read in TikZ; a saturated
+#: fill with white text is unreadable at the size these nodes render.
 CLASS_DEFS = {
-    "ham": "classDef ham fill:#e8eefc,stroke:#3b5ea8,color:#12233f",
-    "pf": "classDef pf fill:#fdeee4,stroke:#c2703a,color:#4a2410",
-    "ctx": "classDef ctx fill:#f4f4f4,stroke:#aaa,color:#666,stroke-dasharray:4 3",
-    "svc": "classDef svc fill:#eaf6ec,stroke:#4a8b5c,color:#183524",
-    "oos": "classDef oos fill:#f4f4f4,stroke:#aaa,color:#666",
+    "ham": "classDef ham fill:#e0f2ee,stroke:#009371,color:#003e2f",
+    "pf": "classDef pf fill:#fbf1d9,stroke:#c48700,color:#573c00",
+    "ctx": "classDef ctx fill:#f3f3f3,stroke:#919191,color:#545454,stroke-dasharray:4 3",
+    "svc": "classDef svc fill:#ede8f3,stroke:#988baa,color:#4c4655",
+    "oos": "classDef oos fill:#fdebea,stroke:#ed665a,color:#642b26",
 }
 
 #: Shading of a layer frame, and of the chrome's frame.
-LEVEL_STYLE = "    style LV{level} fill:#fcfcfd,stroke:#c9ccd4,color:#4a5060"
-OUT_STYLE = "    style OUT fill:#f7fbf8,stroke:#b7d3bf,color:#3c6249"
+LEVEL_STYLE = "    style LV{level} fill:#f2f7fa,stroke:#b1d0e5,color:#103c5a"
+OUT_STYLE = "    style OUT fill:#f6f4f9,stroke:#d8cee5,color:#5f576a"
 
 
 def _class_lines(
