@@ -51,7 +51,7 @@ def scan_point(
     }
     device = bench.build(bench.device, knobs)
     times = np.linspace(0.0, WINDOW_MS, SAMPLES)
-    states = evolve_state(device, bench.initial, list(times))
+    states = evolve_state(device, bench.initial, times)
     violation = np.asarray(expectation(bench.violation, states))
     leakage = np.asarray(1.0 - expectation(bench.projector, states))
     report = validity().report({**knobs, **effective})

@@ -106,13 +106,13 @@ def propagator(operator: Array, time: float) -> Array:
     return (eigenvectors * phases) @ eigenvectors.conj().T
 
 
-def evolve_state(operator: Array, state: Array, times: Sequence[float]) -> Array:
+def evolve_state(operator: Array, state: Array, times: Sequence[float] | ArrayLike) -> Array:
     """Evolve ``state`` under a Hermitian ``H`` to each of ``times``, from one eigendecomposition.
 
     Args:
         operator: the Hermitian generator.
         state: the initial state vector.
-        times: the times at which the state is reported.
+        times: the times at which the state is reported, as a sequence or a 1-d array.
 
     Returns:
         An array of shape ``(len(times), dimension)``, one state per time.

@@ -1,0 +1,16 @@
+# Runs the same checks as .github/workflows/quality.yml on every commit.
+# Install once with `uvx pre-commit install`; see CONTRIBUTING.md.
+repos:
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    # Ruff version.
+    rev: v0.16.8
+    hooks:
+      # Run the linter.
+      - id: ruff-check
+      # Run the formatter.
+      - id: ruff-format
+  - repo: https://github.com/astral-sh/ty-pre-commit
+    # ty version.
+    rev: v0.0.82
+    hooks:
+      - id: ty

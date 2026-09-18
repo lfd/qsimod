@@ -159,7 +159,7 @@ class DigitalBench:
 
     def exact_occupation(self, times: Sequence[float] | np.ndarray) -> np.ndarray:
         """``<n_matter>(t)`` under the exact evolution of the qubit Hamiltonian."""
-        states = evolve_state(self.hamiltonian, self.initial, list(times))
+        states = evolve_state(self.hamiltonian, self.initial, times)
         return np.asarray(expectation(self.observable, states))
 
 

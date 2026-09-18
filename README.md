@@ -308,6 +308,13 @@ the other tests assume) and `test_docs_guide.py` (the guide snippets).
 since comparisons are made at tolerances of `1e-10`.  `qsimod.jax_setup` documents the switch,
 `x64_enabled()` reports it, and `require_x64()` raises if it is off.
 
+## Contributing
+
+Bug reports, corrections and new models, transformations or use cases are welcome.
+[`CONTRIBUTING.md`](CONTRIBUTING.md) describes the workflow, the checks a pull request has to
+pass and the conventions of the code base; [`AGENTS.md`](AGENTS.md) explains the architecture and
+the invariants the test suite enforces.
+
 ## Out of scope
 
 The executable layer: the decomposition into a concrete gate set, qubit routing,

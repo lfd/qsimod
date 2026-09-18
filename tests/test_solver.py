@@ -644,7 +644,7 @@ def test_an_objective_must_say_what_the_backend_minimises() -> None:
             return frozenset({TOY_KNOB})
 
     with pytest.raises(TypeError, match="cost_expression"):
-        Incomplete()  # type: ignore[abstract]
+        Incomplete()  # ty: ignore[call-non-callable]
 
 
 def test_a_pole_is_a_violated_constraint_not_a_satisfied_one() -> None:

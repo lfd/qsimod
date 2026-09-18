@@ -23,8 +23,8 @@ dependencies = [
 [project.optional-dependencies]
 dev = [
   "pytest>=8.0",
-  "ruff>=0.14",
-  "ty>=0.0.79",
+  "ruff>=0.16.8",
+  "ty>=0.0.82",
   # Type stubs for scipy.optimize.
   "scipy-stubs>=1.15",
 ]

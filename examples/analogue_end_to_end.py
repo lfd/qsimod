@@ -446,8 +446,8 @@ class Bench:
         theory = sandwich(build_operator(self.theory, self.space, effective), self.projector)
 
         times = self.times(window_ms)
-        device_states = evolve_state(device, self.initial, list(times))
-        theory_states = evolve_state(theory, self.initial, list(times))
+        device_states = evolve_state(device, self.initial, times)
+        theory_states = evolve_state(theory, self.initial, times)
         device_occupation = expectation(self.occupation, device_states)
         theory_occupation = expectation(self.occupation, theory_states)
 
@@ -497,7 +497,7 @@ def gauge_theory_oscillation(
     occupation = build_operator_in(matter_occupation_observable(matter_sites), basis, {})
     initial = basis.state(canonical_state_configuration(matter_sites))
     times = np.linspace(0.0, window_ms, SAMPLES)
-    states = evolve_state(generator, initial, list(times))
+    states = evolve_state(generator, initial, times)
     trajectory = np.asarray(expectation(occupation, states))
     return Oscillation.fitted(times, trajectory), basis.dimension
 

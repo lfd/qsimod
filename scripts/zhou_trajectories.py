@@ -282,8 +282,8 @@ def trajectories(
     theory = sandwich(bench.build(bench.theory, effective), bench.projector)
 
     times = np.linspace(0.0, WINDOW_MS, SAMPLES)
-    device_states = evolve_state(device, bench.initial, list(times))
-    theory_states = evolve_state(theory, bench.initial, list(times))
+    device_states = evolve_state(device, bench.initial, times)
+    theory_states = evolve_state(theory, bench.initial, times)
     return pd.DataFrame(
         {
             "setting": label,
