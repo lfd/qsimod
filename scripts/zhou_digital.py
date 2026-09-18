@@ -30,7 +30,7 @@ from pathlib import Path
 import jax.numpy as jnp
 import numpy as np
 import pandas as pd
-from examples.analogue_end_to_end import SAMPLES, TARGET_COUPLING_HZ, TARGET_MASS_HZ, WINDOW_MS
+from examples.zhou2022 import SAMPLES, TARGET_COUPLING_HZ, TARGET_MASS_HZ, WINDOW_MS
 from jax import Array
 
 from qsimod.artifact import HamiltonianModel, as_hamiltonian

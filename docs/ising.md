@@ -164,8 +164,8 @@ field that is short by half a coupling each, the same identity as in [the supere
 magnet](heisenberg.md#what-the-superexchange-also-produces).
 [`dipole_boundary_field`][qsimod.transformations.perturbative.dipole_boundary_field] gives its
 strength and [`end_magnetisation_term`][qsimod.models.magnetism.end_magnetisation_term] builds
-the term; `examples/shared_device.py` shows the spectrum agreeing with it and deviating without
-it.
+the term; `manifold_check` in `examples/simon2011.py` shows the spectrum agreeing with it and
+deviating without it.
 
 ## The hardware model, read twice
 

@@ -1,7 +1,10 @@
 """Runnable end-to-end examples of the framework.
 
-Each module exposes a ``main`` that the test suite imports, and runs directly with
-``uv run python examples/<name>.py``.  [`Report`][examples.Report] prints the report of a run.
+Each ``*_end_to_end.py``, ``infeasible_request.py`` and ``shared_device.py`` exposes a ``main``
+that the test suite imports, and runs directly with ``uv run python examples/<name>.py``.  The
+reference data of the three experiments and the numerical checks against them live in
+``zhou2022.py``, ``jepsen2020.py`` and ``simon2011.py``.  [`Report`][examples.Report] prints
+the report of a run.
 """
 
 from __future__ import annotations

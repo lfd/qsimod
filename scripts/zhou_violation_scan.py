@@ -19,7 +19,7 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
-from examples.analogue_end_to_end import (
+from examples.zhou2022 import (
     PAPER_CASES,
     PAPER_INTERACTION_RATIOS,
     SAMPLES,

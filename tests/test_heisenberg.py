@@ -9,7 +9,7 @@ import math
 
 import numpy as np
 import pytest
-from examples.heisenberg_end_to_end import (
+from examples.jepsen2020 import (
     PAPER_ROWS,
     Bench,
     PaperRow,

@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import numpy as np
 import pytest
-from examples.shared_device import (
+from examples.simon2011 import (
     PAPER_CRITICAL_DETUNING_IN_TUNNELLINGS,
     PAPER_CRITICAL_SLOPE,
     REQUEST_TRANSVERSE_FIELD,

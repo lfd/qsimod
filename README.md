@@ -210,7 +210,7 @@ print(trotterisation(time=2.0, steps=n, order=2).apply(qubits).resources())
 | `qsimod/models/` | **Model Library**, indexed by abstraction layer: `application`, `intermediate` and `hardware`, with `gauge` and `magnetism` for what each family of models shares. |
 | `qsimod/transformations/` | **Transformation Library**, indexed by the kind of operation: truncations, basis changes, encodings, reparametrisations, perturbative reductions and Trotterisation. |
 | `qsimod/usecases/` | **Use Cases**: which models, at which conventions, are related by which transformations and assembled into which model graph. |
-| `examples/` | Five runnable end-to-end examples. |
+| `examples/` | Five runnable end-to-end examples, with the reference data of the three experiments in `zhou2022.py`, `jepsen2020.py` and `simon2011.py`. |
 | `scripts/` | The two numerical studies of the article, which write `pandas` frames to `results/`, and the generator of the documentation figures. |
 | `plots/` | The R scripts that draw the figures of the article from `results/`. |
 | `docs/` | The documentation site: one guide per application model ([`schwinger.md`](docs/schwinger.md), [`heisenberg.md`](docs/heisenberg.md), [`ising.md`](docs/ising.md)) and an API reference generated from the docstrings. |

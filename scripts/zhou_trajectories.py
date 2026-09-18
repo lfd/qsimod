@@ -29,7 +29,7 @@ from typing import Literal, TypeAlias
 import jax.numpy as jnp
 import numpy as np
 import pandas as pd
-from examples.analogue_end_to_end import (
+from examples.zhou2022 import (
     ELECTRIC_GAP,
     SAMPLES,
     TARGET_COUPLING_HZ,

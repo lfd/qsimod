@@ -17,7 +17,12 @@ from examples.analogue_end_to_end import main as run_analogue_example
 from examples.digital_end_to_end import main as run_digital_example
 from examples.heisenberg_end_to_end import main as run_heisenberg_example
 from examples.infeasible_request import main as run_infeasible_example
+from examples.jepsen2020 import reproduce_checks
 from examples.shared_device import main as run_shared_device_example
+from examples.simon2011 import Bench as SimonBench
+from examples.simon2011 import lattice_limits, manifold_check, transition_line
+from examples.zhou2022 import Bench as ZhouBench
+from examples.zhou2022 import experiment_knobs, reproduce_figures
 
 import qsimod
 from qsimod.solving import SolveStatus
@@ -85,9 +90,11 @@ def test_the_analogue_example_agrees_with_the_experiment_it_is_posed_against() -
 
 
 def test_the_analogue_example_reproduces_two_measured_results_of_that_experiment() -> None:
-    """``examples/analogue_end_to_end.py`` reproduces two measured results of Zhou et al. (2022)."""
-    comparison = run_analogue_example(
-        matter_sites=3, interaction_ratios=(2.0, 13.0, 32.0), verbose=False
+    """``examples/zhou2022.py`` reproduces two measured results of Zhou et al. (2022)."""
+    bench = ZhouBench.of(3)
+    experiment, trajectory = bench.assess("experiment", experiment_knobs())
+    comparison = reproduce_figures(
+        bench, experiment, trajectory, interaction_ratios=(2.0, 13.0, 32.0)
     )
 
     # Fig. S3a: f_exp = 21 Hz; Fig. 3: 1/gamma = 63 +- 9 ms; both on the converged row.
@@ -121,19 +128,20 @@ def test_the_analogue_example_reproduces_two_measured_results_of_that_experiment
 
 def test_the_heisenberg_example_agrees_with_the_experiment_it_is_posed_against() -> None:
     """``examples/heisenberg_end_to_end.py`` reproduces the numbers of Jepsen et al. (2020)."""
-    comparison = run_heisenberg_example(sites=3, anisotropies=(0.973, 6.0, 60.0), verbose=False)
+    comparison = run_heisenberg_example(sites=3, verbose=False)
     solved, experiment = comparison.solved, comparison.experiment
+    checks = reproduce_checks(sites=3, anisotropies=(0.973, 6.0, 60.0))
 
     # Both settings realise the request.
     for outcome in (solved, experiment):
         assert outcome.anisotropy == pytest.approx(0.973, rel=1e-6), outcome.label
         assert outcome.exchange_time_ms == pytest.approx(2.01, rel=1e-6), outcome.label
 
-    # Section 6: the Methods-table anisotropies, quoted to +-0.1.
-    assert comparison.worst_table_gap < 3e-3
+    # The Methods-table anisotropies, quoted to +-0.1.
+    assert checks.worst_table_gap < 3e-3
 
-    # Section 7: the free-fermion band and the exactness of the Jordan-Wigner step.
-    band = comparison.band
+    # The free-fermion band and the exactness of the Jordan-Wigner step.
+    band = checks.band
     assert band.band_gap < 1e-12
     assert band.exactness_gap < 1e-10
     assert band.bandwidth == pytest.approx(band.expected_bandwidth, rel=1e-9)
@@ -148,11 +156,11 @@ def test_the_heisenberg_example_agrees_with_the_experiment_it_is_posed_against()
     assert abs(experiment.field) > 0.3 * experiment.transverse
     assert experiment.dropped > 20 * experiment.deviation
 
-    # Section 8: the unreachable anisotropy is UNSOLVED.
-    statuses = {target: status for target, status, _ in comparison.scan}
+    # The anisotropy scan: the unreachable anisotropy is UNSOLVED.
+    statuses = {target: status for target, status, _ in checks.scan}
     assert statuses[0.973] is SolveStatus.EXACT_SOLUTION
     assert statuses[60.0] is SolveStatus.UNSOLVED
-    reached = comparison.reached
+    reached = checks.reached
     assert [point.deviation for point in reached] == sorted(point.deviation for point in reached)
     assert [point.margin for point in reached] == sorted(
         (point.margin for point in reached), reverse=True
@@ -164,7 +172,9 @@ def test_the_shared_device_example_shows_two_theories_on_one_lattice() -> None:
     comparison = run_shared_device_example(verbose=False)
 
     # hz = 1 - 0.66 hx requested; E = U + 1.85 t read back.
-    assert comparison.critical_slope == pytest.approx(0.66, rel=1e-6)
+    limits = lattice_limits()
+    line = transition_line(limits)
+    assert line.slope == pytest.approx(0.66, rel=1e-6)
 
     # Each setting is valid for its own theory and out of regime for the other.
     assert comparison.windows_are_disjoint
@@ -180,9 +190,10 @@ def test_the_shared_device_example_shows_two_theories_on_one_lattice() -> None:
     assert comparison.gauge_knobs[P.SUPERLATTICE] > 1.0
 
     # Manifold weight, spectrum gap, and the cost of dropping the end-spin field.
-    assert comparison.weight > 0.99
-    assert comparison.gap < 0.05
-    assert comparison.dropped > 100 * comparison.gap
+    check = manifold_check(SimonBench.of(3, limits), line.knobs, limits)
+    assert check.weight > 0.99
+    assert check.gap < 0.05
+    assert check.dropped > 100 * check.gap
 
 
 def test_the_infeasible_example_runs_to_completion() -> None:
