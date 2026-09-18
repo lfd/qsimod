@@ -84,8 +84,7 @@ def kogut_susskind_gauge_theory(
 ) -> HamiltonianModel:
     """The Kogut-Susskind lattice Schwinger model with staggered fermions in 1+1 dimensions.
 
-    The model is one-dimensional lattice quantum electrodynamics (QED), the application model
-    ``H_sys`` of the case study of the article, at the artifact ``lattice_qed``:
+    One-dimensional lattice QED, the application model ``H_sys`` of the case study:
 
     ```
     H = (a/2) sum_l E^2_{l,l+1}
@@ -93,12 +92,9 @@ def kogut_susskind_gauge_theory(
       - (i/2a) sum_l ( psi^dag_l U_{l,l+1} psi_{l+1} - h.c. )
     ```
 
-    The Gauss operators take the staggered form of [`GaussForm`][qsimod.models.gauge.GaussForm]
-    with the charge coefficient ``e``.  The parameter set is ``Theta_sys = {m, a, e}``: the
-    rest mass ``m``, the lattice spacing ``a`` and the gauge coupling ``e``.  The additional
-    parameter ``electric_gap = a e**2 / 2``, the energy of one unit of electric flux, enters no
-    term of the Hamiltonian and is read by the validity condition of the quantum-link
-    truncation.
+    The parameters are the mass ``m``, the lattice spacing ``a`` and the gauge coupling ``e``,
+    plus ``electric_gap = a e**2 / 2``, the energy of one unit of electric flux, which enters
+    no term and is read by the validity condition of the quantum-link truncation.
 
     Args:
         matter_sites: the chain length ``N``; the register has ``2N - 1`` positions.
@@ -171,8 +167,7 @@ def heisenberg_magnet(
     H = sum_j [ Jxy ( S^x_j S^x_{j+1} + S^y_j S^y_{j+1} ) + Delta Jxy S^z_j S^z_{j+1} ]
     ```
 
-    The transverse term is written as ``(Jxy/2)( S^+_j S^-_{j+1} + h.c. )``.  The anisotropy
-    ``Delta = Jz / Jxy`` is dimensionless: ``Delta = 0`` is the XX point and ``Delta = 1`` the
+    The anisotropy ``Delta = Jz / Jxy`` is dimensionless: ``0`` is the XX point, ``1`` the
     isotropic magnet.
 
     Args:
@@ -223,9 +218,8 @@ def ising_magnet(
     H = Jz sum_j ( S^z_j S^z_{j+1} - hz S^z_j - hx S^x_j )
     ```
 
-    The parameters are one energy ``Jz`` and two dimensionless fields ``(hz, hx)``, as in Simon
-    et al., Nature **472**, 307 (2011).  The transverse field breaks the conservation of the
-    magnetisation, so the structural type declares no symmetry.
+    One energy ``Jz`` and two dimensionless fields ``(hz, hx)``, as in Simon et al. (2011).  The
+    transverse field breaks the magnetisation symmetry, so the structural type declares none.
 
     Args:
         sites: the chain length ``N``.

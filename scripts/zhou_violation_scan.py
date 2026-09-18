@@ -1,4 +1,4 @@
-"""The gauge-violation scan of `paper_zhou22` (Fig. 2D) at a chosen chain length.
+"""The gauge-violation scan of Zhou et al. (2022), Fig. 2D, at a chosen chain length.
 
 Follows the experiment's protocol: ``U`` and ``Delta`` are held at the prescribed knobs of
 ``examples/analogue_end_to_end.py``, ``J`` alone varies so that ``U / J`` runs over the

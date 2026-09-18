@@ -3,11 +3,11 @@
 The analogue simulator model ``bose_hubbard`` (``H_sim`` of the article) is the target of the gauge
 theory of the case study and of an antiferromagnetic Ising chain.  The Ising chain follows
 Simon et al., *Quantum simulation of antiferromagnetic spin chains in an optical lattice*,
-Nature **472**, 307-312 (2011) (`docs/references/paper_simon11.pdf`).  Section 4 recovers the
-transition line ``E = U + 1.85 t`` (``hz = 1 - 0.66 hx``) of that reference; section 5 solves
-the same hardware model for both theories and evaluates each knob setting against the declared
-regimes of both; section 6 compares the dipole manifold of the hardware model with the spectrum
-of the Ising chain, with and without the end-spin field.
+Nature **472**, 307-312 (2011).  Section 4 recovers the transition line ``E = U + 1.85 t``
+(``hz = 1 - 0.66 hx``) of that reference; section 5 solves the same hardware model for both
+theories and evaluates each knob setting against the declared regimes of both; section 6 compares
+the dipole manifold of the hardware model with the spectrum of the Ising chain, with and without
+the end-spin field.
 
 Run it with::
 
@@ -56,7 +56,7 @@ PAPER_CRITICAL_DETUNING_IN_TUNNELLINGS = 1.85
 PAPER_CRITICAL_SLOPE = 0.66
 
 #: The request of the gauge theory: a massless fermion at the resonance, at the coupling of the
-#: quench data of `paper_zhou22`.
+#: quench data of Zhou et al. (2022).
 GAUGE_COUPLING = 0.0045
 GAUGE_ELECTRIC_GAP = 0.5
 

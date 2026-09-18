@@ -269,10 +269,8 @@ def quantum_link_model(
     H = sum_l [ (kappa/2)( <coupling> + h.c. ) + m <mass sign>_l psi^dag_l psi_l ] + constant
     ```
 
-    In the case study of the article the staggered convention yields the quantum-link model
-    ``H_IR1`` at the artifact ``quantum_link_staggered``, and the homogeneous convention
-    yields ``H_IR2`` at the artifact ``quantum_link_homogeneous``, the branch point; both
-    carry the parameter set ``Theta_IR1 = Theta_IR2 = {m, kappa}``.
+    The staggered convention is ``H_IR1`` of the case study and the homogeneous convention
+    ``H_IR2``, its branch point.
 
     Args:
         matter_sites: the chain length ``N``.
@@ -342,11 +340,9 @@ def bosonic_pair_coupling_model(
       + constant
     ```
 
-    In the case study of the article this is the effective bosonic model ``H_IR3`` at the
-    artifact ``effective_bosonic``, with the parameter set ``Theta_IR3 = {m, kappa}``.  The operator
-    identities of the encoding hold as ``P H P`` on the declared local occupation subspace,
-    ``{0, 1}`` on matter positions and ``{0, 2}`` on links, so the encoding is exact on the
-    encoded subspace; [`sandwich`][qsimod.realise.build.sandwich] builds the projected operator.
+    ``H_IR3`` of the case study.  The encoding is exact on the declared occupation subspace,
+    ``{0, 1}`` on matter positions and ``{0, 2}`` on links, as the projected operator ``P H P``
+    ([`sandwich`][qsimod.realise.build.sandwich]).
 
     Args:
         matter_sites: the chain length ``N``.
@@ -412,13 +408,8 @@ def k_local_qubit_model(
       + sum_l m n_{2l} + constant                          (pair convention)
     ```
 
-    In the case study of the article this is the qubit Hamiltonian ``H_IR4`` at the artifact
-    ``qubit_register``, the Jordan-Wigner image of ``H_IR2``, with the parameter set
-    ``Theta_IR4 = {m, kappa}``; the second digital branch reaches the artifact
-    ``qubit_register_staggered`` from ``quantum_link_staggered`` in the hopping convention.
-    In the pair convention the Pauli expansion of a coupling term is
-    ``(1/4)( X_aX_bX_c + X_aY_bY_c - Y_aX_bY_c + Y_aY_bX_c )``; the four strings commute
-    mutually, and each commutes with every Gauss operator.  In the hopping convention the
+    ``H_IR4`` of the case study, the Jordan-Wigner image of ``H_IR2``.  Each coupling term
+    expands into four mutually commuting Pauli strings; in the hopping convention the
     Jordan-Wigner string contributes a factor ``-1`` to the coupling.
 
     Args:
@@ -543,12 +534,10 @@ def interacting_fermion_chain(
       + (N-1) Jz/4
     ```
 
-    The symbol ``z_j`` denotes the coordination number of site ``j``; the last two terms are
-    the expansion of ``Jz sum_j (n_j - 1/2)(n_{j+1} - 1/2)``, constant included.  The sign of
-    the hopping is the alternating-sign Jordan-Wigner gauge of
-    [`qsimod.realise.build`][qsimod.realise.build], under which this model and the spin chain
-    realise to the same matrix; at ``Jz = 0`` the single-particle band is
-    ``E(q) = -Jxy cos(qa)``.
+    ``z_j`` is the coordination number of site ``j``; the last two terms expand
+    ``Jz sum_j (n_j - 1/2)(n_{j+1} - 1/2)``.  The hopping sign is the alternating-sign
+    Jordan-Wigner gauge of [`qsimod.realise.build`][qsimod.realise.build], under which this
+    model and the spin chain realise to the same matrix.
 
     Args:
         sites: the chain length ``N``.

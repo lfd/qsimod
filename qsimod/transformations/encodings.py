@@ -102,9 +102,8 @@ class HardcoreBosonEncoding(ModelTransformation):
     sigma^z_l = P_l (2 a^dag_l a_l - 1) P_l  S^z = (1/2) P (d^dag d - 1) P
     ```
 
-    Matter positions carry the occupations ``n in {0, 1}`` and link positions ``n in {0, 2}``;
-    a numerical realisation therefore requires an occupation cutoff of at least two.  In the
-    case study this is the boson encoding from ``H_IR2`` to ``H_IR3``.
+    Matter positions carry ``n in {0, 1}`` and link positions ``n in {0, 2}``, so a numerical
+    realisation needs an occupation cutoff of at least two.
 
     Attributes:
         retain_staggering_constant: whether the constant ``-m * floor(N/2)`` carried by the

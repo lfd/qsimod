@@ -170,10 +170,8 @@ def sector_projector(
 ) -> Array:
     """The projector onto a declared superselection sector.
 
-    The projector is constructed from the declared target eigenvalue of every constraint
-    operator, boundary included.  When every constraint operator is diagonal in the occupation
-    basis the projector is a basis mask; otherwise it is the projector onto the kernel of
-    ``sum_l (G_l - g_l)**2``, obtained from one ``eigh``.
+    A basis mask when every constraint operator is diagonal in the occupation basis, otherwise
+    the projector onto the kernel of ``sum_l (G_l - g_l)**2`` from one ``eigh``.
 
     Args:
         constraints: the declared constraint operators, with their target eigenvalues.

@@ -149,14 +149,10 @@ class ParticleHoleTransformation(ModelTransformation):
     on links (l, l+1) with l = 0, 2, ... (even): S^z -> -S^z,    S^+- -> S^-+
     ```
 
-    The transformation is exact and unitary.  The hopping coupling becomes the pair coupling
-    with a sign ``(-1)**(l+1)`` on link ``l``; the substitution ``S^+- -> -S^+-`` on the even
-    links, a rotation about ``z`` that leaves ``S^z`` and every ``G_l`` unchanged, removes this
-    sign.  The mass staggering cancels and leaves the constant of
-    [`staggering_constant`][qsimod.transformations.basis_changes.staggering_constant], which is
-    retained.  The two parities must be opposite: odd matter sites with even links pass ``+m``
-    to the target, even matter sites with odd links ``-m``.  In the case study this is
-    the step from ``H_IR1`` to ``H_IR2``.
+    Exact and unitary: the hopping coupling becomes the pair coupling, and the mass staggering
+    cancels into the retained constant of
+    [`staggering_constant`][qsimod.transformations.basis_changes.staggering_constant].  The two
+    parities must be opposite; this choice passes ``+m`` to the target, the other ``-m``.
 
     Attributes:
         convention: the quantum-link convention produced, which is the homogeneous convention.
@@ -266,12 +262,9 @@ class JordanWignerToQubits(ModelTransformation):
     psi_l psi_{l+1}  ->  sigma^-_{2l} sigma^-_{2l+2}  S^z_{l,l+1}   ->  sigma^z_{2l+1} / 2
     ```
 
-    The transformation is exact.  Matter sites and links are placed on one interleaved qubit
-    register.  The Jordan-Wigner string runs over the matter sites only, and the coupling joins
-    adjacent matter sites, so the string reduces to a sign: ``+1`` for the pair coupling and
-    ``-1`` for the hopping coupling under the alternating-sign convention of
-    [`qsimod.realise.build`][qsimod.realise.build].  A coupling of longer range would leave a
-    string behind.  In the case study this is the step from ``H_IR2`` to ``H_IR4``.
+    Exact.  The Jordan-Wigner string runs over the matter sites only and the coupling joins
+    adjacent ones, so it reduces to a sign: ``+1`` for the pair coupling, ``-1`` for the hopping
+    coupling under the convention of [`qsimod.realise.build`][qsimod.realise.build].
 
     Attributes:
         convention: the quantum-link convention of the source.

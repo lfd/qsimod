@@ -1,4 +1,4 @@
-"""The digital branch posed against the request of `paper_zhou22`, at the analogue runs' setup.
+"""The digital branch posed against the request of Zhou et al. (2022), at the analogue setup.
 
 The same theory, chain length, initial state, observable and time window as
 ``scripts/zhou_trajectories.py``: ``N`` matter sites, ``m = 0``, ``kappa = 14.5 Hz``, the quench

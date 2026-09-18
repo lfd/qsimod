@@ -1,4 +1,4 @@
-"""Time-resolved trajectories of the two knob settings posed against `paper_zhou22`.
+"""Time-resolved trajectories of the two knob settings posed against Zhou et al. (2022).
 
 For the free-knob setting (the framework's solve) and the prescribed-knob setting (the
 experiment's own knobs), records at every sample time over the experiment's window the mean
@@ -231,7 +231,7 @@ class NumberSectorBench:
 
 
 def free_knobs(matter_sites: int) -> dict[str, float]:
-    """The framework's solution for the request of `paper_zhou22`, in rad/ms.
+    """The framework's solution for the request of Zhou et al. (2022), in rad/ms.
 
     Args:
         matter_sites: the chain length ``N`` the pipeline is built at.

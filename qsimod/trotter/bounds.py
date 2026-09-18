@@ -10,11 +10,9 @@
 * for every order, the stage-based Taylor-remainder bound
   ``t**(p+1) / (p+1)! / n**p * (||H|| + sum_s |c_s| ||H_g(s)||)**(p+1)``.
 
-Orders of at least four use the Taylor-remainder bound, which does not scale with the
-commutators.  Norms are supplied by a [`NormEstimator`][qsimod.trotter.bounds.NormEstimator];
-the default [`AdaptiveNormEstimator`][qsimod.trotter.bounds.AdaptiveNormEstimator] computes the
-exact spectral norm up to `DEFAULT_SPECTRAL_QUBIT_LIMIT` qubits and uses the Pauli one-norm
-beyond that limit.
+Norms are supplied by a [`NormEstimator`][qsimod.trotter.bounds.NormEstimator]; the default
+[`AdaptiveNormEstimator`][qsimod.trotter.bounds.AdaptiveNormEstimator] is exact up to
+`DEFAULT_SPECTRAL_QUBIT_LIMIT` qubits and uses the Pauli one-norm beyond.
 """
 
 from __future__ import annotations

@@ -1,22 +1,13 @@
 """A normal form for symbolic operator sums, and the equivalence of two sums.
 
-Two [`OperatorSum`][qsimod.symbolic.OperatorSum] objects that denote the same operator may be
-written differently: the factors in another order, ``psi^dag psi`` for ``n``, ``sigma^+`` for
-``(X + iY)/2``, or the product ``(1 - 2n)(1 - 2n)`` for the identity.
-[`normal_form`][qsimod.normal_form.normal_form] rewrites a sum into a canonical one: every term
-is a product of at most one canonical operator per site, with the sites in ascending order,
-the fermionic signs carried by the reordering, and same-site products reduced by the algebra
-of the site.  Two sums are [`equivalent`][qsimod.normal_form.equivalent] when their normal
-forms have the same terms with the same coefficients, the coefficients being compared as
-expressions in the parameters.
-
-The canonical single-site operators are ``c^dag, c, n`` on a fermion, ``X, Y, Z`` on a qubit,
-``S^z, S^+, S^-`` on a spin-1/2, and the normal-ordered ``(a^dag)^p a^q`` on a boson; the parity
-``P = 1 - 2n`` expands to ``1 - 2n`` on a fermion and to ``-Z`` on a qubit.  A gauge link is
-left as written, except that ``U U^dag`` and ``U^dag U`` cancel.
-
-No matrix is constructed; the algebra tables are those satisfied by the local matrices of the
-numerical realisation ([`qsimod.realise.hilbert`][qsimod.realise.hilbert]).
+[`normal_form`][qsimod.normal_form.normal_form] rewrites an
+[`OperatorSum`][qsimod.symbolic.OperatorSum] into a canonical one: at most one canonical
+operator per site (``c^dag, c, n`` on a fermion, ``X, Y, Z`` on a qubit, ``S^z, S^+, S^-`` on a
+spin-1/2, normal-ordered ``(a^dag)^p a^q`` on a boson), sites in ascending order, fermionic signs
+carried by the reordering.  Two sums are [`equivalent`][qsimod.normal_form.equivalent] when
+their normal forms agree term by term, the coefficients compared as expressions in the
+parameters.  No matrix is constructed; the algebra tables match the local matrices of
+[`qsimod.realise.hilbert`][qsimod.realise.hilbert].
 """
 
 from __future__ import annotations

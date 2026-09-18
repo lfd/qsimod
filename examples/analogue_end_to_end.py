@@ -3,12 +3,11 @@
 The parameters of the application model are entered, the pipeline is type-checked, the
 hardware knobs are solved for, and both layers are realised numerically and compared.  The
 request is that of Zhou et al., *Thermalization dynamics of a gauge theory on a quantum
-simulator*, Science **377**, 311-314 (2022) (`docs/references/paper_zhou22.pdf`), whose
-Eqs. (S5) and (S6) are the artifact ``effective_bosonic`` (the boson encoding ``H_IR3`` of the
-article) and the perturbative transformation of the framework.  The knobs of the experiment
-itself are evaluated as a second setting, the prescribed knobs.  Section 6a fits Eq. (S10) to
-the oscillation of Fig. S3a; section 6b scans the steady-state gauge violation along the
-resonance line as in Fig. 2D.
+simulator*, Science **377**, 311-314 (2022), whose Eqs. (S5) and (S6) are the artifact
+``effective_bosonic`` (the boson encoding ``H_IR3`` of the article) and the perturbative
+transformation of the framework.  The knobs of the experiment itself are evaluated as a second
+setting, the prescribed knobs.  Section 6a fits Eq. (S10) to the oscillation of Fig. S3a; section
+6b scans the steady-state gauge violation along the resonance line as in Fig. 2D.
 
 Run it with::
 
@@ -644,7 +643,7 @@ def main(
         f"{converged.frequency_hz:9.2f}{converged.damping_ms:14.1f}"
     )
     say(
-        f"   {'paper_zhou22 measured':<34}{PAPER_FREQUENCY_HZ:9.2f}"
+        f"   {'Zhou et al. (2022) measured':<34}{PAPER_FREQUENCY_HZ:9.2f}"
         f"{PAPER_DAMPING_MS:9.1f} +-{PAPER_DAMPING_UNCERTAINTY_MS:2.0f}"
     )
     say(f"   {'relative gap, effective_bosonic on the frequency':<34}{gap:+9.2f} %")

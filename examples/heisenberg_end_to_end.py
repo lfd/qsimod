@@ -3,12 +3,11 @@
 The parameters of the application model are entered, the pipeline is type-checked, the
 hardware knobs are solved for, and both layers are realised numerically and compared.  The
 request is a setting of Jepsen et al., *Spin transport in a tunable Heisenberg model realized
-with ultracold atoms*, Nature **588**, 403-407 (2020) (`docs/references/paper_jepsen20.pdf`),
-whose Eq. (1) is the artifact ``xxz_chain`` and whose Methods section "Extended Hubbard model"
-is the superexchange transformation of the framework.  Section 6 checks the forward map of the
-superexchange against the Methods table of the reference, section 7 the free-fermion band of the
-Jordan-Wigner branch, and section 8 scans the anisotropy across the admissible set of the
-hardware model.
+with ultracold atoms*, Nature **588**, 403-407 (2020), whose Eq. (1) is the artifact ``xxz_chain``
+and whose Methods section "Extended Hubbard model" is the superexchange transformation of the
+framework.  Section 6 checks the forward map of the superexchange against the Methods table of the
+reference, section 7 the free-fermion band of the Jordan-Wigner branch, and section 8 scans the
+anisotropy across the admissible set of the hardware model.
 
 Run it with::
 
@@ -61,7 +60,7 @@ from qsimod.usecases.heisenberg import (
 
 @dataclass(frozen=True)
 class PaperRow:
-    """One row of the Methods table of `paper_jepsen20`, at a lattice depth of 11 recoils.
+    """One row of the Methods table of Jepsen et al. (2020), at a lattice depth of 11 recoils.
 
     Attributes:
         intraspecies_up: ``U_ud / U_uu``.
@@ -407,8 +406,8 @@ class Band:
         """``|dE/dq|`` at half filling, ``a Jxy`` for the free-fermion band.
 
         It is estimated by a finite difference between the two levels straddling the middle of
-        the band, at lattice spacing one.  `paper_jepsen20` reports its spin-wave speeds in this
-        unit: "a characteristic velocity v = 0.76(1) v_F" (Fig. 2d).
+        the band, at lattice spacing one.  Jepsen et al. (2020) report their spin-wave speeds in
+        this unit: "a characteristic velocity v = 0.76(1) v_F" (Fig. 2d).
         """
         middle = self.sites // 2
         momenta = np.pi * np.arange(1, self.sites + 1) / (self.sites + 1)

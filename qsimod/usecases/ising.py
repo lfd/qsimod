@@ -1,25 +1,12 @@
 """The antiferromagnetic Ising chain, on the hardware model of the case study.
 
-```
-ising_magnet   H_Ising   antiferromagnetic Ising chain, by its dimensionless fields  (application)
- |    field resolution                                 EXACT
-ising_chain    H_Ising   Ising chain, by three energies                             (intermediate)
- |    resonant dipole reduction, solved for the knobs  APPROXIMATE (regime conditions)
-bose_hubbard   H_sim     tilted Bose-Hubbard chain     <-- the artifact the gauge theory reaches
-```
-
-The hardware model is the artifact ``bose_hubbard`` of [`schwinger`][qsimod.usecases.schwinger],
-the analogue simulator model ``H_sim`` of the case study, with its namespace and parameters;
-[`shared_graph`][qsimod.usecases.ising.shared_graph] holds both theories in one model graph.
-A dipole resides on a bond, so a register of ``2N-1`` sites carries ``2N-2`` spins.  The
-physics is that of Simon et al., *Quantum simulation of antiferromagnetic spin chains in an
-optical lattice*, Nature **472**, 307-312 (2011).
-
-Conventions: ``Jz > 0``; the fields are written ``-hz S^z`` and ``-hx S^x``, so that the
-multicritical point is ``(hz, hx) = (1, 0)``; the tilt is positive and the dipole is formed
-down the gradient, so that the resonance is ``Delta = U``; the constraint penalty equals
-``U``; the end-spin field omitted by the Hamiltonian of the target is returned by
-[`boundary_field`][qsimod.usecases.ising.boundary_field].
+The graph runs from ``ising_magnet`` through ``ising_chain`` to ``bose_hubbard``, the artifact
+of [`schwinger`][qsimod.usecases.schwinger], by the resonant dipole reduction of Simon et al.
+(2011); [`shared_graph`][qsimod.usecases.ising.shared_graph] holds both theories in one model
+graph.  A dipole resides on a bond, so a register of ``2N-1`` sites carries ``2N-2`` spins.
+The end-spin field omitted by the target Hamiltonian is returned by
+[`boundary_field`][qsimod.usecases.ising.boundary_field].  The guide page of the documentation
+gives the Hamiltonians and the conventions.
 """
 
 from __future__ import annotations

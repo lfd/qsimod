@@ -85,7 +85,7 @@ def test_the_analogue_example_agrees_with_the_experiment_it_is_posed_against() -
 
 
 def test_the_analogue_example_reproduces_two_measured_results_of_that_experiment() -> None:
-    """``examples/analogue_end_to_end.py`` reproduces two measured results of `paper_zhou22`."""
+    """``examples/analogue_end_to_end.py`` reproduces two measured results of Zhou et al. (2022)."""
     comparison = run_analogue_example(
         matter_sites=3, interaction_ratios=(2.0, 13.0, 32.0), verbose=False
     )
@@ -120,7 +120,7 @@ def test_the_analogue_example_reproduces_two_measured_results_of_that_experiment
 
 
 def test_the_heisenberg_example_agrees_with_the_experiment_it_is_posed_against() -> None:
-    """``examples/heisenberg_end_to_end.py`` reproduces `paper_jepsen20`'s stated numbers."""
+    """``examples/heisenberg_end_to_end.py`` reproduces the numbers of Jepsen et al. (2020)."""
     comparison = run_heisenberg_example(sites=3, anisotropies=(0.973, 6.0, 60.0), verbose=False)
     solved, experiment = comparison.solved, comparison.experiment
 

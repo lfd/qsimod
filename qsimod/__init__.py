@@ -1,20 +1,12 @@
 """Q-SiMod: a typed metamodel for the model-driven engineering (MDE) of quantum simulation.
 
-The package is organised in layers.  The declaration layer comprises
-[`qsimod.scalar`][qsimod.scalar], [`qsimod.affine`][qsimod.affine],
-[`qsimod.units`][qsimod.units], [`qsimod.structure`][qsimod.structure],
-[`qsimod.symbolic`][qsimod.symbolic], [`qsimod.normal_form`][qsimod.normal_form],
-[`qsimod.parameters`][qsimod.parameters], [`qsimod.artifact`][qsimod.artifact],
-[`qsimod.relations`][qsimod.relations], [`qsimod.validity`][qsimod.validity],
-[`qsimod.transform`][qsimod.transform] and [`qsimod.pipeline`][qsimod.pipeline].  The
-structural layer comprises [`qsimod.pauli`][qsimod.pauli] and [`qsimod.trotter`][qsimod.trotter].
-The solving layer is [`qsimod.solving`][qsimod.solving], and the numerical realisation is
-provided by [`qsimod.realise`][qsimod.realise].  The libraries of models and transformations are
-[`qsimod.models`][qsimod.models] and [`qsimod.transformations`][qsimod.transformations]; the use
-cases are collected in [`qsimod.usecases`][qsimod.usecases].
-
-Importing [`qsimod.jax_setup`][qsimod.jax_setup] enables the 64-bit mode of JAX for the whole
-process.
+The package is organised in layers: the declaration layer (from [`qsimod.scalar`][qsimod.scalar]
+to [`qsimod.pipeline`][qsimod.pipeline]), the structural layer ([`qsimod.pauli`][qsimod.pauli],
+[`qsimod.trotter`][qsimod.trotter]), the solving layer ([`qsimod.solving`][qsimod.solving]) and
+the numerical realisation ([`qsimod.realise`][qsimod.realise]), with the libraries
+[`qsimod.models`][qsimod.models] and [`qsimod.transformations`][qsimod.transformations] and the
+use cases [`qsimod.usecases`][qsimod.usecases] on top.  Importing the package enables the 64-bit
+mode of JAX for the whole process ([`qsimod.jax_setup`][qsimod.jax_setup]).
 """
 
 from qsimod.artifact import (

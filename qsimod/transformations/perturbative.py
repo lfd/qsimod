@@ -128,9 +128,9 @@ def superlattice_validity(
 ) -> Conjunction:
     """The validity conditions of the second-order derivation on the superlattice.
 
-    The conjunction consists of four domain conditions, which exclude the poles of the
-    coupling map, and six regime conditions: ``J << delta``, ``J << U``, ``|m| << U`` (the
-    resonance ``U ~= 2 delta``), ``Delta << delta``, ``Delta << U`` and ``kappa << Delta``.
+    Four domain conditions exclude the poles of the coupling map; six regime conditions are
+    ``J << delta``, ``J << U``, ``|m| << U``, ``Delta << delta``, ``Delta << U`` and
+    ``kappa << Delta``.
 
     Args:
         effective: the namespace of the effective theory, with ``m`` and ``kappa``.
@@ -434,9 +434,8 @@ def superexchange_validity(
 ) -> Conjunction:
     """The validity conditions of the superexchange derivation.
 
-    The conjunction consists of three domain conditions, ``U_channel != 0`` measured against
-    ``t``, and six regime conditions: ``t << |U|`` on each channel, ``|Jxy| << |U_ud|``,
-    ``|Jz| << |U_uu|`` and ``|Jz| << |U_dd|``.
+    Three domain conditions, ``U != 0`` per channel, and six regime conditions: ``t << |U|``
+    per channel, ``|Jxy| << |U_ud|``, ``|Jz| << |U_uu|`` and ``|Jz| << |U_dd|``.
 
     Args:
         magnet: the namespace of the magnet, with ``Jxy`` and ``Jz``.
@@ -545,10 +544,8 @@ def superexchange_reduction(
 ) -> SuperexchangeReduction:
     """Build the superexchange transformation between a magnet and a two-component lattice.
 
-    The relation carries the two equations of the forward direction, the solved forms of
-    ``U_ud`` and ``t`` from the transverse equation, and the solved form of either
-    intraspecies channel from the longitudinal equation; with only ``(Jxy, Jz)`` known, the
-    relation is ``UNDER_DETERMINED`` by two.
+    The relation carries the two forward equations and their solved forms; with only
+    ``(Jxy, Jz)`` known it is ``UNDER_DETERMINED`` by two.
 
     Args:
         source: the namespace of the magnet, with ``Jxy`` and ``Jz``.
@@ -721,11 +718,9 @@ def dipole_validity(
 ) -> Conjunction:
     """The validity conditions of the resonant-dipole derivation.
 
-    The conjunction consists of one domain condition, ``U != 0``, and four regime conditions:
-    ``J << U``, which states that the sample is a Mott insulator; ``|Delta - U| << Jz`` and
-    ``Gamma << Jz``, which restrict the mapping to the neighbourhood of the multicritical point
-    ``(hz, hx) = (1, 0)``; and ``delta << Gamma``, since the superlattice is a staggered
-    longitudinal field on the spins and must be small against the level spacing.
+    One domain condition, ``U != 0``, and four regime conditions: ``J << U`` (a Mott
+    insulator), ``|Delta - U| << Jz`` and ``Gamma << Jz`` (near the multicritical point) and
+    ``delta << Gamma`` (the superlattice is a small staggered field on the spins).
 
     Args:
         magnet: the namespace of the Ising chain, with ``Jz``, ``Gamma`` and ``B``.

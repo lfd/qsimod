@@ -1,46 +1,12 @@
 """The case study of the article: the lattice Schwinger model, assembled from the libraries.
 
-```
-lattice_qed               H_sys    Kogut-Susskind lattice QED        Theta_sys = {m, a, e}
- |    quantum-link truncation                       APPROXIMATE (regime conditions)
-quantum_link_staggered    H_IR1    quantum-link model, staggered mass   Theta_IR1 = {m, kappa}
- |    particle-hole transformation                  EXACT
-quantum_link_homogeneous  H_IR2    quantum-link model, pair coupling    Theta_IR2 = {m, kappa}
- |            the branch point
- +---------------- ANALOGUE -----------------+-------------- DIGITAL ----------------
- |  boson encoding                           |  Jordan-Wigner transformation
- |      EXACT on the encoded subspace        |      EXACT
-effective_bosonic   H_IR3                    qubit_register   H_IR4
- |  effective bosonic model                  |  qubit Hamiltonian, 3-local
- |  Theta_IR3 = {m, kappa}                   |  Theta_IR4 = {m, kappa}
- |  second-order degenerate perturbation     |  Trotterisation
- |      theory, solved for the knob settings |      APPROXIMATE (resource-controlled)
- |      APPROXIMATE (regime conditions)      |
-bose_hubbard        H_sim                    trotter          U_approx
-    tilted, staggered Bose-Hubbard chain         Trotter product formula U_approx(t; n, order)
-    Theta_sim = {J, U, delta, Delta}             with m, kappa
-    (hardware, analogue)                         (hardware, digital)
-```
-
-The first column names the artifacts as the model graph does; the second column gives the
-notation of the article, ``H_sys``, ``H_IR1`` to ``H_IR4``, ``H_sim`` and ``U_approx``.  In
-the code, the Hamiltonians of the artifacts are named ``H_QED`` (``lattice_qed``),
-``H_QLM^st`` (``quantum_link_staggered``), ``H_QLM`` (``quantum_link_homogeneous``),
-``H_eff`` (``effective_bosonic``), ``H_qubit`` (``qubit_register``), ``H_BHM``
-(``bose_hubbard``) and ``U_Trotter`` (``trotter``).
-
-A second digital branch leaves ``quantum_link_staggered`` directly: a Jordan-Wigner
-transformation in the staggered convention leads to ``qubit_register_staggered`` and a
-Trotterisation to ``trotter_staggered``.  Its qubit Hamiltonian is unitarily equivalent to
-that of ``qubit_register``.
-
-Conventions: the coupling phase is ``(kappa/2)(... + h.c.)``; the link normalisation is
-``U -> -i (2/sqrt(3)) S^+``, with ``kappa`` released as a free parameter at
-``quantum_link_staggered``; the electric-field substitution is uniform, with ``U ~ S^+``
-raising the field; the particle-hole transformation acts on the odd matter sites and the even
-links and passes ``+m`` to ``quantum_link_homogeneous``; ``quantum_link_homogeneous`` carries
-the pair coupling, a uniform mass and a uniform link operator; the boundary Gauss background
-is ``+1/2``; the Bose-Hubbard tunnelling is ``-J(...)``.
+The graph runs from ``lattice_qed`` (``H_sys``) through ``quantum_link_staggered`` (``H_IR1``)
+to the branch point ``quantum_link_homogeneous`` (``H_IR2``).  The analogue branch continues
+through ``effective_bosonic`` (``H_IR3``) to the Bose-Hubbard chain ``bose_hubbard``
+(``H_sim``); the digital branch through ``qubit_register`` (``H_IR4``) to the Trotter product
+formula ``trotter`` (``U_approx``).  A second digital branch leaves ``quantum_link_staggered``
+directly, via ``qubit_register_staggered`` to ``trotter_staggered``.  The guide page of the
+documentation gives the Hamiltonians, the transformations and the conventions.
 """
 
 from __future__ import annotations

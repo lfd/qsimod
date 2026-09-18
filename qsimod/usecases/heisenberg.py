@@ -1,30 +1,11 @@
 """The anisotropic Heisenberg magnet, assembled from the model and transformation libraries.
 
-```
-xxz_magnet   H_XXZ   Heisenberg XXZ magnet, by its anisotropy       (application)
- |    anisotropy resolution                            EXACT
-xxz_chain    H_XXZ   XXZ chain, by its two couplings                (intermediate)  branch point
- +------------- ANALYTIC -------------+-------------- HARDWARE --------------
- |  Jordan-Wigner transformation      |  second-order superexchange,
- |               EXACT                |      solved for the knob settings
- |                                    |      APPROXIMATE (regime conditions)
-fermion_chain   H_tV                 two_component_bose_hubbard   H_2BHM
-   spinless fermions with V             two-component Bose-Hubbard chain
-   (intermediate)                       (hardware, analogue)
-```
-
-``fermion_chain`` is a terminal artifact among the intermediate representations: at zero
-anisotropy it is a free-fermion chain.  The physics is that of Jepsen et al., *Spin
-transport in a tunable Heisenberg model realized with ultracold atoms*, Nature **588**,
-403-407 (2020).
-
-Conventions: the transverse term is ``(Jxy/2)(S^+S^- + h.c.)``; the anisotropy is
-``Delta = Jz / Jxy`` with ``Jxy > 0`` (antiferromagnetic), which confines ``U_ud`` to the
-attractive branch of the Feshbach resonance; the two-component register is interleaved, with
-the first component at ``2j`` and the second at ``2j+1``; the Jordan-Wigner transformation
-uses alternating signs, as in [`qsimod.realise.build`][qsimod.realise.build]; the longitudinal
-field the superexchange derivation also produces is returned by
-[`field_map`][qsimod.usecases.heisenberg.field_map] and is not part of ``xxz_chain``.
+The graph runs from ``xxz_magnet`` to the branch point ``xxz_chain``, whose two branches are
+the exact Jordan-Wigner image ``fermion_chain`` and the second-order superexchange onto the
+two-component Bose-Hubbard chain ``two_component_bose_hubbard``, after Jepsen et al. (2020).
+The longitudinal field the superexchange also produces is returned by
+[`field_map`][qsimod.usecases.heisenberg.field_map] and is not part of the magnet.  The guide
+page of the documentation gives the Hamiltonians and the conventions.
 """
 
 from __future__ import annotations
@@ -279,9 +260,8 @@ def device_start(
 ) -> dict[str, float]:
     """A deterministic starting point for the knob solve, on the intended side of the pole.
 
-    The admissible interval of ``U_dd`` straddles ``U_dd = 0``.  With
-    ``Delta + 1 = U_ud/U_uu + U_ud/U_dd`` and the other two channels attractive, an anisotropy
-    below ``-1`` is reachable only with a repulsive ``U_dd``; the starting point selects that
+    The admissible interval of ``U_dd`` straddles the pole ``U_dd = 0``, and an anisotropy
+    below ``-1`` is reachable only with a repulsive ``U_dd``; the starting point selects the
     branch.
 
     Args:

@@ -4,14 +4,10 @@ A use case selects models from [`qsimod.models`][qsimod.models] at given convent
 them by transformations from [`qsimod.transformations`][qsimod.transformations], wires them
 into a [`ModelGraph`][qsimod.pipeline.ModelGraph], and names their parameter namespaces.
 
-* [`schwinger`][qsimod.usecases.schwinger]: the case study of the article, a lattice Schwinger
-  model in 1+1 dimensions carried to an analogue and a digital simulator model from one shared
-  prefix of transformations.
-* [`heisenberg`][qsimod.usecases.heisenberg]: an anisotropic Heisenberg magnet carried to a
-  two-component optical lattice.
-* [`ising`][qsimod.usecases.ising]: an antiferromagnetic Ising chain carried to the same
-  artifact ``bose_hubbard`` the gauge theory reaches; its
-  [`shared_graph`][qsimod.usecases.ising.shared_graph] holds both theories.
+* [`schwinger`][qsimod.usecases.schwinger]: the case study, a lattice Schwinger model carried
+  to an analogue and a digital simulator model.
+* [`heisenberg`][qsimod.usecases.heisenberg]: a Heisenberg magnet on a two-component lattice.
+* [`ising`][qsimod.usecases.ising]: an Ising chain on the hardware model of the case study.
 
 Each module defines ``ParameterNames``, ``build_graph`` and ``NAMESPACES``; only the symbols
 of the first module are re-exported from this package.

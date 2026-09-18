@@ -1,13 +1,12 @@
 # Guide: the Ising chain on a shared hardware model
 
-The use case [`qsimod.usecases.ising`][qsimod.usecases.ising] carries an antiferromagnetic
-Ising chain, the application model `ising_magnet`, to `bose_hubbard`, the tilted Bose-Hubbard chain of [the
-Schwinger pipeline](schwinger.md), with its namespace, parameters and admissible set of knobs.
-This page assumes the machinery that guide introduces and states what differs.  Two
+[`qsimod.usecases.ising`][qsimod.usecases.ising] carries an antiferromagnetic Ising chain,
+`ising_magnet`, to `bose_hubbard`, the tilted Bose-Hubbard chain of [the Schwinger
+pipeline](schwinger.md), with its namespace, parameters and admissible set of knobs.  Two
 transformations arrive at `bose_hubbard`, so one knob setting can be judged by both derivations.
+This page assumes the machinery the Schwinger guide introduces.
 
-The physics follows Simon et al., *Quantum simulation of antiferromagnetic spin chains in an
-optical lattice*, Nature **472**, 307-312 (2011), following Sachdev, Sengupta and Girvin.
+The physics follows Simon et al. [1], building on Sachdev, Sengupta and Girvin [2].
 
 ## The model graph
 
@@ -55,7 +54,7 @@ for edge in graph.incoming(DEVICE_TARGET):
 
 ## The transformations at a glance
 
-| Transformation | From | To | Exactness | Kind of approximation | Relation, forward direction | Relation, inverse direction |
+| Transformation | From | To | Exactness | Kind of approximation | Relation, forward | Relation, inverse |
 |---|---|---|---|---|---|---|
 | [field resolution][qsimod.transformations.reparametrisations.field_resolution] | `ising_magnet` | `ising_chain` | `EXACT` | — | `CLOSED_FORM` | `CLOSED_FORM` |
 | [dipole reduction][qsimod.transformations.perturbative.dipole_reduction] | `ising_chain` | `bose_hubbard` | `APPROXIMATE` | regime conditions | `CLOSED_FORM` | three equations, four knobs |
@@ -64,19 +63,15 @@ for edge in graph.incoming(DEVICE_TARGET):
 
 **Use case:** [`magnet`][qsimod.usecases.ising.magnet] &nbsp;·&nbsp; **library:** [`ising_magnet`][qsimod.models.application.ising_magnet]
 
-```
-H_Ising = Jz sum_j ( S^z_j S^z_{j+1} - hz S^z_j - hx S^x_j )
-```
+$$
+\hat H_\text{Ising} = J_z \sum_j \left( \hat S^z_j \hat S^z_{j+1} - h_z \hat S^z_j - h_x \hat S^x_j \right)
+$$
 
-The model has one energy `Jz` and two dimensionless fields `hz` and `hx` (`paper_simon11`).
-Its phase diagram is drawn on the `(hz, hx)` plane, with an antiferromagnet near the origin
-and a paramagnet at large fields.  The mapping to the hardware model holds near the
-multicritical point `(1, 0)`.
-
-The structural type declares no symmetry, since the transverse field does not conserve the
-total magnetisation.  An XXZ chain has the same geometry, algebra and lattice, so the
-conservation law is the aspect by which a structural pattern distinguishes the two; the dipole
-reduction rejects the XXZ chain on this ground:
+One energy $J_z$ and two dimensionless fields $h_z$ and $h_x$; the mapping to the hardware model
+holds near the multicritical point $(h_z, h_x) = (1, 0)$.  The structural type declares no
+symmetry, since the transverse field does not conserve the total magnetisation.  An XXZ chain
+has the same geometry, algebra and lattice, so the conservation law is what distinguishes the
+two structural patterns, and the dipole reduction rejects the XXZ chain on this ground:
 
 ```python
 from qsimod.structure import StructureTypeError
@@ -92,40 +87,33 @@ except StructureTypeError as error:
 
 ## `ising_magnet` -> `ising_chain`: the field resolution
 
-```
-Jz    -> Jz             Gamma = hx * Jz             B = hz * Jz
-```
+$$
+J_z \to J_z, \qquad \Gamma = h_x J_z, \qquad B = h_z J_z
+$$
 
-**Exactness:** `EXACT` and invertible.  The transformation is the same reparametrisation as
-the [anisotropy resolution](heisenberg.md#xxz_magnet-xxz_chain-the-anisotropy-resolution) of the magnet,
-built by the same helper from the shared energy scale and one `(dimensionless parameter,
-energy)` pair per field.
+**Exactness:** `EXACT` and invertible; the same kind of reparametrisation as the [anisotropy
+resolution](heisenberg.md#xxz_magnet-xxz_chain-the-anisotropy-resolution) of the magnet, built
+by the same helper.
 
 ## `ising_chain`: the Ising chain by three energies
 
 **Use case:** [`ising_chain`][qsimod.usecases.ising.ising_chain] &nbsp;·&nbsp; **library:** [`ising_spin_chain`][qsimod.models.intermediate.ising_spin_chain]
 
-```
-H_Ising = Jz sum_j S^z_j S^z_{j+1} - Gamma sum_j S^x_j - B sum_j S^z_j
-```
-
-This is the Hamiltonian of `ising_magnet` with `Gamma = Jz hx` and `B = Jz hz`.
+$$
+\hat H_\text{Ising} = J_z \sum_j \hat S^z_j \hat S^z_{j+1} - \Gamma \sum_j \hat S^x_j - B \sum_j \hat S^z_j
+$$
 
 ## `ising_chain` -> `bose_hubbard`: the resonant dipole reduction
 
-```
-Jz    = U
-Gamma = 2 sqrt(2) J
-B     = Jz - (Delta - U)
-```
+$$
+J_z = U, \qquad \Gamma = 2\sqrt 2\, J, \qquad B = J_z - (\Delta - U)
+$$
 
 A Mott insulator at unit filling is tilted so that the tilt per site cancels the interaction:
 an atom may move onto its neighbouring site unless that neighbour has moved first.  A moved
 atom is a dipole on a bond, the mutual exclusion of adjacent dipoles is the Ising coupling, and
-the tunnelling that creates a dipole is the transverse field.
-
-The spins live on the bonds, so `2N-1` lattice sites carry `2N-2` spins.  The transformation
-declares this register size as its
+the tunnelling that creates a dipole is the transverse field.  The spins live on the bonds, so
+$2N-1$ lattice sites carry $2N-2$ spins, which the transformation declares as its
 [`target_sites`][qsimod.transform.Transformation.target_sites]:
 
 ```python
@@ -134,10 +122,9 @@ from qsimod.usecases.ising import dipoles, fields
 print(dipoles().target_sites(4), fields().target_sites(4))  # 3 4
 ```
 
-**Exactness:** `APPROXIMATE`, valid within a declared regime.  The transverse field is of first
-order in the tunnelling, since the process is resonant, not of second order; the leading error
-is of second order in `J/U` and stems from the off-resonant configurations, three atoms on a
-site and dipoles on adjacent bonds.
+**Exactness:** `APPROXIMATE`.  The transverse field is of first order in the tunnelling, since
+the process is resonant; the leading error is of second order in $J/U$ and stems from the
+off-resonant configurations, three atoms on a site and dipoles on adjacent bonds.
 
 **Validity conditions.**  One domain and four regime conditions:
 
@@ -149,7 +136,7 @@ site and dipoles on adjacent bonds.
 | `Gamma << Jz` | regime | `abs(Gamma/Jz)` | 0.1 |
 | `delta << Gamma` | regime | `delta/Gamma` | 0.1 |
 
-The superlattice `delta` acts as a staggered longitudinal field on the spins and must be small
+The superlattice $\delta$ acts as a staggered longitudinal field on the spins and must be small
 on the scale of the transverse field.
 
 ```python
@@ -169,29 +156,21 @@ print(
 )
 ```
 
-### One convention, and one term that is not small
-
-**Convention.**  Two dipoles on adjacent bonds are off resonance by the interaction; the
-constraint that forbids them is represented as a finite penalty, which the source gives as "of
-order `U`".  The package takes it equal to `U`.  Both fields are divided by the coupling, so
-the quoted `(hz, hx)` values do not depend on this choice.
-
-**Boundary term.**  Rewriting the penalty as a coupling plus a uniform field is exact in the
-bulk only: since `sum_j z_j S^z_j = 2 sum_j S^z_j - (S^z_0 + S^z_{N-1})`, the two end spins
-see a field that is short by half a coupling each.
-[`end_magnetisation_term`][qsimod.models.magnetism.end_magnetisation_term] builds the term and
+**Convention and boundary term.**  The constraint that forbids two dipoles on adjacent bonds is
+represented as a finite penalty, which the source gives as "of order $U$"; the package takes it
+equal to $U$, and the quoted $(h_z, h_x)$ values do not depend on this choice.  Rewriting the
+penalty as a coupling plus a uniform field is exact in the bulk only: the two end spins see a
+field that is short by half a coupling each, the same identity as in [the superexchange of the
+magnet](heisenberg.md#what-the-superexchange-also-produces).
 [`dipole_boundary_field`][qsimod.transformations.perturbative.dipole_boundary_field] gives its
-strength; the identity is the same as in [the superexchange of the
-magnet](heisenberg.md#what-the-superexchange-also-produces).  The field amounts to half the
-coupling where the transverse field is a fiftieth of it.  `examples/shared_device.py` measures
-both: the spectrum agrees to `0.01` transverse fields with the term and deviates by `10` without
+strength and [`end_magnetisation_term`][qsimod.models.magnetism.end_magnetisation_term] builds
+the term; `examples/shared_device.py` shows the spectrum agreeing with it and deviating without
 it.
 
 ## The hardware model, read twice
 
-`bose_hubbard` is unchanged: the same builder, the same four knobs and the same Hamiltonian.  The two
-theories need different corners of its admissible set and pose their requests against
-different boxes:
+`bose_hubbard` is unchanged: the same builder, knobs and Hamiltonian.  The two theories need
+different corners of its admissible set and pose their requests against different boxes:
 
 ```python
 from qsimod.parameters import ConstraintOrigin
@@ -206,8 +185,8 @@ print(len(ising.device_limits().constraints), "left once a second theory poses i
 
 Every coupled constraint declares an [origin][qsimod.parameters.ConstraintOrigin].  The two
 coupled constraints of the Schwinger box have the origin `DERIVATION`: they are requirements of
-the superlattice derivation, not of the apparatus.  At the dipole resonance `Delta ~= U` the
-second of them reads `delta <= -U`, so the Ising use case poses its request against
+the superlattice derivation, not of the apparatus, and at the dipole resonance $\Delta \approx U$ one
+of them cannot hold.  The Ising use case therefore poses its request against
 [`apparatus_only`][qsimod.parameters.AdmissibleSet.apparatus_only] and leaves the validity
 conditions to each derivation.
 
@@ -246,6 +225,15 @@ print("Ising:", ising_report.is_valid, round(ising_report.weakest_margin, 2))
 print("gauge:", gauge_report.is_valid, round(gauge_report.weakest_margin, 2))
 ```
 
-The superlattice derivation requires `Delta << delta`, the dipole derivation `delta << Gamma`.
+The superlattice derivation requires $\Delta \ll \delta$, the dipole derivation $\delta \ll \Gamma$.
 The two declared regimes are disjoint: no setting of this lattice realises both theories, and
 the margins report this before any operator is built.
+
+## References
+
+1. J. Simon, W. S. Bakr, R. Ma, M. E. Tai, P. M. Preiss and M. Greiner, *Quantum simulation of
+   antiferromagnetic spin chains in an optical lattice*, Nature **472**, 307-312 (2011).
+   [doi:10.1038/nature09994](https://doi.org/10.1038/nature09994)
+2. S. Sachdev, K. Sengupta and S. M. Girvin, *Mott insulators in strong electric fields*,
+   Phys. Rev. B **66**, 075128 (2002).
+   [doi:10.1103/PhysRevB.66.075128](https://doi.org/10.1103/PhysRevB.66.075128)

@@ -40,13 +40,9 @@ class QuantumLinkTruncation(ModelTransformation):
     U_{l,l+1} -> -i (2/sqrt(3)) S^+_{l,l+1}       E_{l,l+1} -> e S^z_{l,l+1}
     ```
 
-    The phase ``-i`` absorbs the ``-i`` of the Kogut-Susskind coupling and yields the real form
-    ``(kappa/2)(psi^dag S^+ psi + h.c.)``.  Since ``S^z**2 = 1/4``, the electric term becomes
-    the constant ``(N-1) a e^2 / 8``, which is dropped and recorded on the target artifact;
-    subsequently ``e -> 1`` and ``a -> 1``.  The literal substitution fixes
-    ``kappa = 2/sqrt(3)``; the relation carries only the mass and releases ``kappa`` as a free
-    parameter from this level downwards.  In the case study this is the step from ``H_sys``
-    to ``H_IR1``.
+    The electric term becomes the constant ``(N-1) a e^2 / 8``, which is dropped and recorded
+    on the target; then ``e -> 1`` and ``a -> 1``.  The relation carries only the mass and
+    releases ``kappa`` as a free parameter from this level downwards.
 
     Attributes:
         convention: the quantum-link convention produced; the uniform substitution yields the

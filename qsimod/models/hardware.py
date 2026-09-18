@@ -98,11 +98,10 @@ def bose_hubbard_admissible_set(
 ) -> AdmissibleSet:
     """The admissible knob set of an optical-superlattice simulator.
 
-    The values ``J = 0`` and ``Delta = 0`` are excluded strictly.  Two coupled constraints,
-    marked [`DERIVATION`][qsimod.parameters.ConstraintOrigin], bound the tilt by the fraction
-    ``tilt_fraction`` of the superlattice depth and of the resonance gap ``U - delta``.  They
-    belong to the superlattice derivation; a second theory on the same lattice poses its request
-    against [`apparatus_only`][qsimod.parameters.AdmissibleSet.apparatus_only].
+    ``J = 0`` and ``Delta = 0`` are excluded strictly.  Two coupled constraints of origin
+    [`DERIVATION`][qsimod.parameters.ConstraintOrigin] bound the tilt by ``tilt_fraction`` of
+    the superlattice depth and of the resonance gap ``U - delta``; a second theory on the same
+    lattice drops them with [`apparatus_only`][qsimod.parameters.AdmissibleSet.apparatus_only].
 
     Args:
         namespace: the namespace whose knobs are constrained.
@@ -158,17 +157,13 @@ def tilted_bose_hubbard_chain(
 ) -> HamiltonianModel:
     """A tilted, staggered Bose-Hubbard chain on an optical superlattice.
 
-    The model is the analogue simulator model ``H_sim`` of the case study of the article, at
-    the artifact ``bose_hubbard``, with the knob set ``Theta_sim = {J, U, delta, Delta}``:
+    The analogue simulator model ``H_sim`` of the case study:
 
     ```
     H = sign * J sum_{j=0}^{2N-3} ( b^dag_j b_{j+1} + h.c. )
       + sum_{j=0}^{2N-2} [ (U/2) n_j (n_j - 1) + eps_j n_j ],
     eps_j = (-1)**j delta/2 + j Delta
     ```
-
-    The perturbative manifold ``|101> <-> |020>`` of each three-site block is near-degenerate at
-    ``U ~= 2 delta``; it is not the ground-state manifold.
 
     Args:
         matter_sites: the chain length ``N``; the lattice has ``2N - 1`` sites.
@@ -335,13 +330,10 @@ def two_component_admissible_set(
 ) -> AdmissibleSet:
     """The admissible knob set of a two-component optical-lattice simulator.
 
-    The value ``t = 0`` is excluded strictly.  The interactions ``U_uu`` and ``U_ud`` are
-    confined to the attractive branch of the Feshbach resonance, so that
-    ``Jxy = -4 t**2 / U_ud > 0``; ``U_dd`` may take either sign, and an anisotropy below ``-1``
-    requires it to be repulsive.  Three coupled constraints ``U**2 >= (mott_ratio * t)**2`` keep
-    the Mott gap of every channel above the tunnelling.  The box of ``U_dd`` contains the pole
-    ``U_dd = 0``, so a solve is to be given an ``initial`` point on the intended side of the
-    pole.
+    ``t = 0`` is excluded strictly.  ``U_uu`` and ``U_ud`` are attractive, so that ``Jxy > 0``;
+    ``U_dd`` may take either sign, so its box contains the pole ``U_dd = 0`` and a solve needs
+    an ``initial`` point on the intended side.  Three coupled constraints
+    ``U**2 >= (mott_ratio * t)**2`` keep the Mott gap of every channel above the tunnelling.
 
     Args:
         namespace: the namespace whose knobs are constrained.
@@ -396,11 +388,9 @@ def two_component_bose_hubbard_chain(
       + U_ud     sum_j n_{j,up} n_{j,down}
     ```
 
-    The model is defined on the register of
-    [`two_component_structure`][qsimod.models.magnetism.two_component_structure], with the
-    component ``up`` at ``2j`` and ``down`` at ``2j+1``.  It declares the conserved total
-    particle number, fixed at ``N`` by unit filling.  On the attractive branch the doubly
-    occupied states lie below the one-atom-per-site manifold.
+    Component ``up`` sits at register position ``2j`` and ``down`` at ``2j+1``
+    ([`two_component_structure`][qsimod.models.magnetism.two_component_structure]).  The model
+    declares the conserved total particle number, ``N`` at unit filling.
 
     Args:
         sites: the chain length ``N``; the register has ``2N`` positions.
