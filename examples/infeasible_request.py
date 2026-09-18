@@ -69,8 +69,8 @@ def main(*, verbose: bool = True) -> SolveStatus:
     result = realise_parameters(
         graph.analogue,
         targets={
-            P.MASS_L1: TARGET_MASS,
-            P.COUPLING_L2A: TARGET_COUPLING,
+            P.MASS_LATTICE_QED: TARGET_MASS,
+            P.COUPLING_QUANTUM_LINK_STAGGERED: TARGET_COUPLING,
             P.ELECTRIC_GAP: ELECTRIC_GAP,
         },
         unknowns=[P.TUNNELLING, P.INTERACTION, P.SUPERLATTICE, P.TILT],

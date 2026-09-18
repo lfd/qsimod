@@ -3,13 +3,13 @@
 The same theory, chain length, initial state, observable and time window as
 ``scripts/zhou_trajectories.py``: ``N`` matter sites, ``m = 0``, ``kappa = 14.5 Hz``, the quench
 from ``|1 0 1 0 1 ...>`` and the mean matter occupation over 150 ms.  The digital simulator is
-the Suzuki-Trotter product formula of the qubit Hamiltonian ``L2d``; its knobs are the order
-and the step count ``n``.
+the Suzuki-Trotter product formula of the qubit Hamiltonian ``qubit_register``; its knobs are
+the order and the step count ``n``.
 
 For every ``(order, n)`` of a ladder the script records the resources (factor count, depth),
 the a-priori error bound, and the measured deviation of the mean matter occupation from the
-exact evolution of ``L2d``, taken over the trajectory at every Trotter step.  For a list of
-target accuracies, e.g. the deviations the analogue device reaches, it records the smallest
+exact evolution of ``qubit_register``, taken over the trajectory at every Trotter step.  For a
+list of target accuracies, e.g. the deviations the analogue device reaches, it records the smallest
 ``n`` per order by the bound (the framework's integer solve) and by the measurement.
 
 Writes ``results/zhou_digital_ladder.csv`` and ``results/zhou_digital_targets.csv``, and the
@@ -108,11 +108,11 @@ class CachedSpectralNormEstimator(NormEstimator):
 
 
 def qubit_model(matter_sites: int, mass: float, coupling: float) -> HamiltonianModel:
-    """``L2d`` bound to ``(m, kappa)``, via the particle-hole and Jordan-Wigner steps."""
+    """``qubit_register`` bound to ``(m, kappa)``, via the particle-hole and Jordan-Wigner steps."""
     staggered = (
         build_graph(matter_sites)
-        .graph.node("L2a")
-        .bind(**{P.MASS_L2A: mass, P.COUPLING_L2A: coupling})
+        .graph.node("quantum_link_staggered")
+        .bind(**{P.MASS_QUANTUM_LINK_STAGGERED: mass, P.COUPLING_QUANTUM_LINK_STAGGERED: coupling})
     )
     return as_hamiltonian(to_qubits().apply(particle_hole().apply(staggered)))
 
@@ -157,7 +157,7 @@ class DigitalBench:
             ),
         )
 
-    def exact_occupation(self, times: Sequence[float]) -> np.ndarray:
+    def exact_occupation(self, times: Sequence[float] | np.ndarray) -> np.ndarray:
         """``<n_matter>(t)`` under the exact evolution of the qubit Hamiltonian."""
         states = evolve_state(self.hamiltonian, self.initial, list(times))
         return np.asarray(expectation(self.observable, states))
@@ -248,7 +248,7 @@ def main(
             theory = frame[frame.setting == frame.setting.iloc[0]].occupation_theory.to_numpy()
             exact = bench.exact_occupation(np.linspace(0.0, time, SAMPLES))
             print(
-                "exact L2d vs analogue theory L2c: "
+                "exact qubit_register vs analogue theory effective_bosonic: "
                 f"max |diff| = {np.abs(exact - theory).max():.2e}",
                 flush=True,
             )

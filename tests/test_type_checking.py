@@ -45,7 +45,12 @@ STRUCTURAL_TIME_BUDGET = 2.0
 def test_analogue_pipeline_type_checks_and_is_regime_limited(graph3: SchwingerGraph) -> None:
     """The analogue pipeline composes, is APPROXIMATE, and has two regime-limited steps."""
     pipeline = graph3.analogue
-    assert [step.name[:3] for step in pipeline.steps] == ["(a)", "(b)", "(c)", "(d)"]
+    assert [step.name for step in pipeline.steps] == [
+        "spin-1/2 quantum-link truncation",
+        "particle-hole transformation",
+        "Jordan-Wigner + hardcore-boson encoding",
+        "second-order degenerate perturbation theory, inverted",
+    ]
     assert pipeline.exactness is Exactness.APPROXIMATE
     assert pipeline.approximation_kinds == frozenset({ApproximationKind.REGIME_LIMITED})
     kinds = [step.approximation_kind for step in pipeline.approximate_steps]
@@ -63,9 +68,9 @@ def test_digital_pipeline_type_checks_and_has_a_resource_controlled_step(
 
 
 def test_both_pipelines_are_enumerable_from_the_shared_node(graph4: SchwingerGraph) -> None:
-    """Both branches leave L2b, and each target is reached by exactly one pipeline from L1."""
-    outgoing = {edge.target for edge in graph4.graph.outgoing("L2b")}
-    assert outgoing == {"L2c", "L2d"}
+    """Both branches leave the branch point, and each target is reached by exactly one pipeline."""
+    outgoing = {edge.target for edge in graph4.graph.outgoing("quantum_link_homogeneous")}
+    assert outgoing == {"effective_bosonic", "qubit_register"}
 
     reachable = set(graph4.graph.reachable(SOURCE))
     assert {ANALOGUE_TARGET, DIGITAL_TARGET} <= reachable
@@ -85,7 +90,9 @@ def test_both_pipelines_are_enumerable_from_the_shared_node(graph4: SchwingerGra
 
 def test_a_hamiltonian_step_rejects_a_product_formula(graph4: SchwingerGraph) -> None:
     """A Hamiltonian-consuming step raises ``ArtifactKindError`` on a product formula."""
-    staggered = graph4.graph.node("L2a").bind(**{P.MASS_L2A: 0.41, P.COUPLING_L2A: 0.83})
+    staggered = graph4.graph.node("quantum_link_staggered").bind(
+        **{P.MASS_QUANTUM_LINK_STAGGERED: 0.41, P.COUPLING_QUANTUM_LINK_STAGGERED: 0.83}
+    )
     qubits = to_qubits().apply(particle_hole().apply(staggered))
     product_formula = trotterisation(time=1.0, steps=2, order=2).apply(qubits)
     assert product_formula.kind is ArtifactKind.PRODUCT_FORMULA
@@ -99,9 +106,9 @@ def test_a_hamiltonian_step_rejects_a_product_formula(graph4: SchwingerGraph) ->
 
 
 def test_exact_prefixes_report_exact() -> None:
-    """The prefixes L2a -> L2b -> L2c and L2a -> L2b -> L2d are EXACT."""
-    analogue_prefix = Pipeline.of([particle_hole(), encoding()], name="L2a -> L2c")
-    digital_prefix = Pipeline.of([particle_hole(), to_qubits()], name="L2a -> L2d")
+    """The shared prefixes of both branches after the truncation are EXACT."""
+    analogue_prefix = Pipeline.of([particle_hole(), encoding()], name="analogue prefix")
+    digital_prefix = Pipeline.of([particle_hole(), to_qubits()], name="digital prefix")
     for prefix in (analogue_prefix, digital_prefix):
         assert prefix.exactness is Exactness.EXACT
         assert prefix.approximation is None
@@ -178,8 +185,8 @@ def test_incompatible_composition_raises_at_composition_time() -> None:
     """Composing steps whose structural types do not meet raises ``CompositionError``."""
     with pytest.raises(CompositionError) as caught:
         Pipeline.of([encoding(), truncation()])
-    assert caught.value.first.startswith("(c)")
-    assert caught.value.second.startswith("(a)")
+    assert caught.value.first.startswith("Jordan-Wigner + hardcore-boson encoding")
+    assert caught.value.second.startswith("spin-1/2 quantum-link truncation")
     aspects = {gap.aspect for gap in caught.value.gaps}
     assert "dof[matter].algebra" in aspects or "dof[gauge].algebra" in aspects
 

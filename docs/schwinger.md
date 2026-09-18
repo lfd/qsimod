@@ -3,8 +3,8 @@
 This page walks through the case study of the accompanying article: a one-dimensional lattice
 quantum electrodynamics (QED), the physical system model `H_sys`, is carried through a chain of
 intermediate representations to two hardware models of different artifact kinds, an analogue
-simulator model `H_sim` (a Bose-Hubbard chain, the node `L3a`) and a digital simulator model
-`U_approx` (a Trotter product formula, the node `L3b`), from a shared prefix.  For each artifact
+simulator model `H_sim` (a Bose-Hubbard chain, the node `bose_hubbard`) and a digital simulator model
+`U_approx` (a Trotter product formula, the node `trotter`), from a shared prefix.  For each artifact
 the page gives the Hamiltonian, the structural type and the parameter set; for each
 transformation the operator substitution, the exactness, the kind of approximation, the
 validity conditions and the parameter relation, followed by the software perspective on the
@@ -23,7 +23,7 @@ invariance in a 71-site Bose-Hubbard quantum simulator*, Nature **587**, 392 (20
 The use case [`qsimod.usecases.schwinger`][qsimod.usecases.schwinger] assembles artifacts from
 the model library [`qsimod.models`][qsimod.models] and transformations from the transformation
 library [`qsimod.transformations`][qsimod.transformations] into a model graph.  The figure
-shows this graph, including the second digital branch (`L2d_st`, `L3b_st`) that the
+shows this graph, including the second digital branch (`qubit_register_staggered`, `trotter_staggered`) that the
 [overview figure](index.md) omits.  A solid arrow is an exact transformation and a dotted arrow
 an approximate one, with the kind of approximation named underneath.
 
@@ -33,54 +33,54 @@ an approximate one, with the kind of approximation named underneath.
 flowchart TB
     subgraph LV1["Application model &nbsp;·&nbsp; <code>models.application</code>"]
         direction LR
-        L1["<b>L1 &nbsp; H<sub>sys</sub></b><br/>lattice QED<br/>(Kogut–Susskind)<br/><i>Θ<sub>sys</sub> = {m, a, e}</i>"]
+        lattice_qed["<b>lattice_qed &nbsp; H<sub>sys</sub></b><br/>lattice QED<br/>(Kogut–Susskind)<br/><i>Θ<sub>sys</sub> = {m, a, e}</i>"]
     end
     subgraph LV2["Intermediate representations &nbsp;·&nbsp; <code>models.intermediate</code>"]
-        L2a["<b>L2a &nbsp; H<sub>IR1</sub></b><br/>quantum-link model,<br/>staggered mass<br/><i>Θ<sub>IR1</sub> = {m, κ}</i>"]
-        L2b["<b>L2b &nbsp; H<sub>IR2</sub></b><br/>quantum-link model,<br/>pair coupling<br/><i>Θ<sub>IR2</sub> = {m, κ}</i>"]
-        L2c["<b>L2c &nbsp; H<sub>IR3</sub></b><br/>boson encoding<br/><i>Θ<sub>IR3</sub> = {m, κ}</i>"]
-        L2d["<b>L2d &nbsp; H<sub>IR4</sub></b><br/>qubit Hamiltonian<br/><i>Θ<sub>IR4</sub> = {m, κ}</i>"]
-        L2d_st["<b>L2d_st &nbsp; H<sub>IR4</sub><sup>st</sup></b><br/>qubit Hamiltonian,<br/>from the staggered form<br/><i>m, κ</i>"]
+        quantum_link_staggered["<b>quantum_link_staggered &nbsp; H<sub>IR1</sub></b><br/>quantum-link model,<br/>staggered mass<br/><i>Θ<sub>IR1</sub> = {m, κ}</i>"]
+        quantum_link_homogeneous["<b>quantum_link_homogeneous &nbsp; H<sub>IR2</sub></b><br/>quantum-link model,<br/>pair coupling<br/><i>Θ<sub>IR2</sub> = {m, κ}</i>"]
+        effective_bosonic["<b>effective_bosonic &nbsp; H<sub>IR3</sub></b><br/>boson encoding<br/><i>Θ<sub>IR3</sub> = {m, κ}</i>"]
+        qubit_register["<b>qubit_register &nbsp; H<sub>IR4</sub></b><br/>qubit Hamiltonian<br/><i>Θ<sub>IR4</sub> = {m, κ}</i>"]
+        qubit_register_staggered["<b>qubit_register_staggered &nbsp; H<sub>IR4</sub><sup>st</sup></b><br/>qubit Hamiltonian,<br/>from the staggered form<br/><i>m, κ</i>"]
     end
     subgraph LV3["Hardware model &nbsp;·&nbsp; <code>models.hardware</code>"]
         direction LR
-        L3a["<b>L3a &nbsp; H<sub>sim</sub></b><br/>tilted, staggered<br/>Bose–Hubbard chain<br/><i>Θ<sub>sim</sub> = {J, U, δ, Δ}</i>"]
-        L3b["<b>L3b &nbsp; U<sub>≈</sub></b><br/>Trotter product formula<br/><i>t, n, order</i>"]
-        L3b_st["<b>L3b_st &nbsp; U<sub>≈</sub><sup>st</sup></b><br/>Trotter product formula,<br/>from L2d_st<br/><i>t, n, order</i>"]
+        bose_hubbard["<b>bose_hubbard &nbsp; H<sub>sim</sub></b><br/>tilted, staggered<br/>Bose–Hubbard chain<br/><i>Θ<sub>sim</sub> = {J, U, δ, Δ}</i>"]
+        trotter["<b>trotter &nbsp; U<sub>≈</sub></b><br/>Trotter product formula<br/><i>t, n, order</i>"]
+        trotter_staggered["<b>trotter_staggered &nbsp; U<sub>≈</sub><sup>st</sup></b><br/>Trotter product formula,<br/>from the staggered form<br/><i>t, n, order</i>"]
     end
 
-    L1  -. "<b>(a)</b> quantum-link truncation<br/><i>approximate, regime conditions</i>" .-> L2a
-    L2a ---> |"<b>(b)</b> particle–hole transformation<br/><i>exact</i>"| L2b
-    L2b ---> |"<b>(c)</b> boson encoding<br/><i>exact on the encoded subspace</i>"| L2c
-    L2c -. "<b>(d)</b> degenerate perturbation theory,<br/>solved for the knob settings<br/><i>approximate, regime conditions</i>" .-> L3a
-    L2b ---> |"<b>(e)</b> Jordan–Wigner transformation<br/><i>exact</i>"| L2d
-    L2d -. "<b>(f)</b> Trotterisation<br/><i>approximate, resource-controlled</i>" .-> L3b
-    L2a ---> |"<b>(e')</b> Jordan–Wigner transformation, from L2a<br/><i>exact</i>"| L2d_st
-    L2d_st -. "<b>(f')</b> Trotterisation, order 2<br/><i>approximate, resource-controlled</i>" .-> L3b_st
+    lattice_qed -. "<b>quantum-link truncation</b><br/><i>approximate, regime conditions</i>" .-> quantum_link_staggered
+    quantum_link_staggered ---> |"<b>particle–hole transformation</b><br/><i>exact</i>"| quantum_link_homogeneous
+    quantum_link_homogeneous ---> |"<b>boson encoding</b><br/><i>exact on the encoded subspace</i>"| effective_bosonic
+    effective_bosonic -. "<b>degenerate perturbation theory,<br/>solved for the knob settings</b><br/><i>approximate, regime conditions</i>" .-> bose_hubbard
+    quantum_link_homogeneous ---> |"<b>Jordan–Wigner transformation</b><br/><i>exact</i>"| qubit_register
+    qubit_register -. "<b>Trotterisation</b><br/><i>approximate, resource-controlled</i>" .-> trotter
+    quantum_link_staggered ---> |"<b>Jordan–Wigner transformation,<br/>from the staggered form</b><br/><i>exact</i>"| qubit_register_staggered
+    qubit_register_staggered -. "<b>Trotterisation, order 2</b><br/><i>approximate, resource-controlled</i>" .-> trotter_staggered
 
     classDef ham fill:#e0f2ee,stroke:#009371,color:#003e2f
     classDef pf fill:#fbf1d9,stroke:#c48700,color:#573c00
-    class L1,L2a,L2b,L2c,L2d,L2d_st,L3a ham
-    class L3b,L3b_st pf
+    class lattice_qed,quantum_link_staggered,quantum_link_homogeneous,effective_bosonic,qubit_register,qubit_register_staggered,bose_hubbard ham
+    class trotter,trotter_staggered pf
     style LV1 fill:#f2f7fa,stroke:#b1d0e5,color:#103c5a
     style LV2 fill:#f2f7fa,stroke:#b1d0e5,color:#103c5a
     style LV3 fill:#f2f7fa,stroke:#b1d0e5,color:#103c5a
 ```
 
-The node identifiers of the package and the notation of the article correspond as follows.
+The artifact names of the package and the notation of the article correspond as follows.
 
 | Node | Article | Artifact | Parameter set |
 |---|---|---|---|
-| `L1` | `H_sys` | physical system model: lattice QED in the Kogut-Susskind formulation | `Theta_sys = {m, a, e}` |
-| `L2a` | `H_IR1` | quantum-link model with staggered mass | `Theta_IR1 = {m, kappa}` |
-| `L2b` | `H_IR2` | quantum-link model after the particle-hole transformation; the branch point | `Theta_IR2 = {m, kappa}` |
-| `L2c` | `H_IR3` | boson encoding of `H_IR2` | `Theta_IR3 = {m, kappa}` |
-| `L3a` | `H_sim` | analogue simulator model: tilted, staggered Bose-Hubbard chain | `Theta_sim = {J, U, delta, Delta}` |
-| `L2d` | `H_IR4` | qubit Hamiltonian, the Jordan-Wigner image of `H_IR2` | `Theta_IR4 = {m, kappa}` |
-| `L3b` | `U_approx` | digital simulator model: Trotter product formula of `H_IR4` | `t`, `n`, order, and `m`, `kappa` |
-| `L2d_st`, `L3b_st` | | the second digital branch, leaving `L2a`; see [the two branch points](#the-two-branch-points) | |
+| `lattice_qed` | `H_sys` | physical system model: lattice QED in the Kogut-Susskind formulation | `Theta_sys = {m, a, e}` |
+| `quantum_link_staggered` | `H_IR1` | quantum-link model with staggered mass | `Theta_IR1 = {m, kappa}` |
+| `quantum_link_homogeneous` | `H_IR2` | quantum-link model after the particle-hole transformation; the branch point | `Theta_IR2 = {m, kappa}` |
+| `effective_bosonic` | `H_IR3` | boson encoding of `H_IR2` | `Theta_IR3 = {m, kappa}` |
+| `bose_hubbard` | `H_sim` | analogue simulator model: tilted, staggered Bose-Hubbard chain | `Theta_sim = {J, U, delta, Delta}` |
+| `qubit_register` | `H_IR4` | qubit Hamiltonian, the Jordan-Wigner image of `H_IR2` | `Theta_IR4 = {m, kappa}` |
+| `trotter` | `U_approx` | digital simulator model: Trotter product formula of `H_IR4` | `t`, `n`, order, and `m`, `kappa` |
+| `qubit_register_staggered`, `trotter_staggered` | | the second digital branch, leaving `quantum_link_staggered`; see [the two branch points](#the-two-branch-points) | |
 
-The digital branch may leave from `L2b` or from `L2a`.
+The digital branch may leave from `quantum_link_homogeneous` or from `quantum_link_staggered`.
 
 ## Library and use case
 
@@ -105,7 +105,7 @@ operation a transformation performs.
 | [`trotterisation`][qsimod.transformations.trotterisation] | a Hamiltonian is replaced by a product of unitaries | approximate, resource-controlled |
 
 A model builder takes a chain length and a parameter [`Namespace`][qsimod.parameters.Namespace];
-a transformation builder takes the two namespaces it relates.  `L2a` and `L2b` are two calls of
+a transformation builder takes the two namespaces it relates.  `quantum_link_staggered` and `quantum_link_homogeneous` are two calls of
 [`quantum_link_model`][qsimod.models.intermediate.quantum_link_model] at two conventions.  Every
 artifact and every transformation declares its
 [`AbstractionLevel`][qsimod.levels.AbstractionLevel]:
@@ -125,28 +125,28 @@ for node, level in build_graph(3).levels().items():
 
 | Node | Artifact kind | Matter | Gauge | Parameters | Terms | Dimension (N=3 / N=4) |
 |---|---|---|---|---|---|---|
-| `L1` | Hamiltonian | fermion | untruncated U(1) link | `m`, `a`, `e`, `electric_gap` | 9 | **not realisable** |
-| `L2a` | Hamiltonian | fermion | spin-1/2 | `m`, `kappa` | 7 | 32 / 128 |
-| `L2b` | Hamiltonian | fermion | spin-1/2 | `m`, `kappa` | 8 | 32 / 128 |
-| `L2c` | Hamiltonian | boson | boson | `m`, `kappa` | 8 | 243 / 2187 |
-| `L3a` | Hamiltonian | boson | boson | `J`, `U`, `delta`, `Delta` | 23 | 243 / 2187 |
-| `L2d` | Hamiltonian | qubit | qubit | `m`, `kappa` | 8 | 32 / 128 |
-| `L2d_st` | Hamiltonian | qubit | qubit | `m`, `kappa` | 7 | 32 / 128 |
-| `L3b` | **product formula** | qubit | qubit | `t`, `n`, `2k` (and `m`, `kappa`) | — | 32 / 128 |
-| `L3b_st` | **product formula** | qubit | qubit | `t`, `n`, `2k` (and `m`, `kappa`) | — | 32 / 128 |
+| `lattice_qed` | Hamiltonian | fermion | untruncated U(1) link | `m`, `a`, `e`, `electric_gap` | 9 | **not realisable** |
+| `quantum_link_staggered` | Hamiltonian | fermion | spin-1/2 | `m`, `kappa` | 7 | 32 / 128 |
+| `quantum_link_homogeneous` | Hamiltonian | fermion | spin-1/2 | `m`, `kappa` | 8 | 32 / 128 |
+| `effective_bosonic` | Hamiltonian | boson | boson | `m`, `kappa` | 8 | 243 / 2187 |
+| `bose_hubbard` | Hamiltonian | boson | boson | `J`, `U`, `delta`, `Delta` | 23 | 243 / 2187 |
+| `qubit_register` | Hamiltonian | qubit | qubit | `m`, `kappa` | 8 | 32 / 128 |
+| `qubit_register_staggered` | Hamiltonian | qubit | qubit | `m`, `kappa` | 7 | 32 / 128 |
+| `trotter` | **product formula** | qubit | qubit | `t`, `n`, `2k` (and `m`, `kappa`) | — | 32 / 128 |
+| `trotter_staggered` | **product formula** | qubit | qubit | `t`, `n`, `2k` (and `m`, `kappa`) | — | 32 / 128 |
 
 | Abstraction layer | Nodes |
 |---|---|
-| application: the physical system model in its own terms | `L1` |
-| intermediate representations | `L2a`, `L2b`, `L2c`, `L2d`, `L2d_st` |
-| hardware: the Hamiltonian or product formula a simulator realises natively | `L3a` (analogue), `L3b` / `L3b_st` (digital) |
+| application: the physical system model in its own terms | `lattice_qed` |
+| intermediate representations | `quantum_link_staggered`, `quantum_link_homogeneous`, `effective_bosonic`, `qubit_register`, `qubit_register_staggered` |
+| hardware: the Hamiltonian or product formula a simulator realises natively | `bose_hubbard` (analogue), `trotter` / `trotter_staggered` (digital) |
 | executable: gate set, routing, pulses | **out of scope** |
 
-Parameter names are namespaced by the artifact that owns them (`L3a.J`, `L2c.kappa`).  The
+Parameter names are namespaced by the artifact that owns them (`bose_hubbard.J`, `effective_bosonic.kappa`).  The
 library uses the local names of [`qsimod.models.names`][qsimod.models.names]; the fully
 qualified names are constants on [`ParameterNames`][qsimod.usecases.schwinger.ParameterNames].
 
-!!! note "`L2c` and `L3a` are bosonic"
+!!! note "`effective_bosonic` and `bose_hubbard` are bosonic"
 
     `H_IR3` is written in bosonic operators, so its realisation has dimension `3**(2N-1)` at
     `n_max = 2` rather than `2**(2N-1)`; the two-states-per-site subspace is a declaration on
@@ -175,16 +175,16 @@ model.
 
 | Transformation | From | To | Exactness | Kind of approximation | Relation, forward direction | Relation, inverse direction |
 |---|---|---|---|---|---|---|
-| **(a)** [quantum-link truncation][qsimod.transformations.truncations.quantum_link_truncation] | `L1` | `L2a` | `APPROXIMATE` | regime conditions | `CLOSED_FORM` | `CLOSED_FORM` |
-| **(b)** [particle-hole transformation][qsimod.transformations.basis_changes.particle_hole_transformation] | `L2a` | `L2b` | `EXACT` | — | `CLOSED_FORM` | `CLOSED_FORM` |
-| **(c)** [boson encoding][qsimod.transformations.encodings.hardcore_boson_encoding] | `L2b` | `L2c` | `EXACT` on the encoded subspace | — | `CLOSED_FORM` | `CLOSED_FORM` |
-| **(d)** [second-order perturbation theory][qsimod.transformations.perturbative.second_order_perturbation_theory] | `L2c` | `L3a` | `APPROXIMATE` | regime conditions | `CLOSED_FORM` | **`UNDER_DETERMINED`** |
-| **(e)** [Jordan-Wigner transformation][qsimod.transformations.basis_changes.jordan_wigner_to_qubits] | `L2b` | `L2d` | `EXACT` | — | `CLOSED_FORM` | `CLOSED_FORM` |
-| **(e')** [Jordan-Wigner transformation from `L2a`][qsimod.transformations.basis_changes.jordan_wigner_to_qubits] | `L2a` | `L2d_st` | `EXACT` | — | `CLOSED_FORM` | `CLOSED_FORM` |
-| **(f)** [Trotterisation][qsimod.transformations.trotterisation.suzuki_trotter] | `L2d` | `L3b` | `APPROXIMATE` | **resource-controlled** | `CLOSED_FORM` | `CLOSED_FORM` |
+| [quantum-link truncation][qsimod.transformations.truncations.quantum_link_truncation] | `lattice_qed` | `quantum_link_staggered` | `APPROXIMATE` | regime conditions | `CLOSED_FORM` | `CLOSED_FORM` |
+| [particle-hole transformation][qsimod.transformations.basis_changes.particle_hole_transformation] | `quantum_link_staggered` | `quantum_link_homogeneous` | `EXACT` | — | `CLOSED_FORM` | `CLOSED_FORM` |
+| [boson encoding][qsimod.transformations.encodings.hardcore_boson_encoding] | `quantum_link_homogeneous` | `effective_bosonic` | `EXACT` on the encoded subspace | — | `CLOSED_FORM` | `CLOSED_FORM` |
+| [second-order perturbation theory][qsimod.transformations.perturbative.second_order_perturbation_theory] | `effective_bosonic` | `bose_hubbard` | `APPROXIMATE` | regime conditions | `CLOSED_FORM` | **`UNDER_DETERMINED`** |
+| [Jordan-Wigner transformation][qsimod.transformations.basis_changes.jordan_wigner_to_qubits] | `quantum_link_homogeneous` | `qubit_register` | `EXACT` | — | `CLOSED_FORM` | `CLOSED_FORM` |
+| [Jordan-Wigner transformation from `quantum_link_staggered`][qsimod.transformations.basis_changes.jordan_wigner_to_qubits] | `quantum_link_staggered` | `qubit_register_staggered` | `EXACT` | — | `CLOSED_FORM` | `CLOSED_FORM` |
+| [Trotterisation][qsimod.transformations.trotterisation.suzuki_trotter] | `qubit_register` | `trotter` | `APPROXIMATE` | **resource-controlled** | `CLOSED_FORM` | `CLOSED_FORM` |
 
-The parameter relation of transformation (d) is derived from the hardware model to the
-effective theory: in this forward direction it is a closed form from the knobs to the effective
+The parameter relation of the perturbative step is derived from the hardware model to
+the effective theory: in this forward direction it is a closed form from the knobs to the effective
 parameters, in the inverse direction, the solve for the knob settings, it is under-determined.
 Both classifications are computed from one relation object.
 
@@ -218,7 +218,7 @@ print(step.source_pattern)  # what it demands
 print(step.target_pattern)  # what it guarantees
 ```
 
-## `H_sys` (`L1`): the physical system model
+## `H_sys` (`lattice_qed`): the physical system model
 
 **Use case:** [`theory`][qsimod.usecases.schwinger.theory] &nbsp;·&nbsp; **library:** [`kogut_susskind_gauge_theory`][qsimod.models.application.kogut_susskind_gauge_theory]
 
@@ -250,7 +250,8 @@ take half-integer values and are never zero; their declared targets are `-1/2` a
 alongside the Hamiltonian: the generators and the sector in which physical states live are
 data on the model.  The parameter set is `Theta_sys = {m, a, e}`; a fourth parameter,
 `electric_gap`, is used by no term and carries the energy cost `a e**2 / 2` of one extra unit of
-electric flux, against which the validity condition of transformation (a) is evaluated.  The
+electric flux, against which the validity condition of the quantum-link truncation is
+evaluated.  The
 structural type declares the matter sites as fermionic two-level systems and the electric
 field of a link as an infinite-dimensional degree of freedom with the algebra
 [`Algebra.GAUGE_LINK_U1`][qsimod.structure.Algebra] and `local_dimension = None`.  The artifact
@@ -271,7 +272,7 @@ except ValueError as error:
 The type nevertheless allows the transformations that follow to be type-checked without an
 explicit matrix representation.
 
-## (a) `L1` -> `L2a`: the quantum-link truncation
+## `lattice_qed` -> `quantum_link_staggered`: the quantum-link truncation
 
 The infinitely many field values of a link are cut down to the two lowest, which leaves a
 spin-1/2 on each link.  The three spin operators replace the electric field and the link
@@ -308,7 +309,7 @@ from qsimod.usecases.schwinger import ParameterNames as P
 from qsimod.usecases.schwinger import theory, truncation
 
 bound = theory(3).bind(
-    **{P.MASS_L1: 0.0, P.LATTICE_SPACING: 1.0, P.GAUGE_COUPLING: 1.0, P.ELECTRIC_GAP: 0.5}
+    **{P.MASS_LATTICE_QED: 0.0, P.LATTICE_SPACING: 1.0, P.GAUGE_COUPLING: 1.0, P.ELECTRIC_GAP: 0.5}
 )
 truncated = truncation().apply(bound)
 print(truncated.dropped_constants[0])  # (a/2) sum_l E^2 -> (N-1) a e^2 / 8 = 0.25
@@ -318,11 +319,11 @@ Every other additive constant in the package is retained; see [discarded
 constants](#discarded-constants).
 
 **Parameter relation.**  Taken literally, the substitution fixes the coupling at `2/sqrt(3)`.
-From `L2a` on, `kappa` is instead released as the tunable coupling of the simulated theory, so
+From `quantum_link_staggered` on, `kappa` is instead released as the tunable coupling of the simulated theory, so
 the relation carries only the mass:
 
 ```
-mass carried over: L2a.m = L1.m
+mass carried over: quantum_link_staggered.m = lattice_qed.m
 ```
 
 One equation for two target parameters: the composite pipeline has two residual degrees of
@@ -333,7 +334,7 @@ changes, from the infinite-dimensional link to a spin-1/2.  The matter and the l
 remain, with the generators of Gauss's law rewritten in the new operators, and the parameter
 set becomes `Theta_IR1 = {m, kappa}`.
 
-## `H_IR1` (`L2a`): the quantum-link model with staggered mass
+## `H_IR1` (`quantum_link_staggered`): the quantum-link model with staggered mass
 
 **Use case:** [`staggered_quantum_link`][qsimod.usecases.schwinger.staggered_quantum_link] &nbsp;·&nbsp; **library:** [`quantum_link_model`][qsimod.models.intermediate.quantum_link_model] at [`STAGGERED_CONVENTION`][qsimod.models.intermediate.STAGGERED_CONVENTION]
 
@@ -352,19 +353,21 @@ G_l = S^z_{l,l+1} - S^z_{l-1,l} - [ n_l - (1 - (-1)^l)/2 ]
 
 with target zero in the bulk, `-1/2` at `l = 0` and `(-1)**N / 2` at `l = N-1`.
 
-`kappa` is a parameter of this artifact and is bound here, not at `L1`:
+`kappa` is a parameter of this artifact and is bound here, not at `lattice_qed`:
 
 ```python
 from qsimod.usecases.schwinger import ParameterNames as P
 from qsimod.usecases.schwinger import build_graph
 
 graph = build_graph(3)
-staggered = graph.graph.node("L2a").bind(**{P.MASS_L2A: 0.41, P.COUPLING_L2A: 0.83})
+staggered = graph.graph.node("quantum_link_staggered").bind(
+    **{P.MASS_QUANTUM_LINK_STAGGERED: 0.41, P.COUPLING_QUANTUM_LINK_STAGGERED: 0.83}
+)
 print(staggered.is_fully_bound)  # True
 print(staggered.pretty())  # the Hamiltonian, with psi on the fermionic sites
 ```
 
-## (b) `L2a` -> `L2b`: the particle-hole transformation
+## `quantum_link_staggered` -> `quantum_link_homogeneous`: the particle-hole transformation
 
 The particle-hole transformation relabels the basis states.  On every odd matter site the roles
 of occupied and empty are exchanged, and on every even link the spin is flipped:
@@ -381,15 +384,15 @@ hopping term, which moves a particle across a link, becomes a pair term that cre
 annihilates a particle-antiparticle pair on the two sides of a link.  As written, the map gives
 the pair coupling an alternating sign `(-1)^(l+1)` on the links; the rotation `S^± -> -S^±` on
 the even links, a rotation about `z` that leaves `S^z` and every `G_l` unchanged, removes it.
-The uniform-sign form printed under `L2b` is this composite.
+The uniform-sign form printed under `quantum_link_homogeneous` is this composite.
 
 !!! danger "The two parities must be opposite"
 
     Flipping every link, or the links of the same parity as the matter sites, produces no
     model of this family.  The two valid combinations differ in the sign of the mass handed to
-    `L2b`:
+    `quantum_link_homogeneous`:
 
-    | matter flipped | links flipped | mass at L2b |
+    | matter flipped | links flipped | mass at quantum_link_homogeneous |
     |---|---|---|
     | **odd** | **even** | **`+m`**, the convention taken here |
     | even | odd | `-m`, which inverts the phase assignment at large mass |
@@ -400,8 +403,8 @@ The uniform-sign form printed under `L2b` is this composite.
 **Parameter relation:** an identity on both parameters, a closed form in both directions:
 
 ```
-L2b.m = L2a.m
-L2b.kappa = L2a.kappa
+quantum_link_homogeneous.m = quantum_link_staggered.m
+quantum_link_homogeneous.kappa = quantum_link_staggered.kappa
 ```
 
 **Constant.**  The staggering leaves `- m * floor(N/2)`, which is retained as an identity term.
@@ -409,7 +412,7 @@ L2b.kappa = L2a.kappa
 **Software perspective.**  The transformation is exact; the structural type and the parameter
 set `Theta_IR2 = Theta_IR1 = {m, kappa}` of the target are unchanged.
 
-## `H_IR2` (`L2b`): the quantum-link model with pair coupling
+## `H_IR2` (`quantum_link_homogeneous`): the quantum-link model with pair coupling
 
 **Use case:** [`homogeneous_quantum_link`][qsimod.usecases.schwinger.homogeneous_quantum_link] &nbsp;·&nbsp; **library:** [`quantum_link_model`][qsimod.models.intermediate.quantum_link_model] at [`HOMOGENEOUS_CONVENTION`][qsimod.models.intermediate.HOMOGENEOUS_CONVENTION]
 
@@ -442,7 +445,7 @@ The objective of the analogue branch is a mapping from `H_IR2` to a simulator Ha
 `H_sim` that a neutral-atom quantum simulator realises natively, together with the knob
 settings under which the simulator reproduces the theory.
 
-### (c) `L2b` -> `L2c`: the boson encoding
+### `quantum_link_homogeneous` -> `effective_bosonic`: the boson encoding
 
 The two-level degrees of freedom of `H_IR2` are expressed by atom numbers: an occupied or
 empty matter site by one or zero atoms, an up or down link spin by two or zero atoms.  Matter
@@ -466,7 +469,7 @@ spectral comparison.  At the reference point the spectra agree to `1.7e-16`.
 structural type declares both degrees of freedom as bosonic, with the occupation subspace
 recorded on the artifact so that a numerical realisation can enforce it.
 
-### `H_IR3` (`L2c`): the effective bosonic model
+### `H_IR3` (`effective_bosonic`): the effective bosonic model
 
 **Use case:** [`effective_bosonic`][qsimod.usecases.schwinger.effective_bosonic] &nbsp;·&nbsp; **library:** [`bosonic_pair_coupling_model`][qsimod.models.intermediate.bosonic_pair_coupling_model]
 
@@ -505,12 +508,16 @@ positions.  Any realisation needs `n_max >= 2`, which
     model = effective_bosonic(3)
     space = HilbertSpace.of(model.structure, RealisationRequest(boson_cutoff=2))
     projector = local_subspace_projector(local_occupation_subspace(3), space)
-    operator = build_operator(model.hamiltonian, space, {P.MASS_L2C: 0.41, P.COUPLING_L2C: 0.83})
+    operator = build_operator(
+        model.hamiltonian,
+        space,
+        {P.MASS_EFFECTIVE_BOSONIC: 0.41, P.COUPLING_EFFECTIVE_BOSONIC: 0.83},
+    )
     complement = space.identity() - projector
     print(spectral_norm(complement @ operator @ projector))  # 1.1738... = sqrt(2) * 0.83
     ```
 
-### (d) `L2c` -> `L3a`: finding the knob settings by second-order perturbation theory
+### `effective_bosonic` -> `bose_hubbard`: finding the knob settings by second-order perturbation theory
 
 The pair tunnelling of `H_IR3` has to be realised by the single-atom tunnelling that the
 Bose-Hubbard chain offers.  This is achieved by tuning the hardware to a resonance: the two
@@ -539,11 +546,11 @@ not admissible, and the tilt has to stay above the coupling but below the other 
 
 | Solved form | Solves | Note |
 |---|---|---|
-| `L2c.m := delta - U/2` | mass | |
-| `L2c.kappa := sqrt(2) J^2 (...)` | coupling | |
-| `L3a.delta := m + U/2` | mass | at fixed `U` |
-| `L3a.U := 2(delta - m)` | mass | at fixed `delta` |
-| `L3a.J := sqrt(kappa / (sqrt(2) * pole sum))` | coupling | positive branch, at fixed `(U, delta, Delta)` |
+| `effective_bosonic.m := delta - U/2` | mass | |
+| `effective_bosonic.kappa := sqrt(2) J^2 (...)` | coupling | |
+| `bose_hubbard.delta := m + U/2` | mass | at fixed `U` |
+| `bose_hubbard.U := 2(delta - m)` | mass | at fixed `delta` |
+| `bose_hubbard.J := sqrt(kappa / (sqrt(2) * pole sum))` | coupling | positive branch, at fixed `(U, delta, Delta)` |
 
 **Validity conditions.**  Four domain conditions exclude the poles of the coupling formula and
 six regime conditions ensure the assumptions of the expansion:
@@ -577,8 +584,8 @@ report = validity().report(
         P.INTERACTION: 1.0,
         P.SUPERLATTICE: 0.52,
         P.TILT: 0.048,
-        P.MASS_L2C: 0.02,
-        P.COUPLING_L2C: 0.004525,
+        P.MASS_EFFECTIVE_BOSONIC: 0.02,
+        P.COUPLING_EFFECTIVE_BOSONIC: 0.004525,
     }
 )
 print(report)
@@ -604,24 +611,25 @@ returns the hardware model with its parameters unbound:
 from qsimod.usecases.schwinger import ParameterNames as P, build_graph
 
 graph = build_graph(3)
-theory = graph.graph.node("L1").bind(
+theory = graph.graph.node("lattice_qed").bind(
     **{
-        P.MASS_L1: 0.02,
+        P.MASS_LATTICE_QED: 0.02,
         P.LATTICE_SPACING: 1.0,
         P.GAUGE_COUPLING: 1.0,
         P.ELECTRIC_GAP: 0.5,
     }
 )
 target = graph.analogue.apply(theory)
-print(target)  # L3a <Hamiltonian> H_BHM [unbound]
-print(target.free_parameters)  # ('L3a.J', 'L3a.U', 'L3a.delta', 'L3a.Delta')
+print(target)  # bose_hubbard <Hamiltonian> H_BHM [unbound]
+print(target.free_parameters)
+# ('bose_hubbard.J', 'bose_hubbard.U', 'bose_hubbard.delta', 'bose_hubbard.Delta')
 ```
 
 A knob setting determined by the solver is valid only if it lies in the admissible set and
 inside the declared regime, and the result reports the margin of every validity condition; see
 [posing a solve](#posing-a-solve).
 
-### `H_sim` (`L3a`): the analogue simulator model
+### `H_sim` (`bose_hubbard`): the analogue simulator model
 
 **Use case:** [`superlattice`][qsimod.usecases.schwinger.superlattice] &nbsp;·&nbsp; **library:** [`tilted_bose_hubbard_chain`][qsimod.models.hardware.tilted_bose_hubbard_chain]
 
@@ -648,10 +656,11 @@ artifact:
 from qsimod.usecases.schwinger import device_limits
 
 print(device_limits())
-# optical superlattice simulator: L3a.J in (0, 0.25]; L3a.U in [0.05, 4];
-#   L3a.delta in (0, 2.5]; L3a.Delta in (0, 0.6];
-#   tilt within the superlattice depth: (0.5*L3a.delta - L3a.Delta) >= 0;
-#   tilt within the resonance gap: (0.5*(L3a.U - L3a.delta) - L3a.Delta) >= 0
+# optical superlattice simulator: bose_hubbard.J in (0, 0.25]; bose_hubbard.U in [0.05, 4];
+#   bose_hubbard.delta in (0, 2.5]; bose_hubbard.Delta in (0, 0.6];
+#   tilt within the superlattice depth: (0.5*bose_hubbard.delta - bose_hubbard.Delta) >= 0;
+#   tilt within the resonance gap:
+#     (0.5*(bose_hubbard.U - bose_hubbard.delta) - bose_hubbard.Delta) >= 0
 ```
 
 `J = 0` and `Delta = 0` are excluded strictly.  The two coupled constraints keep the tilt at
@@ -671,7 +680,7 @@ solving layer evaluates, differentiates and bounds by interval arithmetic.
 The objective of the digital branch is to express the time evolution under `H_IR2` as
 gate-based instructions on qubits.
 
-### (e) and (e') `L2b`/`L2a` -> `L2d`: the Jordan-Wigner transformation
+### `quantum_link_homogeneous` -> `qubit_register`: the Jordan-Wigner transformation
 
 Gate-based hardware operates with qubits, while `H_IR2` contains fermions on the matter sites
 and spins on the links.  The spin-1/2 of a link is already a qubit, with `S^z` and `S^±`
@@ -695,7 +704,7 @@ next-nearest-neighbour coupling would leave a string.
 
 The sign convention is the alternating-sign Jordan-Wigner map of
 [`qsimod.realise.build`][qsimod.realise.build], which both branches use.  The fermionic
-realisation of `L2b` and the qubit realisation of `L2d` are identical matrices.
+realisation of `quantum_link_homogeneous` and the qubit realisation of `qubit_register` are identical matrices.
 
 **Software perspective.**  The transformation is exact, with the parameter set
 `Theta_IR4 = Theta_IR2 = {m, kappa}` of the target unchanged.  The structural type of the
@@ -707,8 +716,11 @@ change their algebra to qubits.
 
 The particle-hole transformation is needed by the analogue branch, which realises the pair
 coupling of `H_IR2` on the optical lattice, but not by the digital one.  The digital branch may
-therefore leave from `L2b` (transformation (e)) or from `L2a` (transformation (e')); the two
-qubit Hamiltonians are unitarily equivalent:
+therefore leave from `quantum_link_homogeneous`, by
+[`to_qubits`][qsimod.usecases.schwinger.to_qubits], or from `quantum_link_staggered`, by
+[`to_qubits_from_staggered`][qsimod.usecases.schwinger.to_qubits_from_staggered], which
+applies the same map in the staggered convention; the two qubit Hamiltonians are unitarily
+equivalent:
 
 ```python
 from qsimod.realise import HilbertSpace, build_operator, eigensystem
@@ -720,15 +732,19 @@ from qsimod.usecases.schwinger import (
     particle_hole,
 )
 
-staggered = build_graph(4).graph.node("L2a").bind(**{P.MASS_L2A: 0.41, P.COUPLING_L2A: 0.83})
-via_l2b = to_qubits().apply(particle_hole().apply(staggered))
-via_l2a = to_qubits_from_staggered().apply(staggered)
+staggered = (
+    build_graph(4)
+    .graph.node("quantum_link_staggered")
+    .bind(**{P.MASS_QUANTUM_LINK_STAGGERED: 0.41, P.COUPLING_QUANTUM_LINK_STAGGERED: 0.83})
+)
+via_homogeneous = to_qubits().apply(particle_hole().apply(staggered))
+via_staggered = to_qubits_from_staggered().apply(staggered)
 # identical spectra to 1e-10, a numerical check of the two exact transformations
 ```
 
-`graph.outgoing("L2a")` returns both edges.
+`graph.outgoing("quantum_link_staggered")` returns both edges.
 
-### `H_IR4` (`L2d`): the qubit Hamiltonian
+### `H_IR4` (`qubit_register`): the qubit Hamiltonian
 
 **Use case:** [`qubit_register`][qsimod.usecases.schwinger.qubit_register] &nbsp;·&nbsp; **library:** [`k_local_qubit_model`][qsimod.models.intermediate.k_local_qubit_model]
 
@@ -762,8 +778,7 @@ print("internally commuting:", pauli.internally_commuting())
 ```
 
 The full Hamiltonian is nevertheless a sum of non-commuting terms, so its time evolution
-cannot be executed as a sequence of gates directly and requires the Trotterisation of
-transformation (f).
+cannot be executed as a sequence of gates directly and requires the Trotterisation.
 
 !!! note "The factor of two on the z component"
 
@@ -771,14 +786,14 @@ transformation (f).
     `S^+-` need no rescaling.  The coupling changes the total matter charge by `+-2`, so the
     mass term does not commute with it and no two Trotter layers commute.
 
-### `H_IR4^st` (`L2d_st`): the qubit Hamiltonian from the other branch point
+### `H_IR4^st` (`qubit_register_staggered`): the qubit Hamiltonian from the other branch point
 
 **Use case:** [`qubit_register_from_staggered`][qsimod.usecases.schwinger.qubit_register_from_staggered] &nbsp;·&nbsp; **library:** [`k_local_qubit_model`][qsimod.models.intermediate.k_local_qubit_model], staggered convention
 
-The Jordan-Wigner image of `L2a`: a hopping coupling, a staggered mass, and a minus sign from
-the Jordan-Wigner string.  Its spectrum agrees with that of `L2d` to `1e-10`.
+The Jordan-Wigner image of `quantum_link_staggered`: a hopping coupling, a staggered mass, and a minus sign from
+the Jordan-Wigner string.  Its spectrum agrees with that of `qubit_register` to `1e-10`.
 
-### (f) `L2d` -> `L3b`: the Trotterisation
+### `qubit_register` -> `trotter`: the Trotterisation
 
 **Artifact kind.**  The transformation changes the kind of artifact: `source_kind` is
 `HAMILTONIAN` and `target_kind` is `PRODUCT_FORMULA`.  It is the only transformation of the case
@@ -818,7 +833,11 @@ from qsimod.usecases.schwinger import (
     to_qubits,
 )
 
-staggered = build_graph(4).graph.node("L2a").bind(**{P.MASS_L2A: 0.41, P.COUPLING_L2A: 0.83})
+staggered = (
+    build_graph(4)
+    .graph.node("quantum_link_staggered")
+    .bind(**{P.MASS_QUANTUM_LINK_STAGGERED: 0.41, P.COUPLING_QUANTUM_LINK_STAGGERED: 0.83})
+)
 qubits = to_qubits().apply(particle_hole().apply(staggered))
 
 layers = interleaved_layers_of(qubits)
@@ -840,7 +859,7 @@ greedy, finer partition.  The partition affects both the bound and the cost.
 
 **Exactness:** `APPROXIMATE`, with an error controlled by resource parameters: the step count
 `n` and the order at a given simulated time `t`, in contrast to the regime conditions of
-transformations (a) and (d).
+the quantum-link truncation and the perturbative step.
 
 **Step count.**  Choosing the step count for a requested accuracy is posed as a solve like the
 knob settings of the analogue branch: the unknown is an integer, the constraint an inequality
@@ -854,7 +873,7 @@ from qsimod.trotter import SpectralNormEstimator
 estimator = SpectralNormEstimator(len(qubits.structure.sites))  # 7 qubits at N = 4
 outcome = minimal_steps(layers, order=2, time=2.0, target_error=1e-3, estimator=estimator)
 print(int(outcome.point[STEPS_SYMBOL]), outcome.notes["minimality"])
-# 30  L3b.n = 30 satisfies the constraints and 29 does not
+# 30  trotter.n = 30 satisfies the constraints and 29 does not
 
 candidates = resource_candidates(layers, 2.0, 1e-3, orders=(1, 2, 4), estimator=estimator)
 print(minimal_resource_setting(candidates))
@@ -868,7 +887,7 @@ step against 5.
 on disjoint qubits, not in CNOTs, since a CNOT count needs the connectivity and the gate set of
 the executable layer.  See [`ResourceSummary`][qsimod.trotter.schedule.ResourceSummary].
 
-### `U_approx` (`L3b`): the digital simulator model
+### `U_approx` (`trotter`): the digital simulator model
 
 A [`ProductFormulaModel`][qsimod.trotter.schedule.ProductFormulaModel] is not a Hamiltonian.  It
 carries
@@ -893,7 +912,11 @@ from qsimod.usecases.schwinger import (
 )
 from qsimod.trotter import as_product_formula
 
-staggered = build_graph(50).graph.node("L2a").bind(**{P.MASS_L2A: 0.41, P.COUPLING_L2A: 0.83})
+staggered = (
+    build_graph(50)
+    .graph.node("quantum_link_staggered")
+    .bind(**{P.MASS_QUANTUM_LINK_STAGGERED: 0.41, P.COUPLING_QUANTUM_LINK_STAGGERED: 0.83})
+)
 qubits = to_qubits().apply(particle_hole().apply(staggered))
 formula = as_product_formula(trotterisation(time=2.0, steps=8, order=1).apply(qubits))
 print(formula.resources())  # 99 qubits, factors, depth in layers, error bound
@@ -914,7 +937,11 @@ from qsimod.usecases.schwinger import (
     trotterisation,
 )
 
-staggered = build_graph(3).graph.node("L2a").bind(**{P.MASS_L2A: 0.41, P.COUPLING_L2A: 0.83})
+staggered = (
+    build_graph(3)
+    .graph.node("quantum_link_staggered")
+    .bind(**{P.MASS_QUANTUM_LINK_STAGGERED: 0.41, P.COUPLING_QUANTUM_LINK_STAGGERED: 0.83})
+)
 qubits = to_qubits().apply(particle_hole().apply(staggered))
 formula = trotterisation(time=2.0, steps=8, order=2).apply(qubits)
 
@@ -922,7 +949,7 @@ try:
     to_qubits().apply(formula)
 except ArtifactKindError as error:
     print(error)
-# (e) Jordan-Wigner to qubits: expects a Hamiltonian but L3b is a product formula;
+# Jordan-Wigner to qubits: expects a Hamiltonian but trotter is a product formula;
 # the two artifact kinds are not interchangeable
 ```
 
@@ -976,8 +1003,8 @@ try:
 except CompositionError as error:
     print(error)
     print([gap.aspect for gap in error.gaps])
-# cannot compose '(c) Jordan-Wigner + hardcore-boson encoding' with '(a) spin-1/2
-# quantum-link truncation': dof[matter].algebra: requires fermion, found boson; ...
+# cannot compose 'Jordan-Wigner + hardcore-boson encoding' with 'spin-1/2 quantum-link
+# truncation': dof[matter].algebra: requires fermion, found boson; ...
 ```
 
 The attributes of a composed pipeline follow from those of its transformations by fixed rules.
@@ -1014,7 +1041,11 @@ transformation may be fixed by a later one:
 from qsimod.usecases.schwinger import ParameterNames as P, build_graph
 
 graph = build_graph(3)
-targets = {P.MASS_L1: 0.02, P.COUPLING_L2A: 0.004525, P.ELECTRIC_GAP: 0.5}
+targets = {
+    P.MASS_LATTICE_QED: 0.02,
+    P.COUPLING_QUANTUM_LINK_STAGGERED: 0.004525,
+    P.ELECTRIC_GAP: 0.5,
+}
 classification = graph.analogue.classify_relation(frozenset(targets))
 print(classification)
 # UNDER_DETERMINED: 7 equation(s), 9 unknown(s) (...); 2 residual degree(s) of freedom
@@ -1035,7 +1066,11 @@ from qsimod.usecases.schwinger import ParameterNames as P, device_limits, build_
 from qsimod.solving import realise_parameters
 
 graph = build_graph(3)
-targets = {P.MASS_L1: 0.02, P.COUPLING_L2A: 0.004525, P.ELECTRIC_GAP: 0.5}
+targets = {
+    P.MASS_LATTICE_QED: 0.02,
+    P.COUPLING_QUANTUM_LINK_STAGGERED: 0.004525,
+    P.ELECTRIC_GAP: 0.5,
+}
 knobs = [P.TUNNELLING, P.INTERACTION, P.SUPERLATTICE, P.TILT]
 
 result = realise_parameters(
@@ -1086,10 +1121,10 @@ resource-controlled transformation against its cost.
 
 | Transformation | Constant | Treatment |
 |---|---|---|
-| (a) | `(a/2) sum_l E^2` -> `(N-1) a e^2 / 8` | **dropped**; recorded with its value on the target artifact (`HamiltonianModel.dropped_constants`) |
-| (b) | `- m * floor(N/2)` from the mass staggering | **retained** as an identity term |
-| (c), (e), (e') | — | inherited unchanged |
-| (f) | — | the identity string of the mass layer becomes a global phase |
+| quantum-link truncation | `(a/2) sum_l E^2` -> `(N-1) a e^2 / 8` | **dropped**; recorded with its value on the target artifact (`HamiltonianModel.dropped_constants`) |
+| particle-hole transformation | `- m * floor(N/2)` from the mass staggering | **retained** as an identity term |
+| boson encoding, Jordan-Wigner transformations | — | inherited unchanged |
+| Trotterisation | — | the identity string of the mass layer becomes a global phase |
 
 `Pipeline.dropped_constants()` lists the transformations of a pipeline that discard a constant,
 with their descriptions.
@@ -1119,9 +1154,9 @@ from qsimod.transformations.base import ModelTransformation
 from qsimod.usecases.schwinger import (
     ParameterNames as P,
 )
-from qsimod.usecases.schwinger import L2D, build_graph, particle_hole, to_qubits
+from qsimod.usecases.schwinger import QUBIT_REGISTER, build_graph, particle_hole, to_qubits
 
-MINE = Namespace("L3c")
+MINE = Namespace("transverse_ising")
 
 
 @dataclass(frozen=True)
@@ -1134,10 +1169,10 @@ class IsingRealisation(ModelTransformation):
         )
 
 
-mass = L2D.symbol(names.MASS)
-coupling = L2D.symbol(names.COUPLING)
+mass = QUBIT_REGISTER.symbol(names.MASS)
+coupling = QUBIT_REGISTER.symbol(names.COUPLING)
 step = IsingRealisation(
-    name="(mine) qubit Hamiltonian -> transverse-field Ising chain",
+    name="qubit Hamiltonian -> transverse-field Ising chain",
     source_pattern=QUBIT_CHAIN_PATTERN,
     target_pattern=SPIN_CHAIN_PATTERN,
     exactness=Exactness.EXACT,
@@ -1151,29 +1186,36 @@ step = IsingRealisation(
         ),
         definitions=(
             Definition(MINE(names.FIELD), mass, "field"),
-            Definition(P.MASS_L2D, MINE.symbol(names.FIELD), "field"),
+            Definition(P.MASS_QUBIT_REGISTER, MINE.symbol(names.FIELD), "field"),
             Definition(MINE(names.LONGITUDINAL_COUPLING), coupling / 2, "coupling"),
-            Definition(P.COUPLING_L2D, 2 * MINE.symbol(names.LONGITUDINAL_COUPLING), "coupling"),
+            Definition(
+                P.COUPLING_QUBIT_REGISTER, 2 * MINE.symbol(names.LONGITUDINAL_COUPLING), "coupling"
+            ),
         ),
     ),
-    source_parameters=(P.MASS_L2D, P.COUPLING_L2D),
+    source_parameters=(P.MASS_QUBIT_REGISTER, P.COUPLING_QUBIT_REGISTER),
     target_parameters=(MINE(names.LONGITUDINAL_COUPLING), MINE(names.FIELD)),
     source_level=AbstractionLevel.INTERMEDIATE,
     target_level=AbstractionLevel.HARDWARE,
-    source_namespace=L2D,
+    source_namespace=QUBIT_REGISTER,
     target_namespace=MINE,
-    target_name="L3c",
+    target_name="transverse_ising",
 )
 
 # The new artifact and transformation take part in the model graph immediately.
 graph = build_graph(3)
-graph.graph.add_node(transverse_field_ising_chain(5, MINE, name="L3c"))
-graph.graph.add_edge("L2d", "L3c", step)
-print(graph.graph.terminal_targets("L1"))  # ('L3a', 'L3b', 'L3b_st', 'L3c')
+graph.graph.add_node(transverse_field_ising_chain(5, MINE, name="transverse_ising"))
+graph.graph.add_edge("qubit_register", "transverse_ising", step)
+print(graph.graph.terminal_targets("lattice_qed"))
+# ('bose_hubbard', 'transverse_ising', 'trotter', 'trotter_staggered')
 
-staggered = graph.graph.node("L2a").bind(**{P.MASS_L2A: 0.4, P.COUPLING_L2A: 0.8})
+staggered = graph.graph.node("quantum_link_staggered").bind(
+    **{P.MASS_QUANTUM_LINK_STAGGERED: 0.4, P.COUPLING_QUANTUM_LINK_STAGGERED: 0.8}
+)
 qubits = to_qubits().apply(particle_hole().apply(staggered))
-print(step.apply(qubits))  # L3c <hardware Hamiltonian> L3c [L3c.Jz=0.4, L3c.h=0.4]
+print(step.apply(qubits))
+# transverse_ising <hardware Hamiltonian> transverse_ising
+#   [transverse_ising.Jz=0.4, transverse_ising.h=0.4]
 ```
 
 The new artifact and transformation take part in the model graph immediately.  Validity

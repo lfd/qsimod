@@ -46,8 +46,8 @@ def scan_point(
 ) -> dict[str, object]:
     """One point of the scan: knobs, effective parameters, validity ratio and errors."""
     effective = {
-        P.MASS_L2C: mass_map().evaluate_real(knobs),
-        P.COUPLING_L2C: coupling_map().evaluate_real(knobs),
+        P.MASS_EFFECTIVE_BOSONIC: mass_map().evaluate_real(knobs),
+        P.COUPLING_EFFECTIVE_BOSONIC: coupling_map().evaluate_real(knobs),
     }
     device = bench.build(bench.device, knobs)
     times = np.linspace(0.0, WINDOW_MS, SAMPLES)
@@ -64,8 +64,8 @@ def scan_point(
         "U_hz": to_hertz(knobs[P.INTERACTION]),
         "delta_hz": to_hertz(knobs[P.SUPERLATTICE]),
         "Delta_hz": to_hertz(knobs[P.TILT]),
-        "m_hz": to_hertz(effective[P.MASS_L2C]),
-        "kappa_hz": to_hertz(effective[P.COUPLING_L2C]),
+        "m_hz": to_hertz(effective[P.MASS_EFFECTIVE_BOSONIC]),
+        "kappa_hz": to_hertz(effective[P.COUPLING_EFFECTIVE_BOSONIC]),
         "weakest_margin_decades": weakest,
         "weakest_ratio": 0.1 * 10.0 ** (-weakest),
         "violation_mean_120ms": float(violation[times <= SCAN_WINDOW_MS].mean()),

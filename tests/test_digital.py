@@ -356,14 +356,15 @@ def test_gauge_invariance_is_exact_digitally_and_drifts_analogue(order: int, ste
     # The same diagnostic on the analogue branch.
     knobs = window_point(tunnelling_ratio=1 / 10)
     bosonic = bosonic_space(matter_sites)
-    l3a = superlattice(matter_sites)
+    device = superlattice(matter_sites)
     bose_generators = [
-        build_operator(constraint.operator, bosonic, {}) for constraint in l3a.constraint_operators
+        build_operator(constraint.operator, bosonic, {})
+        for constraint in device.constraint_operators
     ]
     bose_initial = bosonic.basis_state(canonical_state_configuration(matter_sites))
-    coupling = forward_map(knobs)[P.COUPLING_L2C]
+    coupling = forward_map(knobs)[P.COUPLING_EFFECTIVE_BOSONIC]
     states = evolve_state(
-        build_operator(l3a.hamiltonian, bosonic, knobs),
+        build_operator(device.hamiltonian, bosonic, knobs),
         bose_initial,
         [5.0 / coupling * index / 10 for index in range(11)],
     )
@@ -384,8 +385,11 @@ def test_the_resource_summary_is_computed_at_99_qubits() -> None:
     """The resource summary at N = 50 (99 qubits) is computed without building an operator."""
     matter_sites = 50
     graph = build_graph(matter_sites)
-    staggered = graph.graph.node("L2a").bind(
-        **{P.MASS_L2A: REFERENCE_MASS, P.COUPLING_L2A: REFERENCE_COUPLING}
+    staggered = graph.graph.node("quantum_link_staggered").bind(
+        **{
+            P.MASS_QUANTUM_LINK_STAGGERED: REFERENCE_MASS,
+            P.COUPLING_QUANTUM_LINK_STAGGERED: REFERENCE_COUPLING,
+        }
     )
     started = time.perf_counter()
     qubits = to_qubits().apply(particle_hole().apply(staggered))
@@ -598,26 +602,34 @@ def test_branching_at_l2a_gives_a_unitarily_equivalent_qubit_hamiltonian(
 ) -> None:
     """Both branch points yield qubit Hamiltonians with identical spectra."""
     graph = build_graph(matter_sites)
-    staggered = graph.graph.node("L2a").bind(
-        **{P.MASS_L2A: REFERENCE_MASS, P.COUPLING_L2A: REFERENCE_COUPLING}
+    staggered = graph.graph.node("quantum_link_staggered").bind(
+        **{
+            P.MASS_QUANTUM_LINK_STAGGERED: REFERENCE_MASS,
+            P.COUPLING_QUANTUM_LINK_STAGGERED: REFERENCE_COUPLING,
+        }
     )
-    via_l2b = to_qubits().apply(particle_hole().apply(staggered))
-    via_l2a = to_qubits_from_staggered().apply(staggered)
-    assert isinstance(via_l2b, HamiltonianModel)
-    assert isinstance(via_l2a, HamiltonianModel)
+    via_homogeneous = to_qubits().apply(particle_hole().apply(staggered))
+    via_staggered = to_qubits_from_staggered().apply(staggered)
+    assert isinstance(via_homogeneous, HamiltonianModel)
+    assert isinstance(via_staggered, HamiltonianModel)
 
-    space = HilbertSpace.of(via_l2b.structure)
-    left, _ = eigensystem(build_operator(via_l2b.hamiltonian, space, via_l2b.environment()))
-    right, _ = eigensystem(build_operator(via_l2a.hamiltonian, space, via_l2a.environment()))
+    space = HilbertSpace.of(via_homogeneous.structure)
+    left, _ = eigensystem(
+        build_operator(via_homogeneous.hamiltonian, space, via_homogeneous.environment())
+    )
+    right, _ = eigensystem(
+        build_operator(via_staggered.hamiltonian, space, via_staggered.environment())
+    )
     assert float(jnp.max(jnp.abs(left - right))) < TOLERANCE
 
 
 def test_the_dag_supports_more_than_one_branch_point(graph4: SchwingerGraph) -> None:
     """The graph holds both branch points and enumerates the pipelines through each."""
-    assert {edge.target for edge in graph4.graph.outgoing("L2a")} == {"L2b", "L2d_st"}
-    targets = set(graph4.graph.terminal_targets("L1"))
-    assert {"L3a", "L3b", "L3b_st"} <= targets
-    assert len(graph4.graph.pipelines("L1", "L3b_st")) == 1
+    branches = {edge.target for edge in graph4.graph.outgoing("quantum_link_staggered")}
+    assert branches == {"quantum_link_homogeneous", "qubit_register_staggered"}
+    targets = set(graph4.graph.terminal_targets("lattice_qed"))
+    assert {"bose_hubbard", "trotter", "trotter_staggered"} <= targets
+    assert len(graph4.graph.pipelines("lattice_qed", "trotter_staggered")) == 1
 
 
 # ---------------------------------------------------------------------------
@@ -636,13 +648,13 @@ def test_comparison_table(graph3: SchwingerGraph) -> None:
     effective = forward_map(knobs)
     report = graph3.analogue.error_report({**knobs, **effective, P.ELECTRIC_GAP: 0.5})
     rows["analogue"] = {
-        "target": "L3a",
+        "target": "bose_hubbard",
         "kind_of_artifact": "Hamiltonian",
         "exactness": graph3.analogue.exactness,
         "approximation_kinds": graph3.analogue.approximation_kinds,
         "cost": {
             "J_over_U": knobs[P.TUNNELLING] / knobs[P.INTERACTION],
-            "kappa": effective[P.COUPLING_L2C],
+            "kappa": effective[P.COUPLING_EFFECTIVE_BOSONIC],
             "weakest_margin": report.regime.weakest_margin,
         },
         "resource_controlled": ApproximationKind.RESOURCE_CONTROLLED
@@ -652,17 +664,17 @@ def test_comparison_table(graph3: SchwingerGraph) -> None:
     # -- the digital branch: cost in steps, depth and factors ------------------------
     model = qubit_model(
         matter_sites,
-        coupling=effective[P.COUPLING_L2C],
-        mass=effective[P.MASS_L2C],
+        coupling=effective[P.COUPLING_EFFECTIVE_BOSONIC],
+        mass=effective[P.MASS_EFFECTIVE_BOSONIC],
     )
     layers = interleaved_layers_of(model)
     estimator = SpectralNormEstimator(len(model.structure.sites))
-    horizon = 5.0 / effective[P.COUPLING_L2C]
+    horizon = 5.0 / effective[P.COUPLING_EFFECTIVE_BOSONIC]
     candidates = resource_candidates(layers, horizon, accuracy, orders=(1, 2), estimator=estimator)
     assert candidates
     best = minimal_resource_setting(candidates)
     rows["digital"] = {
-        "target": "L3b",
+        "target": "trotter",
         "kind_of_artifact": "product formula",
         "exactness": graph3.digital.exactness,
         "approximation_kinds": graph3.digital.approximation_kinds,

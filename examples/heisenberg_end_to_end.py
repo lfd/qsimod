@@ -4,9 +4,9 @@ The parameters of the application model are entered, the pipeline is type-checke
 hardware knobs are solved for, and both layers are realised numerically and compared.  The
 request is a setting of Jepsen et al., *Spin transport in a tunable Heisenberg model realized
 with ultracold atoms*, Nature **588**, 403-407 (2020) (`docs/references/paper_jepsen20.pdf`),
-whose Eq. (1) is the artifact ``M2a`` and whose Methods section "Extended Hubbard model" is the
-transformation ``(c)`` of the framework.  Section 6 checks the forward map of transformation
-``(c)`` against the Methods table of the reference, section 7 the free-fermion band of the
+whose Eq. (1) is the artifact ``xxz_chain`` and whose Methods section "Extended Hubbard model"
+is the superexchange transformation of the framework.  Section 6 checks the forward map of the
+superexchange against the Methods table of the reference, section 7 the free-fermion band of the
 Jordan-Wigner branch, and section 8 scans the anisotropy across the admissible set of the
 hardware model.
 
@@ -172,9 +172,9 @@ class Outcome:
         knobs: the four hardware knobs, in rad/ms.
         transverse: the spin-exchange coupling ``Jxy`` the setting realises, in rad/ms.
         longitudinal: the ``ZZ`` coupling ``Jz`` the setting realises, in rad/ms.
-        field: the longitudinal field that transformation ``(c)`` also produces, in rad/ms; see
+        field: the longitudinal field that the superexchange also produces, in rad/ms; see
             [`superexchange_field`][qsimod.transformations.perturbative.superexchange_field].
-        margin: the weakest regime margin of transformation ``(c)``, in decades (positive
+        margin: the weakest regime margin of the superexchange, in decades (positive
             inside the declared regime).
         deviation: the largest difference between the Mott-manifold spectrum of the hardware
             model and the spectrum of the magnet, in units of ``Jxy``, with the derived field
@@ -300,7 +300,7 @@ class Bench:
             build_operator(
                 self.magnet,
                 self.magnet_space,
-                {P.TRANSVERSE_M2A: transverse, P.LONGITUDINAL_M2A: longitudinal},
+                {P.TRANSVERSE_XXZ_CHAIN: transverse, P.LONGITUDINAL_XXZ_CHAIN: longitudinal},
             )
         )
         if field:
@@ -315,7 +315,7 @@ class Bench:
         """Evaluate one knob setting: its regime margin and its measured spectral errors.
 
         The effective parameters follow from the knobs through the forward maps of
-        transformation ``(c)``.
+        the superexchange.
 
         Args:
             label: the origin of the setting.
@@ -329,8 +329,8 @@ class Bench:
         longitudinal = longitudinal_map().evaluate_real(knobs)
         field = field_map().evaluate_real(knobs)
         effective = {
-            P.TRANSVERSE_M2A: transverse,
-            P.LONGITUDINAL_M2A: longitudinal,
+            P.TRANSVERSE_XXZ_CHAIN: transverse,
+            P.LONGITUDINAL_XXZ_CHAIN: longitudinal,
         }
         device, weight = self.manifold_levels(knobs)
         return Outcome(
@@ -424,7 +424,7 @@ class Band:
 
 
 def free_fermion_band(sites: int, transverse: float) -> Band:
-    """The free-fermion band of the analytic branch, and the exactness of transformation ``(b)``.
+    """The free-fermion band of the analytic branch, and the exactness of the Jordan-Wigner step.
 
     At zero anisotropy the one-particle block of the fermion chain is compared with the
     open-chain band ``-Jxy cos(k pi / (N+1))``; at a non-zero anisotropy the full spectra of the
@@ -439,12 +439,12 @@ def free_fermion_band(sites: int, transverse: float) -> Band:
 
     """
     graph = build_graph(sites)
-    magnet = as_hamiltonian(graph.graph.node("M2a"))
+    magnet = as_hamiltonian(graph.graph.node("xxz_chain"))
     fermions = as_hamiltonian(graph.graph.node(FERMION_TARGET))
     spin_space = HilbertSpace.of(magnet.structure)
     fermion_space = HilbertSpace.of(fermions.structure)
 
-    free = {P.TRANSVERSE_M2B: transverse, P.LONGITUDINAL_M2B: 0.0}
+    free = {P.TRANSVERSE_FERMION_CHAIN: transverse, P.LONGITUDINAL_FERMION_CHAIN: 0.0}
     operator = np.asarray(build_operator(fermions.hamiltonian, fermion_space, free))
     single = [
         index
@@ -457,20 +457,20 @@ def free_fermion_band(sites: int, transverse: float) -> Band:
     momenta = np.pi * np.arange(1, sites + 1) / (sites + 1)
     predicted = np.sort(-transverse * np.cos(momenta)).astype(np.float64)
 
-    # Step (b) exactness at a non-zero anisotropy.
+    # Jordan-Wigner exactness at a non-zero anisotropy.
     interacting = 0.7 * transverse
     spin = np.linalg.eigvalsh(
         build_operator(
             magnet.hamiltonian,
             spin_space,
-            {P.TRANSVERSE_M2A: transverse, P.LONGITUDINAL_M2A: interacting},
+            {P.TRANSVERSE_XXZ_CHAIN: transverse, P.LONGITUDINAL_XXZ_CHAIN: interacting},
         )
     )
     image = np.linalg.eigvalsh(
         build_operator(
             fermions.hamiltonian,
             fermion_space,
-            {P.TRANSVERSE_M2B: transverse, P.LONGITUDINAL_M2B: interacting},
+            {P.TRANSVERSE_FERMION_CHAIN: transverse, P.LONGITUDINAL_FERMION_CHAIN: interacting},
         )
     )
     gap = float(np.max(np.abs(np.sort(np.asarray(spin)) - np.sort(np.asarray(image)))))
@@ -521,7 +521,7 @@ def _solve_for(anisotropy: float, transverse: float, pipeline: Pipeline) -> Solv
     """
     return realise_parameters(
         pipeline,
-        targets={P.TRANSVERSE_M1: transverse, P.ANISOTROPY: anisotropy},
+        targets={P.TRANSVERSE_XXZ_MAGNET: transverse, P.ANISOTROPY: anisotropy},
         unknowns=list(KNOBS),
         admissible_set=device_limits(),
         initial=device_start(anisotropy),
@@ -532,7 +532,7 @@ def _report_methods_table(
     report: Report,
     hopping: float,
 ) -> tuple[tuple[PaperRow, float], ...]:
-    """Section 6: the forward map of transformation ``(c)`` against every row of the table."""
+    """Section 6: the forward map of the superexchange against every row of the table."""
     report.say()
     report.section("6. the forward map against the paper's own Methods table")
     table = tuple(
@@ -562,7 +562,7 @@ def _report_methods_table(
 
 
 def _report_band(report: Report, transverse: float) -> Band:
-    """Section 7: the free-fermion band of the analytic branch, and the exactness of ``(b)``."""
+    """Section 7: the free-fermion band of the analytic branch, and the Jordan-Wigner exactness."""
     report.say()
     report.section("7. the analytic branch: the free-fermion band")
     band = free_fermion_band(BAND_SITES, transverse)
@@ -577,7 +577,7 @@ def _report_band(report: Report, transverse: float) -> Band:
         f"   expected {band.transverse:.6f}  (a Jxy, by a finite difference)"
     )
     report.say(
-        f"   {'step (b) exactness, full spectra':<40}{band.exactness_gap:12.3e} rad/ms"
+        f"   {'Jordan-Wigner exactness, full spectra':<40}{band.exactness_gap:12.3e} rad/ms"
         "   (claim: EXACT)"
     )
     return band
@@ -661,12 +661,12 @@ def main(
     report.section("1. the graph, and the two branches")
     say(graph)
     say()
-    for branch in graph.graph.branches("M1"):
+    for branch in graph.graph.branches("xxz_magnet"):
         say(f"   {branch}")
     say()
     say(pipeline)
 
-    targets = {P.TRANSVERSE_M1: request_transverse, P.ANISOTROPY: row.anisotropy}
+    targets = {P.TRANSVERSE_XXZ_MAGNET: request_transverse, P.ANISOTROPY: row.anisotropy}
     say()
     report.section("2. composite relation")
     say(pipeline.classify_relation(frozenset(targets)))

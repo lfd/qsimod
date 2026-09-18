@@ -253,8 +253,8 @@ class SecondOrderPerturbationTheory(Reduction):
     ```
 
     The relations are derived in the ``|101> <-> |020>`` manifold of each three-site block,
-    which is not the ground-state manifold.  In the case study this is transformation (d),
-    from ``H_IR3`` to ``H_sim``, solved for the knob settings ``Theta_sim = {J, U, delta,
+    which is not the ground-state manifold.  In the case study this is the step from
+    ``H_IR3`` to ``H_sim``, solved for the knob settings ``Theta_sim = {J, U, delta,
     Delta}``.
     """
 

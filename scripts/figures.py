@@ -46,11 +46,11 @@ FIGURE_PAGES = (Path("README.md"), Path("docs/index.md"))
 GUIDE_FIGURES: tuple[tuple[Path, str, tuple[tuple[str, str], ...]], ...] = (
     (Path("docs/schwinger.md"), "schwinger", ()),
     (Path("docs/heisenberg.md"), "heisenberg", ()),
-    (Path("docs/ising.md"), "ising", (("L2c", "L3a"),)),
+    (Path("docs/ising.md"), "ising", (("effective_bosonic", "bose_hubbard"),)),
 )
 
 #: Artifacts left out of the overview figure: the second digital branch of the case study.
-OMITTED = frozenset({"L2d_st", "L3b_st"})
+OMITTED = frozenset({"qubit_register_staggered", "trotter_staggered"})
 
 #: The caption of each abstraction layer's frame, and the module its models come from.
 LEVEL_MODULES = {
@@ -89,89 +89,108 @@ class Caption:
 #: Per-node caption overrides, in the article's notation.  A node with no entry is captioned
 #: by its artifact's own names.
 CAPTIONS: dict[str, Caption] = {
-    "L1": Caption(
+    "lattice_qed": Caption(
         "H<sub>sys</sub>",
         ("lattice QED", "(Kogut–Susskind)"),
         "Θ<sub>sys</sub> = {m, a, e}",
     ),
-    "L2a": Caption(
+    "quantum_link_staggered": Caption(
         "H<sub>IR1</sub>",
         ("quantum-link model,", "staggered mass"),
         "Θ<sub>IR1</sub> = {m, κ}",
     ),
-    "L2b": Caption(
+    "quantum_link_homogeneous": Caption(
         "H<sub>IR2</sub>",
         ("quantum-link model,", "pair coupling"),
         "Θ<sub>IR2</sub> = {m, κ}",
     ),
-    "L2c": Caption("H<sub>IR3</sub>", ("boson encoding",), "Θ<sub>IR3</sub> = {m, κ}"),
-    "L2d": Caption("H<sub>IR4</sub>", ("qubit Hamiltonian",), "Θ<sub>IR4</sub> = {m, κ}"),
-    "L3a": Caption(
+    "effective_bosonic": Caption(
+        "H<sub>IR3</sub>", ("boson encoding",), "Θ<sub>IR3</sub> = {m, κ}"
+    ),
+    "qubit_register": Caption(
+        "H<sub>IR4</sub>", ("qubit Hamiltonian",), "Θ<sub>IR4</sub> = {m, κ}"
+    ),
+    "bose_hubbard": Caption(
         "H<sub>sim</sub>",
         ("tilted, staggered", "Bose–Hubbard chain"),
         "Θ<sub>sim</sub> = {J, U, δ, Δ}",
     ),
-    "L3b": Caption("U<sub>≈</sub>", ("Trotter product formula",), "t, n, order"),
-    "L2d_st": Caption(
+    "trotter": Caption("U<sub>≈</sub>", ("Trotter product formula",), "t, n, order"),
+    "qubit_register_staggered": Caption(
         "H<sub>IR4</sub><sup>st</sup>",
         ("qubit Hamiltonian,", "from the staggered form"),
         "m, κ",
     ),
-    "L3b_st": Caption(
+    "trotter_staggered": Caption(
         "U<sub>≈</sub><sup>st</sup>",
-        ("Trotter product formula,", "from L2d_st"),
+        ("Trotter product formula,", "from the staggered form"),
         "t, n, order",
     ),
-    "M1": Caption(
+    "xxz_magnet": Caption(
         "H<sub>XXZ</sub>",
         ("Heisenberg XXZ magnet,", "by its anisotropy"),
         "Θ = {J<sub>xy</sub>, Δ}",
     ),
-    "M2a": Caption(
+    "xxz_chain": Caption(
         "H<sub>XXZ</sub>",
         ("XXZ chain,", "by its two couplings"),
         "Θ = {J<sub>xy</sub>, J<sub>z</sub>}",
     ),
-    "M2b": Caption(
+    "fermion_chain": Caption(
         "H<sub>tV</sub>",
         ("spinless fermions,", "nearest-neighbour interaction"),
         "Θ = {J<sub>xy</sub>, J<sub>z</sub>}",
     ),
-    "M3": Caption(
+    "two_component_bose_hubbard": Caption(
         "H<sub>2BHM</sub>",
         ("two-component", "Bose–Hubbard chain"),
         "Θ = {t, U<sub>↑↑</sub>, U<sub>↑↓</sub>, U<sub>↓↓</sub>}",
     ),
-    "K1": Caption(
+    "ising_magnet": Caption(
         "H<sub>Ising</sub>",
         ("antiferromagnetic", "Ising chain"),
         "Θ = {J<sub>z</sub>, h<sub>z</sub>, h<sub>x</sub>}",
     ),
-    "K2": Caption(
+    "ising_chain": Caption(
         "H<sub>Ising</sub>", ("Ising chain,", "by three energies"), "Θ = {J<sub>z</sub>, Γ, B}"
     ),
 }
 
-#: Per-edge caption overrides, keyed by ``(source, target)``: the transformation's name after
-#: the step letter, and the exactness line under it.  Absent entries use the transformation's
+#: Per-edge caption overrides, keyed by ``(source, target)``: the transformation's name as
+#: the figure prints it, and the exactness line under it.  Absent entries use the transformation's
 #: own name and declared exactness.
 STEP_LABELS: dict[tuple[str, str], tuple[str, str]] = {
-    ("L1", "L2a"): ("quantum-link truncation", "approximate, regime conditions"),
-    ("L2a", "L2b"): ("particle–hole transformation", "exact"),
-    ("L2b", "L2c"): ("boson encoding", "exact on the encoded subspace"),
-    ("L2c", "L3a"): (
+    ("lattice_qed", "quantum_link_staggered"): (
+        "quantum-link truncation",
+        "approximate, regime conditions",
+    ),
+    ("quantum_link_staggered", "quantum_link_homogeneous"): (
+        "particle–hole transformation",
+        "exact",
+    ),
+    ("quantum_link_homogeneous", "effective_bosonic"): (
+        "boson encoding",
+        "exact on the encoded subspace",
+    ),
+    ("effective_bosonic", "bose_hubbard"): (
         "degenerate perturbation theory,<br/>solved for the knob settings",
         "approximate, regime conditions",
     ),
-    ("L2b", "L2d"): ("Jordan–Wigner transformation", "exact"),
-    ("L2d", "L3b"): ("Trotterisation", "approximate, resource-controlled"),
-    ("L2a", "L2d_st"): ("Jordan–Wigner transformation, from L2a", "exact"),
-    ("L2d_st", "L3b_st"): ("Trotterisation, order 2", "approximate, resource-controlled"),
-    ("M2a", "M3"): (
+    ("quantum_link_homogeneous", "qubit_register"): ("Jordan–Wigner transformation", "exact"),
+    ("qubit_register", "trotter"): ("Trotterisation", "approximate, resource-controlled"),
+    ("quantum_link_staggered", "qubit_register_staggered"): (
+        "Jordan–Wigner transformation,<br/>from the staggered form",
+        "exact",
+    ),
+    ("qubit_register_staggered", "trotter_staggered"): (
+        "Trotterisation, order 2",
+        "approximate, resource-controlled",
+    ),
+    ("xxz_chain", "two_component_bose_hubbard"): (
         "second-order superexchange,<br/>solved for the knob settings",
         "approximate, regime conditions",
     ),
-    ("K2", "L3a"): (
+    ("ising_chain", "bose_hubbard"): (
         "resonant dipole reduction,<br/>solved for the knob settings",
         "approximate, regime conditions",
     ),
@@ -236,14 +255,13 @@ def _node_lines(nodes: dict[str, Artifact]) -> Iterator[str]:
 def _edge_line(edge: Edge) -> str:
     """One arrow: dotted for an approximate transformation, solid for an exact one."""
     step = edge.transformation
-    letter, _, name = step.name.partition(") ")
     caption, word = STEP_LABELS.get(
-        (edge.source, edge.target), (_default_caption(name), _default_word(step))
+        (edge.source, edge.target), (_default_caption(step.name), _default_word(step))
     )
-    label = f"<b>{letter})</b> {caption}<br/><i>{word}</i>"
+    label = f"<b>{caption}</b><br/><i>{word}</i>"
     if step.exactness is Exactness.EXACT:
-        return f'    {edge.source:<3} ---> |"{label}"| {edge.target}'
-    return f'    {edge.source:<3} -. "{label}" .-> {edge.target}'
+        return f'    {edge.source} ---> |"{label}"| {edge.target}'
+    return f'    {edge.source} -. "{label}" .-> {edge.target}'
 
 
 def _default_caption(name: str) -> str:

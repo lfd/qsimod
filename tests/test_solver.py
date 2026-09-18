@@ -52,8 +52,8 @@ from tests.conftest import (
 KNOBS = (P.TUNNELLING, P.INTERACTION, P.SUPERLATTICE, P.TILT)
 TARGET_COUPLING = 0.004525
 TARGETS = {
-    P.MASS_L1: WINDOW_MASS,
-    P.COUPLING_L2A: TARGET_COUPLING,
+    P.MASS_LATTICE_QED: WINDOW_MASS,
+    P.COUPLING_QUANTUM_LINK_STAGGERED: TARGET_COUPLING,
     P.ELECTRIC_GAP: ELECTRIC_GAP,
 }
 
@@ -285,7 +285,7 @@ def test_a_closed_form_direction_never_reaches_an_iterative_solver() -> None:
     problem = problem_for(
         relation,
         targets=knobs,
-        unknowns=[P.MASS_L1],
+        unknowns=[P.MASS_LATTICE_QED],
         admissible_set=device_limits(),
         name="derived direction",
     )
@@ -296,7 +296,7 @@ def test_a_closed_form_direction_never_reaches_an_iterative_solver() -> None:
     assert result.status is SolveStatus.EXACT_SOLUTION
     assert result.backend == "closed-form evaluation"
     assert result.iterations == 0
-    assert result.point[P.MASS_L1] == pytest.approx(WINDOW_MASS)
+    assert result.point[P.MASS_LATTICE_QED] == pytest.approx(WINDOW_MASS)
 
 
 def test_an_under_determined_direction_does_need_a_solver(graph3: SchwingerGraph) -> None:
@@ -323,7 +323,7 @@ def test_the_grid_and_the_single_point_checker_agree(graph3: SchwingerGraph) -> 
     """A feasible grid node is accepted by ``check`` and an infeasible one is rejected."""
     problem = problem_for(
         graph3.analogue.relation,
-        targets={P.MASS_L1: WINDOW_MASS, P.ELECTRIC_GAP: ELECTRIC_GAP},
+        targets={P.MASS_LATTICE_QED: WINDOW_MASS, P.ELECTRIC_GAP: ELECTRIC_GAP},
         unknowns=list(KNOBS),
         admissible_set=device_limits(),
         validity=graph3.analogue.validity,
@@ -356,7 +356,7 @@ def test_the_feasible_set_can_also_be_sampled_and_exported(graph3: SchwingerGrap
     """The feasible set exposes its constraint system and samples deterministically."""
     problem = problem_for(
         graph3.analogue.relation,
-        targets={P.MASS_L1: WINDOW_MASS, P.ELECTRIC_GAP: ELECTRIC_GAP},
+        targets={P.MASS_LATTICE_QED: WINDOW_MASS, P.ELECTRIC_GAP: ELECTRIC_GAP},
         unknowns=list(KNOBS),
         admissible_set=device_limits(),
         validity=graph3.analogue.validity,
@@ -373,7 +373,7 @@ def test_the_feasible_set_can_also_be_sampled_and_exported(graph3: SchwingerGrap
         FeasibleSet(
             problem_for(
                 graph3.analogue.relation,
-                targets={P.MASS_L1: WINDOW_MASS},
+                targets={P.MASS_LATTICE_QED: WINDOW_MASS},
                 unknowns=list(KNOBS),
                 admissible_set=AdmissibleSet(description="no bounds declared"),
             )
@@ -526,9 +526,15 @@ def test_a_second_backend_needs_only_the_backend_interface() -> None:
 def test_the_composite_is_solved_once_over_the_whole_pipeline(graph3: SchwingerGraph) -> None:
     """Intermediate parameters are returned solved alongside the knobs."""
     result = _solve(graph3)
-    for name in (P.MASS_L2A, P.MASS_L2B, P.MASS_L2C, P.COUPLING_L2B, P.COUPLING_L2C):
+    for name in (
+        P.MASS_QUANTUM_LINK_STAGGERED,
+        P.MASS_QUANTUM_LINK_HOMOGENEOUS,
+        P.MASS_EFFECTIVE_BOSONIC,
+        P.COUPLING_QUANTUM_LINK_HOMOGENEOUS,
+        P.COUPLING_EFFECTIVE_BOSONIC,
+    ):
         assert name in result.point
-    assert result.point[P.COUPLING_L2C] == pytest.approx(TARGET_COUPLING, rel=1e-9)
+    assert result.point[P.COUPLING_EFFECTIVE_BOSONIC] == pytest.approx(TARGET_COUPLING, rel=1e-9)
     assert isinstance(Pipeline.of(list(graph3.analogue.steps)), Pipeline)
 
 
@@ -542,7 +548,7 @@ def test_a_parameter_set_is_a_parameter_set() -> None:
 # A reported solution is one the problem accepts
 # ---------------------------------------------------------------------------
 
-OUT_OF_REGIME_TARGETS = {**TARGETS, P.MASS_L1: 0.5}
+OUT_OF_REGIME_TARGETS = {**TARGETS, P.MASS_LATTICE_QED: 0.5}
 
 
 def test_an_out_of_regime_target_is_not_reported_as_a_solution(graph3: SchwingerGraph) -> None:
@@ -580,9 +586,11 @@ def test_the_closed_form_backend_rejects_a_point_outside_the_admissible_set() ->
     problem = problem_for(
         build_graph(3).analogue.relation,
         targets=knobs,
-        unknowns=[P.MASS_L1],
+        unknowns=[P.MASS_LATTICE_QED],
         admissible_set=device_limits().union(
-            AdmissibleSet(bounds=(Bound(P.MASS_L1, 0.1, 1.0),), description="a heavy theory")
+            AdmissibleSet(
+                bounds=(Bound(P.MASS_LATTICE_QED, 0.1, 1.0),), description="a heavy theory"
+            )
         ),
         name="derived direction, mass bounded away from the answer",
     )
@@ -591,9 +599,9 @@ def test_the_closed_form_backend_rejects_a_point_outside_the_admissible_set() ->
     # The backend on its own evaluates the chain, then refuses to call the point a solution.
     result = ClosedFormBackend().solve(problem)
     assert result.status is SolveStatus.UNSOLVED
-    assert result.point[P.MASS_L1] == pytest.approx(WINDOW_MASS)
+    assert result.point[P.MASS_LATTICE_QED] == pytest.approx(WINDOW_MASS)
     assert result.violations
-    assert P.MASS_L1 in result.violations[0].constraint
+    assert P.MASS_LATTICE_QED in result.violations[0].constraint
     assert "not an acceptable solution" in result.termination
 
 

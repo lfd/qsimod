@@ -114,7 +114,7 @@ def test_every_guide_link_target_exists() -> None:
 def _slug(heading: str) -> str:
     """The anchor the site generator slugifies a Markdown heading into."""
     text = re.sub(r"`|\*|\[|\]|\(|\)|:|,|\.|/|\+|'", "", heading.lower())
-    return re.sub(r"[^a-z0-9]+", "-", text).strip("-")
+    return re.sub(r"[^a-z0-9_]+", "-", text).strip("-")
 
 
 def test_every_figure_is_the_source_its_generator_produces() -> None:
@@ -146,7 +146,8 @@ def test_every_figure_draws_the_use_case_its_page_is_about() -> None:
             if name != use_case and f'\n        {other}["' in page
         ], use_case
 
-    # The shared node L3a is reached from both L2c and K2 in the overview and the Ising guide.
+    # The shared hardware node is reached from the gauge theory and from the Ising chain in the
+    # overview and in the Ising guide.
     for block in (overview, drawn[Path("docs/ising.md")]):
-        arrivals = [line for line in block.splitlines() if line.rstrip().endswith(" L3a")]
-        assert {line.split()[0] for line in arrivals} == {"L2c", "K2"}
+        arrivals = [line for line in block.splitlines() if line.rstrip().endswith(" bose_hubbard")]
+        assert {line.split()[0] for line in arrivals} == {"effective_bosonic", "ising_chain"}

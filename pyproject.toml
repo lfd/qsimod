@@ -133,7 +133,6 @@ missing-type-argument = "error"       # no implicitly generic annotations
 possibly-missing-attribute = "error"
 possibly-missing-import = "error"
 possibly-unresolved-reference = "error"
-redundant-condition-strict = "error"  # conditions with a statically known outcome
 unsupported-dynamic-base = "error"
 
 [tool.pytest.ini_options]

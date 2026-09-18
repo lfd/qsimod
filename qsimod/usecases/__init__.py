@@ -10,7 +10,7 @@ into a [`ModelGraph`][qsimod.pipeline.ModelGraph], and names their parameter nam
 * [`heisenberg`][qsimod.usecases.heisenberg]: an anisotropic Heisenberg magnet carried to a
   two-component optical lattice.
 * [`ising`][qsimod.usecases.ising]: an antiferromagnetic Ising chain carried to the same
-  artifact ``L3a`` the gauge theory reaches; its
+  artifact ``bose_hubbard`` the gauge theory reaches; its
   [`shared_graph`][qsimod.usecases.ising.shared_graph] holds both theories.
 
 Each module defines ``ParameterNames``, ``build_graph`` and ``NAMESPACES``; only the symbols

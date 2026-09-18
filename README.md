@@ -55,24 +55,24 @@ The artifacts and transformations the package implements, arranged by abstractio
 flowchart TB
     subgraph LV1["Application model &nbsp;·&nbsp; <code>models.application</code>"]
         direction LR
-        L1["<b>L1 &nbsp; H<sub>sys</sub></b><br/>lattice QED<br/>(Kogut–Susskind)<br/><i>Θ<sub>sys</sub> = {m, a, e}</i>"]
-        M1["<b>M1 &nbsp; H<sub>XXZ</sub></b><br/>Heisenberg XXZ magnet,<br/>by its anisotropy<br/><i>Θ = {J<sub>xy</sub>, Δ}</i>"]
-        K1["<b>K1 &nbsp; H<sub>Ising</sub></b><br/>antiferromagnetic<br/>Ising chain<br/><i>Θ = {J<sub>z</sub>, h<sub>z</sub>, h<sub>x</sub>}</i>"]
+        lattice_qed["<b>lattice_qed &nbsp; H<sub>sys</sub></b><br/>lattice QED<br/>(Kogut–Susskind)<br/><i>Θ<sub>sys</sub> = {m, a, e}</i>"]
+        xxz_magnet["<b>xxz_magnet &nbsp; H<sub>XXZ</sub></b><br/>Heisenberg XXZ magnet,<br/>by its anisotropy<br/><i>Θ = {J<sub>xy</sub>, Δ}</i>"]
+        ising_magnet["<b>ising_magnet &nbsp; H<sub>Ising</sub></b><br/>antiferromagnetic<br/>Ising chain<br/><i>Θ = {J<sub>z</sub>, h<sub>z</sub>, h<sub>x</sub>}</i>"]
     end
     subgraph LV2["Intermediate representations &nbsp;·&nbsp; <code>models.intermediate</code>"]
-        L2a["<b>L2a &nbsp; H<sub>IR1</sub></b><br/>quantum-link model,<br/>staggered mass<br/><i>Θ<sub>IR1</sub> = {m, κ}</i>"]
-        L2b["<b>L2b &nbsp; H<sub>IR2</sub></b><br/>quantum-link model,<br/>pair coupling<br/><i>Θ<sub>IR2</sub> = {m, κ}</i>"]
-        L2c["<b>L2c &nbsp; H<sub>IR3</sub></b><br/>boson encoding<br/><i>Θ<sub>IR3</sub> = {m, κ}</i>"]
-        L2d["<b>L2d &nbsp; H<sub>IR4</sub></b><br/>qubit Hamiltonian<br/><i>Θ<sub>IR4</sub> = {m, κ}</i>"]
-        M2a["<b>M2a &nbsp; H<sub>XXZ</sub></b><br/>XXZ chain,<br/>by its two couplings<br/><i>Θ = {J<sub>xy</sub>, J<sub>z</sub>}</i>"]
-        M2b["<b>M2b &nbsp; H<sub>tV</sub></b><br/>spinless fermions,<br/>nearest-neighbour interaction<br/><i>Θ = {J<sub>xy</sub>, J<sub>z</sub>}</i>"]
-        K2["<b>K2 &nbsp; H<sub>Ising</sub></b><br/>Ising chain,<br/>by three energies<br/><i>Θ = {J<sub>z</sub>, Γ, B}</i>"]
+        quantum_link_staggered["<b>quantum_link_staggered &nbsp; H<sub>IR1</sub></b><br/>quantum-link model,<br/>staggered mass<br/><i>Θ<sub>IR1</sub> = {m, κ}</i>"]
+        quantum_link_homogeneous["<b>quantum_link_homogeneous &nbsp; H<sub>IR2</sub></b><br/>quantum-link model,<br/>pair coupling<br/><i>Θ<sub>IR2</sub> = {m, κ}</i>"]
+        effective_bosonic["<b>effective_bosonic &nbsp; H<sub>IR3</sub></b><br/>boson encoding<br/><i>Θ<sub>IR3</sub> = {m, κ}</i>"]
+        qubit_register["<b>qubit_register &nbsp; H<sub>IR4</sub></b><br/>qubit Hamiltonian<br/><i>Θ<sub>IR4</sub> = {m, κ}</i>"]
+        xxz_chain["<b>xxz_chain &nbsp; H<sub>XXZ</sub></b><br/>XXZ chain,<br/>by its two couplings<br/><i>Θ = {J<sub>xy</sub>, J<sub>z</sub>}</i>"]
+        fermion_chain["<b>fermion_chain &nbsp; H<sub>tV</sub></b><br/>spinless fermions,<br/>nearest-neighbour interaction<br/><i>Θ = {J<sub>xy</sub>, J<sub>z</sub>}</i>"]
+        ising_chain["<b>ising_chain &nbsp; H<sub>Ising</sub></b><br/>Ising chain,<br/>by three energies<br/><i>Θ = {J<sub>z</sub>, Γ, B}</i>"]
     end
     subgraph LV3["Hardware model &nbsp;·&nbsp; <code>models.hardware</code>"]
         direction LR
-        L3a["<b>L3a &nbsp; H<sub>sim</sub></b><br/>tilted, staggered<br/>Bose–Hubbard chain<br/><i>Θ<sub>sim</sub> = {J, U, δ, Δ}</i>"]
-        L3b["<b>L3b &nbsp; U<sub>≈</sub></b><br/>Trotter product formula<br/><i>t, n, order</i>"]
-        M3["<b>M3 &nbsp; H<sub>2BHM</sub></b><br/>two-component<br/>Bose–Hubbard chain<br/><i>Θ = {t, U<sub>↑↑</sub>, U<sub>↑↓</sub>, U<sub>↓↓</sub>}</i>"]
+        bose_hubbard["<b>bose_hubbard &nbsp; H<sub>sim</sub></b><br/>tilted, staggered<br/>Bose–Hubbard chain<br/><i>Θ<sub>sim</sub> = {J, U, δ, Δ}</i>"]
+        trotter["<b>trotter &nbsp; U<sub>≈</sub></b><br/>Trotter product formula<br/><i>t, n, order</i>"]
+        two_component_bose_hubbard["<b>two_component_bose_hubbard &nbsp; H<sub>2BHM</sub></b><br/>two-component<br/>Bose–Hubbard chain<br/><i>Θ = {t, U<sub>↑↑</sub>, U<sub>↑↓</sub>, U<sub>↓↓</sub>}</i>"]
     end
     subgraph OUT["Numerical realisation and solving"]
         direction LR
@@ -83,19 +83,19 @@ flowchart TB
     end
     L4(["Executable layer: gates, routing, pulses<br/><i>out of scope</i>"])
 
-    L1  -. "<b>(a)</b> quantum-link truncation<br/><i>approximate, regime conditions</i>" .-> L2a
-    L2a ---> |"<b>(b)</b> particle–hole transformation<br/><i>exact</i>"| L2b
-    L2b ---> |"<b>(c)</b> boson encoding<br/><i>exact on the encoded subspace</i>"| L2c
-    L2c -. "<b>(d)</b> degenerate perturbation theory,<br/>solved for the knob settings<br/><i>approximate, regime conditions</i>" .-> L3a
-    L2b ---> |"<b>(e)</b> Jordan–Wigner transformation<br/><i>exact</i>"| L2d
-    L2d -. "<b>(f)</b> Trotterisation<br/><i>approximate, resource-controlled</i>" .-> L3b
+    lattice_qed -. "<b>quantum-link truncation</b><br/><i>approximate, regime conditions</i>" .-> quantum_link_staggered
+    quantum_link_staggered ---> |"<b>particle–hole transformation</b><br/><i>exact</i>"| quantum_link_homogeneous
+    quantum_link_homogeneous ---> |"<b>boson encoding</b><br/><i>exact on the encoded subspace</i>"| effective_bosonic
+    effective_bosonic -. "<b>degenerate perturbation theory,<br/>solved for the knob settings</b><br/><i>approximate, regime conditions</i>" .-> bose_hubbard
+    quantum_link_homogeneous ---> |"<b>Jordan–Wigner transformation</b><br/><i>exact</i>"| qubit_register
+    qubit_register -. "<b>Trotterisation</b><br/><i>approximate, resource-controlled</i>" .-> trotter
 
-    M1  ---> |"<b>(a)</b> anisotropy resolution<br/><i>exact</i>"| M2a
-    M2a ---> |"<b>(b)</b> Jordan–Wigner to spinless fermions<br/><i>exact</i>"| M2b
-    M2a -. "<b>(c)</b> second-order superexchange,<br/>solved for the knob settings<br/><i>approximate, regime conditions</i>" .-> M3
+    xxz_magnet ---> |"<b>anisotropy resolution</b><br/><i>exact</i>"| xxz_chain
+    xxz_chain ---> |"<b>Jordan–Wigner to spinless fermions</b><br/><i>exact</i>"| fermion_chain
+    xxz_chain -. "<b>second-order superexchange,<br/>solved for the knob settings</b><br/><i>approximate, regime conditions</i>" .-> two_component_bose_hubbard
 
-    K1  ---> |"<b>(a)</b> field resolution<br/><i>exact</i>"| K2
-    K2  -. "<b>(b)</b> resonant dipole reduction,<br/>solved for the knob settings<br/><i>approximate, regime conditions</i>" .-> L3a
+    ising_magnet ---> |"<b>field resolution</b><br/><i>exact</i>"| ising_chain
+    ising_chain -. "<b>resonant dipole reduction,<br/>solved for the knob settings</b><br/><i>approximate, regime conditions</i>" .-> bose_hubbard
 
     LV3 ==> |"a hardware model with bound parameters"| OUT
     LV3 -.-> L4
@@ -104,8 +104,8 @@ flowchart TB
     classDef pf fill:#fbf1d9,stroke:#c48700,color:#573c00
     classDef svc fill:#ede8f3,stroke:#988baa,color:#4c4655
     classDef oos fill:#fdebea,stroke:#ed665a,color:#642b26
-    class L1,M1,K1,L2a,L2b,L2c,L2d,M2a,M2b,K2,L3a,M3 ham
-    class L3b pf
+    class lattice_qed,xxz_magnet,ising_magnet,quantum_link_staggered,quantum_link_homogeneous,effective_bosonic,qubit_register,xxz_chain,fermion_chain,ising_chain,bose_hubbard,two_component_bose_hubbard ham
+    class trotter pf
     class SOLVE,VALID,NUM svc
     class L4 oos
     style LV1 fill:#f2f7fa,stroke:#b1d0e5,color:#103c5a
@@ -117,19 +117,20 @@ flowchart TB
 <!-- Generated by scripts/figures.py from the graphs themselves; do not edit by hand. -->
 
 A **solid** arrow is an exact transformation and a **dotted** arrow an approximate one, with
-the kind of approximation in italics.  Three physical theories descend from the application
-layer through intermediate representations to the hardware layer, and two of them, the gauge
-theory via `L2c` and the Ising chain via `K2`, arrive at the same hardware model `L3a`.
+the kind of approximation in italics.  Every box is headed by the name under which the model
+graph holds the artifact, followed by the notation of the article.  Three physical theories
+descend from the application layer through intermediate representations to the hardware layer,
+and two of them, the gauge theory via `effective_bosonic` and the Ising chain via
+`ising_chain`, arrive at the same hardware model `bose_hubbard`.
 
-The `L…` artifacts form the case study of the article, a **one-dimensional lattice quantum
-electrodynamics** carried to an analogue simulator model $\hat H_\text{sim}$
+The chain from `lattice_qed` forms the case study of the article, a **one-dimensional lattice
+quantum electrodynamics** carried to an analogue simulator model $\hat H_\text{sim}$
 and a digital simulator model $\hat U_\approx$
 ([Zhou et al., Science **377**, 311 (2022)](https://doi.org/10.1126/science.abl6277)); the
-`M…` artifacts are a **Heisenberg magnet**
+chain from `xxz_magnet` is a **Heisenberg magnet**
 ([Jepsen et al., Nature **588**, 403 (2020)](https://doi.org/10.1038/s41586-020-3033-y)), and
-the `K…` artifacts an **Ising chain**
-([Simon et al., Nature **472**, 307 (2011)](https://doi.org/10.1038/nature09994)).  Each use
-case letters its own transformations.
+the chain from `ising_magnet` an **Ising chain**
+([Simon et al., Nature **472**, 307 (2011)](https://doi.org/10.1038/nature09994)).
 
 ---
 
@@ -161,7 +162,11 @@ from qsimod.solving import realise_parameters
 graph = build_graph(matter_sites=3)
 print(graph.analogue)  # the pipeline, and what kind of approximation it is
 
-targets = {P.MASS_L1: 0.02, P.COUPLING_L2A: 0.004525, P.ELECTRIC_GAP: 0.5}
+targets = {
+    P.MASS_LATTICE_QED: 0.02,
+    P.COUPLING_QUANTUM_LINK_STAGGERED: 0.004525,
+    P.ELECTRIC_GAP: 0.5,
+}
 print(graph.analogue.classify_relation(frozenset(targets)))
 # UNDER_DETERMINED: 7 equation(s), 9 unknown(s) ...; 2 residual degree(s) of freedom
 
@@ -187,10 +192,10 @@ from qsimod.solving.stepcount import minimal_steps
 from qsimod.transformations import interleaved_layers_of
 from qsimod.usecases.schwinger import trotterisation
 
-qubits = ...  # a bound L2d model; see the examples
+qubits = ...  # a bound qubit_register model; see the examples
 layers = interleaved_layers_of(qubits)
 print(layers.commutation_report())  # which layer pairs commute, derived from the Pauli algebra
-n = int(minimal_steps(layers, order=2, time=2.0, target_error=1e-3).point["L3b.n"])
+n = int(minimal_steps(layers, order=2, time=2.0, target_error=1e-3).point["trotter.n"])
 print(trotterisation(time=2.0, steps=n, order=2).apply(qubits).resources())
 ```
 

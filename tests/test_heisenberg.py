@@ -70,18 +70,19 @@ def knobs() -> dict[str, float]:
 
 
 def test_the_graph_has_two_leaves_and_only_one_of_them_is_hardware() -> None:
-    """The graph has two leaves, of which only ``M3`` is at hardware level."""
+    """The graph has two leaves, of which only the two-component lattice is at hardware level."""
     graph = build_graph(4)
-    assert graph.targets() == ("M2b", "M3")
+    assert graph.targets() == ("fermion_chain", "two_component_bose_hubbard")
     levels = graph.levels()
-    assert levels["M1"] is AbstractionLevel.APPLICATION
-    assert levels["M2a"] is levels["M2b"] is AbstractionLevel.INTERMEDIATE
-    assert levels["M3"] is AbstractionLevel.HARDWARE
+    assert levels["xxz_magnet"] is AbstractionLevel.APPLICATION
+    assert levels["xxz_chain"] is levels["fermion_chain"] is AbstractionLevel.INTERMEDIATE
+    assert levels["two_component_bose_hubbard"] is AbstractionLevel.HARDWARE
 
-    branches = {branch.target: branch for branch in graph.graph.branches("M1")}
-    assert branches["M2b"].exactness is Exactness.EXACT
-    assert branches["M3"].exactness is Exactness.APPROXIMATE
-    assert branches["M3"].approximation_kinds == frozenset({ApproximationKind.REGIME_LIMITED})
+    branches = {branch.target: branch for branch in graph.graph.branches("xxz_magnet")}
+    assert branches["fermion_chain"].exactness is Exactness.EXACT
+    device = branches["two_component_bose_hubbard"]
+    assert device.exactness is Exactness.APPROXIMATE
+    assert device.approximation_kinds == frozenset({ApproximationKind.REGIME_LIMITED})
 
 
 def test_a_step_refuses_a_model_from_the_other_use_case() -> None:
@@ -104,7 +105,7 @@ def test_the_two_use_cases_pipelines_do_not_compose() -> None:
 
 def test_applying_the_perturbative_step_returns_an_unbound_device() -> None:
     """Applying the perturbative step yields a device whose knobs are all free."""
-    bound = magnet(3).bind(**{P.TRANSVERSE_M1: 0.5, P.ANISOTROPY: 1.0})
+    bound = magnet(3).bind(**{P.TRANSVERSE_XXZ_MAGNET: 0.5, P.ANISOTROPY: 1.0})
     device = superexchange().apply(anisotropy().apply(bound))
     assert device.kind.name == "HAMILTONIAN"
     assert not device.is_fully_bound
@@ -116,7 +117,7 @@ def test_both_leaves_are_hamiltonians_here_unlike_the_running_examples() -> None
     graph = build_graph(3)
     for target in graph.targets():
         assert as_hamiltonian(graph.graph.node(target)).kind is ArtifactKind.HAMILTONIAN
-    assert graph.levels()["M2b"] is not graph.levels()["M3"]
+    assert graph.levels()["fermion_chain"] is not graph.levels()["two_component_bose_hubbard"]
 
 
 # ---------------------------------------------------------------------------
@@ -125,10 +126,10 @@ def test_both_leaves_are_hamiltonians_here_unlike_the_running_examples() -> None
 
 
 def test_the_anisotropy_resolution_is_invertible_and_leaves_the_hamiltonian_alone() -> None:
-    """Step (a) is a closed-form reparametrisation realising the same matrix at both levels."""
+    """The anisotropy resolution is a closed-form reparametrisation realising one matrix."""
     step = anisotropy()
     assert step.relation.is_invertible(
-        {P.TRANSVERSE_M1, P.ANISOTROPY}, {P.TRANSVERSE_M2A, P.LONGITUDINAL_M2A}
+        {P.TRANSVERSE_XXZ_MAGNET, P.ANISOTROPY}, {P.TRANSVERSE_XXZ_CHAIN, P.LONGITUDINAL_XXZ_CHAIN}
     )
     assert step.forward_relation_kind is RelationKind.CLOSED_FORM
     assert step.inverse_relation_kind is RelationKind.CLOSED_FORM
@@ -138,30 +139,30 @@ def test_the_anisotropy_resolution_is_invertible_and_leaves_the_hamiltonian_alon
     left = build_operator(
         theory.hamiltonian,
         HilbertSpace.of(theory.structure),
-        {P.TRANSVERSE_M1: transverse, P.ANISOTROPY: delta},
+        {P.TRANSVERSE_XXZ_MAGNET: transverse, P.ANISOTROPY: delta},
     )
     right = build_operator(
         chain.hamiltonian,
         HilbertSpace.of(chain.structure),
-        {P.TRANSVERSE_M2A: transverse, P.LONGITUDINAL_M2A: delta * transverse},
+        {P.TRANSVERSE_XXZ_CHAIN: transverse, P.LONGITUDINAL_XXZ_CHAIN: delta * transverse},
     )
     assert float(np.max(np.abs(np.asarray(left) - np.asarray(right)))) < EXACT_TOLERANCE
 
 
 @pytest.mark.parametrize("longitudinal", [0.0, 0.35, -0.6])
 def test_the_jordan_wigner_step_is_exact_as_matrices(longitudinal: float) -> None:
-    """Step (b) realises the spin chain and its fermion image to the same matrix."""
+    """The Jordan-Wigner step realises the spin chain and its fermion image to the same matrix."""
     transverse = 0.5
     chain, fermions = spin_chain(6), fermion_chain(6)
     left = build_operator(
         chain.hamiltonian,
         HilbertSpace.of(chain.structure),
-        {P.TRANSVERSE_M2A: transverse, P.LONGITUDINAL_M2A: longitudinal},
+        {P.TRANSVERSE_XXZ_CHAIN: transverse, P.LONGITUDINAL_XXZ_CHAIN: longitudinal},
     )
     right = build_operator(
         fermions.hamiltonian,
         HilbertSpace.of(fermions.structure),
-        {P.TRANSVERSE_M2B: transverse, P.LONGITUDINAL_M2B: longitudinal},
+        {P.TRANSVERSE_FERMION_CHAIN: transverse, P.LONGITUDINAL_FERMION_CHAIN: longitudinal},
     )
     assert float(np.max(np.abs(np.asarray(left) - np.asarray(right)))) < EXACT_TOLERANCE
 
@@ -175,7 +176,7 @@ def test_the_free_fermion_band_is_the_one_the_literature_quotes() -> None:
         build_operator(
             model.hamiltonian,
             space,
-            {P.TRANSVERSE_M2B: transverse, P.LONGITUDINAL_M2B: 0.0},
+            {P.TRANSVERSE_FERMION_CHAIN: transverse, P.LONGITUDINAL_FERMION_CHAIN: 0.0},
         )
     )
     single = [i for i in range(space.dimension) if sum(space.configuration(i)) == 1]
@@ -194,7 +195,7 @@ def test_the_free_fermion_band_is_the_one_the_literature_quotes() -> None:
 
 @pytest.mark.parametrize("row", PAPER_ROWS, ids=lambda row: f"Delta={row.anisotropy}")
 def test_the_forward_map_reproduces_every_anisotropy_the_paper_quotes(row: PaperRow) -> None:
-    """Step (c)'s forward map reproduces each anisotropy in the paper's Methods table."""
+    """The superexchange forward map reproduces each anisotropy in the paper's Methods table."""
     setting = experiment_knobs(row, reference_hopping())
     computed = longitudinal_map().evaluate_real(setting) / transverse_map().evaluate_real(setting)
     assert computed == pytest.approx(row.anisotropy, abs=3e-3)
@@ -234,8 +235,8 @@ def test_the_experiments_own_setting_is_inside_the_declared_window(
 ) -> None:
     """The published operating point is valid, with ``t << U`` the weakest condition."""
     effective = {
-        P.TRANSVERSE_M2A: transverse_map().evaluate_real(knobs),
-        P.LONGITUDINAL_M2A: longitudinal_map().evaluate_real(knobs),
+        P.TRANSVERSE_XXZ_CHAIN: transverse_map().evaluate_real(knobs),
+        P.LONGITUDINAL_XXZ_CHAIN: longitudinal_map().evaluate_real(knobs),
     }
     report = validity().report({**knobs, **effective})
     assert report.is_valid, [str(outcome) for outcome in report.failures]
@@ -252,8 +253,8 @@ def test_a_vanishing_interaction_channel_is_a_domain_failure_not_a_regime_one(
     report = validity().report(
         {**knobs, P.INTERACTION_UP: 0.0}
         | {
-            P.TRANSVERSE_M2A: 0.5,
-            P.LONGITUDINAL_M2A: 0.5,
+            P.TRANSVERSE_XXZ_CHAIN: 0.5,
+            P.LONGITUDINAL_XXZ_CHAIN: 0.5,
         }
     )
     assert report.has_domain_error
@@ -271,8 +272,8 @@ def test_a_large_anisotropy_leaves_the_window_through_the_longitudinal_condition
         P.INTERACTION_DOWN: mixed,
     }
     effective = {
-        P.TRANSVERSE_M2A: transverse_map().evaluate_real(knobs),
-        P.LONGITUDINAL_M2A: longitudinal_map().evaluate_real(knobs),
+        P.TRANSVERSE_XXZ_CHAIN: transverse_map().evaluate_real(knobs),
+        P.LONGITUDINAL_XXZ_CHAIN: longitudinal_map().evaluate_real(knobs),
     }
     report = validity().report({**knobs, **effective})
     assert not report.is_valid
@@ -287,7 +288,7 @@ def test_a_large_anisotropy_leaves_the_window_through_the_longitudinal_condition
 def test_the_composite_relation_is_under_determined_by_two() -> None:
     """The composite relation has four equations in six unknowns."""
     classification = build_graph(3).device.classify_relation(
-        frozenset({P.TRANSVERSE_M1, P.ANISOTROPY})
+        frozenset({P.TRANSVERSE_XXZ_MAGNET, P.ANISOTROPY})
     )
     assert classification.kind is RelationKind.UNDER_DETERMINED
     assert classification.degrees_of_freedom == 2
@@ -299,7 +300,7 @@ def test_every_anisotropy_the_paper_reports_is_reachable(target: float) -> None:
     """Each anisotropy the paper reports solves exactly inside the window."""
     result = realise_parameters(
         build_graph(3).device,
-        targets={P.TRANSVERSE_M1: 0.4975, P.ANISOTROPY: target},
+        targets={P.TRANSVERSE_XXZ_MAGNET: 0.4975, P.ANISOTROPY: target},
         unknowns=list(KNOBS),
         admissible_set=device_limits(),
         initial=device_start(target),
@@ -326,7 +327,7 @@ def test_an_extreme_anisotropy_runs_out_of_mott_gap() -> None:
     """
     result = realise_parameters(
         build_graph(3).device,
-        targets={P.TRANSVERSE_M1: 0.4975, P.ANISOTROPY: 60.0},
+        targets={P.TRANSVERSE_XXZ_MAGNET: 0.4975, P.ANISOTROPY: 60.0},
         unknowns=list(KNOBS),
         admissible_set=device_limits(),
         initial=device_start(60.0),
@@ -341,7 +342,7 @@ def test_an_extreme_anisotropy_runs_out_of_mott_gap() -> None:
 
     apparatus_only = realise_parameters(
         build_graph(3).device,
-        targets={P.TRANSVERSE_M1: 0.4975, P.ANISOTROPY: 60.0},
+        targets={P.TRANSVERSE_XXZ_MAGNET: 0.4975, P.ANISOTROPY: 60.0},
         unknowns=list(KNOBS),
         admissible_set=device_limits(),
         initial=device_start(60.0),
@@ -355,7 +356,7 @@ def test_the_solve_balances_the_channels_and_so_kills_the_dropped_field() -> Non
     """The default objective lands at ``|U_uu| = |U_dd|``, where the derived field vanishes."""
     result = realise_parameters(
         build_graph(3).device,
-        targets={P.TRANSVERSE_M1: 0.4975, P.ANISOTROPY: 0.973},
+        targets={P.TRANSVERSE_XXZ_MAGNET: 0.4975, P.ANISOTROPY: 0.973},
         unknowns=list(KNOBS),
         admissible_set=device_limits(),
         initial=device_start(0.973),
@@ -401,7 +402,7 @@ def test_the_wider_declared_margin_is_the_more_faithful_setting() -> None:
     result = realise_parameters(
         build_graph(3).device,
         targets={
-            P.TRANSVERSE_M1: transverse_map().evaluate_real(experiment),
+            P.TRANSVERSE_XXZ_MAGNET: transverse_map().evaluate_real(experiment),
             P.ANISOTROPY: row.anisotropy,
         },
         unknowns=list(KNOBS),
@@ -457,7 +458,9 @@ def test_the_declared_global_symmetry_is_a_real_conservation_law() -> None:
     assert model.structure.symmetry("magnetisation") is not None
     space = HilbertSpace.of(model.structure)
     hamiltonian = np.asarray(
-        build_operator(model.hamiltonian, space, {P.TRANSVERSE_M2A: 0.5, P.LONGITUDINAL_M2A: 0.35})
+        build_operator(
+            model.hamiltonian, space, {P.TRANSVERSE_XXZ_CHAIN: 0.5, P.LONGITUDINAL_XXZ_CHAIN: 0.35}
+        )
     )
     generator = np.asarray(build_operator(magnetisation_observable(sites), space, {}))
     commutator = hamiltonian @ generator - generator @ hamiltonian

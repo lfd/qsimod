@@ -1,20 +1,22 @@
 """The anisotropic Heisenberg magnet, assembled from the model and transformation libraries.
 
 ```
-M1   H_XXZ     Heisenberg XXZ magnet, by its anisotropy            (application)
- |    (a) anisotropy resolution                        EXACT
-M2a  H_XXZ     XXZ chain, by its two couplings                     (intermediate)  branch point
+xxz_magnet   H_XXZ   Heisenberg XXZ magnet, by its anisotropy       (application)
+ |    anisotropy resolution                            EXACT
+xxz_chain    H_XXZ   XXZ chain, by its two couplings                (intermediate)  branch point
  +------------- ANALYTIC -------------+-------------- HARDWARE --------------
- |  (b) Jordan-Wigner transformation  |  (c) second-order superexchange,
+ |  Jordan-Wigner transformation      |  second-order superexchange,
  |               EXACT                |      solved for the knob settings
  |                                    |      APPROXIMATE (regime conditions)
-M2b  H_tV   spinless fermions with V   M3   H_2BHM  two-component Bose-Hubbard chain
-            (intermediate)                         (hardware, analogue)
+fermion_chain   H_tV                 two_component_bose_hubbard   H_2BHM
+   spinless fermions with V             two-component Bose-Hubbard chain
+   (intermediate)                       (hardware, analogue)
 ```
 
-``M2b`` is a terminal artifact among the intermediate representations: at zero anisotropy it
-is a free-fermion chain.  The physics is that of Jepsen et al., *Spin transport in a tunable
-Heisenberg model realized with ultracold atoms*, Nature **588**, 403-407 (2020).
+``fermion_chain`` is a terminal artifact among the intermediate representations: at zero
+anisotropy it is a free-fermion chain.  The physics is that of Jepsen et al., *Spin
+transport in a tunable Heisenberg model realized with ultracold atoms*, Nature **588**,
+403-407 (2020).
 
 Conventions: the transverse term is ``(Jxy/2)(S^+S^- + h.c.)``; the anisotropy is
 ``Delta = Jz / Jxy`` with ``Jxy > 0`` (antiferromagnetic), which confines ``U_ud`` to the
@@ -22,7 +24,7 @@ attractive branch of the Feshbach resonance; the two-component register is inter
 the first component at ``2j`` and the second at ``2j+1``; the Jordan-Wigner transformation
 uses alternating signs, as in [`qsimod.realise.build`][qsimod.realise.build]; the longitudinal
 field the superexchange derivation also produces is returned by
-[`field_map`][qsimod.usecases.heisenberg.field_map] and is not part of ``M2a``.
+[`field_map`][qsimod.usecases.heisenberg.field_map] and is not part of ``xxz_chain``.
 """
 
 from __future__ import annotations
@@ -100,34 +102,34 @@ __all__ = [
 # The namespaces this use case gives its models
 # ---------------------------------------------------------------------------
 
-M1 = Namespace("M1")
-M2A = Namespace("M2a")
-M2B = Namespace("M2b")
-M3 = Namespace("M3")
+XXZ_MAGNET = Namespace("xxz_magnet")
+XXZ_CHAIN = Namespace("xxz_chain")
+FERMION_CHAIN = Namespace("fermion_chain")
+TWO_COMPONENT_BOSE_HUBBARD = Namespace("two_component_bose_hubbard")
 
 #: Every namespace this use case owns, in pipeline order.
-NAMESPACES = (M1, M2A, M2B, M3)
+NAMESPACES = (XXZ_MAGNET, XXZ_CHAIN, FERMION_CHAIN, TWO_COMPONENT_BOSE_HUBBARD)
 
-SOURCE = "M1"
-DEVICE_TARGET = "M3"
-FERMION_TARGET = "M2b"
+SOURCE = "xxz_magnet"
+DEVICE_TARGET = "two_component_bose_hubbard"
+FERMION_TARGET = "fermion_chain"
 
 
 class ParameterNames:
     """The fully qualified parameter names of this use case."""
 
-    TRANSVERSE_M1 = M1(names.TRANSVERSE_COUPLING)
-    ANISOTROPY = M1(names.ANISOTROPY)
+    TRANSVERSE_XXZ_MAGNET = XXZ_MAGNET(names.TRANSVERSE_COUPLING)
+    ANISOTROPY = XXZ_MAGNET(names.ANISOTROPY)
 
-    TRANSVERSE_M2A = M2A(names.TRANSVERSE_COUPLING)
-    LONGITUDINAL_M2A = M2A(names.LONGITUDINAL_COUPLING)
-    TRANSVERSE_M2B = M2B(names.TRANSVERSE_COUPLING)
-    LONGITUDINAL_M2B = M2B(names.LONGITUDINAL_COUPLING)
+    TRANSVERSE_XXZ_CHAIN = XXZ_CHAIN(names.TRANSVERSE_COUPLING)
+    LONGITUDINAL_XXZ_CHAIN = XXZ_CHAIN(names.LONGITUDINAL_COUPLING)
+    TRANSVERSE_FERMION_CHAIN = FERMION_CHAIN(names.TRANSVERSE_COUPLING)
+    LONGITUDINAL_FERMION_CHAIN = FERMION_CHAIN(names.LONGITUDINAL_COUPLING)
 
-    HOPPING = M3(names.HOPPING)
-    INTERACTION_UP = M3(names.INTERACTION_UP)
-    INTERACTION_MIXED = M3(names.INTERACTION_MIXED)
-    INTERACTION_DOWN = M3(names.INTERACTION_DOWN)
+    HOPPING = TWO_COMPONENT_BOSE_HUBBARD(names.HOPPING)
+    INTERACTION_UP = TWO_COMPONENT_BOSE_HUBBARD(names.INTERACTION_UP)
+    INTERACTION_MIXED = TWO_COMPONENT_BOSE_HUBBARD(names.INTERACTION_MIXED)
+    INTERACTION_DOWN = TWO_COMPONENT_BOSE_HUBBARD(names.INTERACTION_DOWN)
 
 
 #: The hardware knobs, in the order in which the tables of this use case print them.
@@ -145,27 +147,33 @@ KNOBS = (
 
 
 def magnet(sites: int) -> HamiltonianModel:
-    """``M1``: the XXZ magnet stated by its anisotropy."""
-    return heisenberg_magnet(sites, M1, name="M1", hamiltonian_name="H_XXZ")
+    """``xxz_magnet``: the XXZ magnet stated by its anisotropy."""
+    return heisenberg_magnet(sites, XXZ_MAGNET, name="xxz_magnet", hamiltonian_name="H_XXZ")
 
 
 def spin_chain(sites: int) -> HamiltonianModel:
-    """``M2a``: the same chain, stated by two coupling energies."""
-    return xxz_spin_chain(sites, M2A, name="M2a", hamiltonian_name="H_XXZ")
+    """``xxz_chain``: the same chain, stated by two coupling energies."""
+    return xxz_spin_chain(sites, XXZ_CHAIN, name="xxz_chain", hamiltonian_name="H_XXZ")
 
 
 def fermion_chain(sites: int) -> HamiltonianModel:
-    """``M2b``: the Jordan-Wigner image, spinless fermions with a nearest-neighbour ``V``."""
-    return interacting_fermion_chain(sites, M2B, name="M2b", hamiltonian_name="H_tV")
+    """``fermion_chain``: the Jordan-Wigner image, spinless fermions with a neighbour ``V``."""
+    return interacting_fermion_chain(
+        sites, FERMION_CHAIN, name="fermion_chain", hamiltonian_name="H_tV"
+    )
 
 
 def lattice(
     sites: int,
     admissible_set: AdmissibleSet | None = None,
 ) -> HamiltonianModel:
-    """``M3``: the two-component Bose-Hubbard chain, the hardware model."""
+    """``two_component_bose_hubbard``: the two-component Bose-Hubbard chain, the hardware model."""
     return two_component_bose_hubbard_chain(
-        sites, M3, admissible_set=admissible_set, name="M3", hamiltonian_name="H_2BHM"
+        sites,
+        TWO_COMPONENT_BOSE_HUBBARD,
+        admissible_set=admissible_set,
+        name="two_component_bose_hubbard",
+        hamiltonian_name="H_2BHM",
     )
 
 
@@ -175,33 +183,38 @@ def lattice(
 
 
 def anisotropy() -> AnisotropyResolution:
-    """Transformation (a): the anisotropy resolution, ``M1 -> M2a``."""
-    return anisotropy_resolution(M1, M2A, target_name="M2a", name="(a) anisotropy resolution")
+    """The anisotropy resolution, ``xxz_magnet -> xxz_chain``."""
+    return anisotropy_resolution(
+        XXZ_MAGNET, XXZ_CHAIN, target_name="xxz_chain", name="anisotropy resolution"
+    )
 
 
 def jordan_wigner() -> JordanWignerToFermions:
-    """Transformation (b): the Jordan-Wigner transformation to fermions, ``M2a -> M2b``."""
+    """The Jordan-Wigner transformation to fermions, ``xxz_chain -> fermion_chain``."""
     return jordan_wigner_to_fermions(
-        M2A, M2B, target_name="M2b", name="(b) Jordan-Wigner to spinless fermions"
+        XXZ_CHAIN,
+        FERMION_CHAIN,
+        target_name="fermion_chain",
+        name="Jordan-Wigner to spinless fermions",
     )
 
 
 def superexchange(
     admissible_set: AdmissibleSet | None = None,
 ) -> SuperexchangeReduction:
-    """Transformation (c): second-order superexchange solved for the knobs, ``M2a -> M3``."""
+    """Second-order superexchange solved for the knobs, to ``two_component_bose_hubbard``."""
     return superexchange_reduction(
-        M2A,
-        M3,
-        admissible_set=admissible_set or two_component_admissible_set(M3),
-        target_name="M3",
-        name="(c) second-order superexchange, inverted",
+        XXZ_CHAIN,
+        TWO_COMPONENT_BOSE_HUBBARD,
+        admissible_set=admissible_set or two_component_admissible_set(TWO_COMPONENT_BOSE_HUBBARD),
+        target_name="two_component_bose_hubbard",
+        name="second-order superexchange, inverted",
     )
 
 
 def validity(**thresholds: float) -> Conjunction:
-    """The validity conditions of transformation (c), over the namespaces of this use case."""
-    return superexchange_validity(M2A, M3, **thresholds)
+    """The validity conditions of the superexchange step, over the namespaces of this use case."""
+    return superexchange_validity(XXZ_CHAIN, TWO_COMPONENT_BOSE_HUBBARD, **thresholds)
 
 
 def transverse_map() -> Scalar:
@@ -209,7 +222,7 @@ def transverse_map() -> Scalar:
 
     The expression is stated over the hardware namespace of this use case.
     """
-    return superexchange_transverse(M3)
+    return superexchange_transverse(TWO_COMPONENT_BOSE_HUBBARD)
 
 
 def longitudinal_map() -> Scalar:
@@ -217,16 +230,16 @@ def longitudinal_map() -> Scalar:
 
     The expression is stated over the hardware namespace of this use case.
     """
-    return superexchange_longitudinal(M3)
+    return superexchange_longitudinal(TWO_COMPONENT_BOSE_HUBBARD)
 
 
 def field_map() -> Scalar:
-    """The strength of the longitudinal field that transformation (c) also produces.
+    """The strength of the longitudinal field that the superexchange step also produces.
 
     The field is not part of the target model; see
     [`superexchange_field`][qsimod.transformations.perturbative.superexchange_field].
     """
-    return superexchange_field(M3)
+    return superexchange_field(TWO_COMPONENT_BOSE_HUBBARD)
 
 
 def device_limits(
@@ -241,7 +254,7 @@ def device_limits(
     [`two_component_admissible_set`][qsimod.models.hardware.two_component_admissible_set].
     """
     return two_component_admissible_set(
-        M3,
+        TWO_COMPONENT_BOSE_HUBBARD,
         hopping_max=hopping_max,
         interaction_magnitude_range=interaction_magnitude_range,
         mott_ratio=mott_ratio,
@@ -300,8 +313,8 @@ class HeisenbergGraph(UseCaseGraph):
 
     Attributes:
         sites: the chain length ``N``.
-        device: ``M1 -> M2a -> M3``.
-        fermions: ``M1 -> M2a -> M2b``.
+        device: the pipeline to ``two_component_bose_hubbard``.
+        fermions: the pipeline to ``fermion_chain``.
 
     """
 
@@ -329,7 +342,7 @@ def build_graph(
         The model graph and the two pipelines through it.
 
     """
-    limits = admissible_set or two_component_admissible_set(M3)
+    limits = admissible_set or two_component_admissible_set(TWO_COMPONENT_BOSE_HUBBARD)
     graph = ModelGraph(name=f"Heisenberg XXZ magnet graph at N = {sites}")
 
     graph.add_node(magnet(sites))
@@ -337,19 +350,19 @@ def build_graph(
     graph.add_node(fermion_chain(sites))
     graph.add_node(lattice(sites, limits))
 
-    step_a = anisotropy()
-    step_b = jordan_wigner()
-    step_c = superexchange(limits)
+    resolve = anisotropy()
+    to_fermions = jordan_wigner()
+    reduce = superexchange(limits)
 
-    graph.add_edge(SOURCE, "M2a", step_a)
-    graph.add_edge("M2a", FERMION_TARGET, step_b)
-    graph.add_edge("M2a", DEVICE_TARGET, step_c)
+    graph.add_edge(SOURCE, "xxz_chain", resolve)
+    graph.add_edge("xxz_chain", FERMION_TARGET, to_fermions)
+    graph.add_edge("xxz_chain", DEVICE_TARGET, reduce)
 
     return HeisenbergGraph(
         sites=sites,
         graph=graph,
-        device=Pipeline.of([step_a, step_c], name="device: M1 -> M2a -> M3"),
-        fermions=Pipeline.of([step_a, step_b], name="analytic: M1 -> M2a -> M2b"),
+        device=Pipeline.of([resolve, reduce], name="device branch, to the two-component lattice"),
+        fermions=Pipeline.of([resolve, to_fermions], name="analytic branch, to spinless fermions"),
     )
 
 

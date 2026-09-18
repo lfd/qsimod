@@ -4,11 +4,11 @@ The parameters of the application model are entered, the pipeline is type-checke
 hardware knobs are solved for, and both layers are realised numerically and compared.  The
 request is that of Zhou et al., *Thermalization dynamics of a gauge theory on a quantum
 simulator*, Science **377**, 311-314 (2022) (`docs/references/paper_zhou22.pdf`), whose
-Eqs. (S5) and (S6) are the artifact ``L2c`` (the boson encoding ``H_IR3`` of the article) and
-the transformation ``(d)`` of the framework.  The knobs of the experiment itself are evaluated
-as a second setting, the prescribed knobs.  Section 6a fits Eq. (S10) to the oscillation of
-Fig. S3a; section 6b scans the steady-state gauge violation along the resonance line as in
-Fig. 2D.
+Eqs. (S5) and (S6) are the artifact ``effective_bosonic`` (the boson encoding ``H_IR3`` of the
+article) and the perturbative transformation of the framework.  The knobs of the experiment
+itself are evaluated as a second setting, the prescribed knobs.  Section 6a fits Eq. (S10) to
+the oscillation of Fig. S3a; section 6b scans the steady-state gauge violation along the
+resonance line as in Fig. 2D.
 
 Run it with::
 
@@ -225,10 +225,10 @@ class Outcome:
         knobs: the four hardware knobs, in rad/ms.
         mass: the effective mass the setting realises, in rad/ms.
         coupling: the effective coupling the setting realises, in rad/ms.
-        margin: the weakest regime margin of transformation ``(d)``, in decades (positive
+        margin: the weakest regime margin of the perturbative transformation, in decades (positive
             inside the declared regime).
         deviation: the largest absolute difference between the trajectories of ``<n_matter>``
-            under ``L3a`` and under ``L2c``.
+            under ``bose_hubbard`` and under ``effective_bosonic``.
         leakage: the largest weight outside the declared occupation subspace.
         violation: the time-averaged gauge violation ``eta``.
         window_ms: the time window, in ms.
@@ -342,9 +342,9 @@ class Comparison:
     Attributes:
         solved: the free-knob setting, found by the solve of the framework.
         experiment: the prescribed-knob setting of the experiment.
-        oscillation: Eq. (S10) fitted to ``<n_matter>(t)`` under ``L3a`` at the prescribed
+        oscillation: Eq. (S10) fitted to ``<n_matter>(t)`` under ``bose_hubbard`` at the prescribed
             knobs, in the full space.
-        converged: the same fit on ``L2c``, realised in its gauge-invariant sector at
+        converged: the same fit on ``effective_bosonic``, realised in its gauge-invariant sector at
             [`GAUGE_THEORY_SITES`][examples.analogue_end_to_end.GAUGE_THEORY_SITES].
         scan: the curve of Fig. 2D, one point per ``U/J``, ascending.
 
@@ -380,8 +380,10 @@ class Bench:
         initial: the ``|1 0 1 0 1 ...>`` initial state.
         occupation: the realised ``<n_matter>`` observable.
         violation: the realised gauge-violation observable ``eta``.
-        device: the Hamiltonian of the analogue simulator model ``L3a``, with unbound parameters.
-        theory: the Hamiltonian of the effective theory ``L2c``, with unbound parameters.
+        device: the Hamiltonian of the analogue simulator model ``bose_hubbard``, with unbound
+            parameters.
+        theory: the Hamiltonian of the effective theory ``effective_bosonic``, with unbound
+            parameters.
 
     """
 
@@ -424,7 +426,7 @@ class Bench:
         """Evaluate one knob setting: its regime margin and its measured dynamical errors.
 
         The effective parameters follow from the knobs through the forward maps of
-        transformation ``(d)``.
+        the perturbative transformation.
 
         Args:
             label: the origin of the setting.
@@ -432,12 +434,12 @@ class Bench:
             window_ms: the time window, in ms.
 
         Returns:
-            The outcome and the trajectory of ``<n_matter>`` under ``L3a``.
+            The outcome and the trajectory of ``<n_matter>`` under ``bose_hubbard``.
 
         """
         mass = mass_map().evaluate_real(knobs)
         coupling = coupling_map().evaluate_real(knobs)
-        effective = {P.MASS_L2C: mass, P.COUPLING_L2C: coupling}
+        effective = {P.MASS_EFFECTIVE_BOSONIC: mass, P.COUPLING_EFFECTIVE_BOSONIC: coupling}
 
         device = build_operator(self.device, self.space, knobs)
         # The effective generator on the physical subspace is the projected operator P B P.
@@ -468,7 +470,7 @@ def gauge_theory_oscillation(
     coupling: float,
     window_ms: float = WINDOW_MS,
 ) -> tuple[Oscillation, int]:
-    """Fit Eq. (S10) to the effective theory ``L2c``, realised in its gauge-invariant sector.
+    """Fit Eq. (S10) to the effective theory ``effective_bosonic`` in its gauge-invariant sector.
 
     Args:
         matter_sites: the chain length ``N``.
@@ -488,7 +490,9 @@ def gauge_theory_oscillation(
         RealisationRequest(boson_cutoff=subspace.required_cutoff()),
     )
     generator = build_operator_in(
-        model.hamiltonian, basis, {P.MASS_L2C: 0.0, P.COUPLING_L2C: coupling}
+        model.hamiltonian,
+        basis,
+        {P.MASS_EFFECTIVE_BOSONIC: 0.0, P.COUPLING_EFFECTIVE_BOSONIC: coupling},
     )
     occupation = build_operator_in(matter_occupation_observable(matter_sites), basis, {})
     initial = basis.state(canonical_state_configuration(matter_sites))
@@ -584,8 +588,8 @@ def main(
     say(pipeline)
 
     targets = {
-        P.MASS_L1: from_hertz(TARGET_MASS_HZ),
-        P.COUPLING_L2A: from_hertz(TARGET_COUPLING_HZ),
+        P.MASS_LATTICE_QED: from_hertz(TARGET_MASS_HZ),
+        P.COUPLING_QUANTUM_LINK_STAGGERED: from_hertz(TARGET_COUPLING_HZ),
         P.ELECTRIC_GAP: ELECTRIC_GAP,
     }
     say()
@@ -632,18 +636,18 @@ def main(
     gap = 100 * (converged.frequency_hz - PAPER_FREQUENCY_HZ) / PAPER_FREQUENCY_HZ
     say(f"   {'':<34}{'f / Hz':>9}{'1/gamma / ms':>14}")
     say(
-        f"   {f'L3a, full space, N = {matter_sites}':<34}"
+        f"   {f'bose_hubbard, full space, N = {matter_sites}':<34}"
         f"{oscillation.frequency_hz:9.2f}{oscillation.damping_ms:14.1f}"
     )
     say(
-        f"   {f'L2c, sector, N = {GAUGE_THEORY_SITES} (dim {sector})':<34}"
+        f"   {f'effective_bosonic, sector, N = {GAUGE_THEORY_SITES} (dim {sector})':<34}"
         f"{converged.frequency_hz:9.2f}{converged.damping_ms:14.1f}"
     )
     say(
         f"   {'paper_zhou22 measured':<34}{PAPER_FREQUENCY_HZ:9.2f}"
         f"{PAPER_DAMPING_MS:9.1f} +-{PAPER_DAMPING_UNCERTAINTY_MS:2.0f}"
     )
-    say(f"   {'relative gap, L2c on the frequency':<34}{gap:+9.2f} %")
+    say(f"   {'relative gap, effective_bosonic on the frequency':<34}{gap:+9.2f} %")
 
     say()
     report.section(

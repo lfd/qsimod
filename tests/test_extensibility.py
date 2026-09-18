@@ -106,7 +106,7 @@ def ising_model(sites: int) -> HamiltonianModel:
     for site in range(register):
         hamiltonian = hamiltonian + word(field, pauli_x(site))
     return HamiltonianModel(
-        name="L3c",
+        name="transverse_ising",
         level=AbstractionLevel.HARDWARE,
         structure=ising_structure(sites),
         parameters=ISING_PARAMETERS,
@@ -138,8 +138,8 @@ class IsingRealisation(Transformation):
 
 def ising_realisation() -> IsingRealisation:
     """The toy transformation with its parameter relation and structural types."""
-    coupling_in = Symbol(P.COUPLING_L2D)
-    mass_in = Symbol(P.MASS_L2D)
+    coupling_in = Symbol(P.COUPLING_QUBIT_REGISTER)
+    mass_in = Symbol(P.MASS_QUBIT_REGISTER)
     coupling_out = Symbol(ISING_COUPLING)
     field_out = Symbol(ISING_FIELD)
     relation = ParameterRelation(
@@ -150,9 +150,9 @@ def ising_realisation() -> IsingRealisation:
         ),
         definitions=(
             Definition(ISING_COUPLING, coupling_in / 2, "coupling"),
-            Definition(P.COUPLING_L2D, 2 * coupling_out, "coupling"),
+            Definition(P.COUPLING_QUBIT_REGISTER, 2 * coupling_out, "coupling"),
             Definition(ISING_FIELD, mass_in, "field"),
-            Definition(P.MASS_L2D, field_out, "field"),
+            Definition(P.MASS_QUBIT_REGISTER, field_out, "field"),
         ),
     )
     return IsingRealisation(
@@ -161,7 +161,7 @@ def ising_realisation() -> IsingRealisation:
         target_pattern=ISING_PATTERN,
         exactness=Exactness.EXACT,
         relation=relation,
-        source_parameters=(P.MASS_L2D, P.COUPLING_L2D),
+        source_parameters=(P.MASS_QUBIT_REGISTER, P.COUPLING_QUBIT_REGISTER),
         target_parameters=(ISING_COUPLING, ISING_FIELD),
         description="a trivial third target, added from outside the package",
     )
@@ -171,16 +171,20 @@ def test_a_toy_hardware_target_is_added_from_outside_and_type_checks() -> None:
     """A hardware model and transformation added to the DAG become an enumerable pipeline."""
     graph = build_graph(3)
     graph.graph.add_node(ising_model(3))
-    edge = graph.graph.add_edge("L2d", "L3c", ising_realisation())
-    assert edge.target == "L3c"
+    edge = graph.graph.add_edge("qubit_register", "transverse_ising", ising_realisation())
+    assert edge.target == "transverse_ising"
 
-    targets = set(graph.graph.terminal_targets("L1"))
-    assert "L3c" in targets
-    pipelines = graph.graph.pipelines("L1", "L3c")
+    targets = set(graph.graph.terminal_targets("lattice_qed"))
+    assert "transverse_ising" in targets
+    pipelines = graph.graph.pipelines("lattice_qed", "transverse_ising")
     assert len(pipelines) == 1
     pipeline = pipelines[0]
     assert pipeline.exactness is Exactness.APPROXIMATE  # from the QLM truncation
-    assert [step.name[:5] for step in pipeline.steps][:3] == ["(a) s", "(b) p", "(e) J"]
+    assert [step.name for step in pipeline.steps][:3] == [
+        "spin-1/2 quantum-link truncation",
+        "particle-hole transformation",
+        "Jordan-Wigner to qubits",
+    ]
 
 
 def test_the_toy_target_can_be_applied_and_solved_for() -> None:
@@ -192,18 +196,26 @@ def test_the_toy_target_can_be_applied_and_solved_for() -> None:
             to_qubits(),
             ising_realisation(),
         ],
-        name="L1 -> ... -> toy Ising",
+        name="lattice_qed -> ... -> toy Ising",
     )
-    staggered = build_graph(3).graph.node("L2a").bind(**{P.MASS_L2A: 0.4, P.COUPLING_L2A: 0.8})
+    staggered = (
+        build_graph(3)
+        .graph.node("quantum_link_staggered")
+        .bind(**{P.MASS_QUANTUM_LINK_STAGGERED: 0.4, P.COUPLING_QUANTUM_LINK_STAGGERED: 0.8})
+    )
     applied = pipeline.sub_pipeline(1, None).apply(staggered)
     assert isinstance(applied, HamiltonianModel)
-    assert applied.name == "L3c"
+    assert applied.name == "transverse_ising"
     assert applied.binding[ISING_COUPLING] == pytest.approx(0.4)
     assert applied.binding[ISING_FIELD] == pytest.approx(0.4)
 
     result = realise_parameters(
         pipeline,
-        targets={P.MASS_L1: 0.4, P.COUPLING_L2A: 0.8, P.ELECTRIC_GAP: 1.0},
+        targets={
+            P.MASS_LATTICE_QED: 0.4,
+            P.COUPLING_QUANTUM_LINK_STAGGERED: 0.8,
+            P.ELECTRIC_GAP: 1.0,
+        },
         unknowns=[ISING_COUPLING, ISING_FIELD],
         admissible_set=ising_admissible_set(),
     )
@@ -216,7 +228,7 @@ def test_a_second_application_level_theory_is_rejected_where_it_lacks_structure(
     """A theory without a gauge sector is rejected by the truncation's pattern check."""
     sites = 200
     scalar_theory = HamiltonianModel(
-        name="L1'",
+        name="lattice_qed'",
         level=AbstractionLevel.APPLICATION,
         structure=StructureType(
             lattice=Lattice(LatticeGeometry.OPEN_CHAIN_1D, sites),
@@ -225,7 +237,7 @@ def test_a_second_application_level_theory_is_rejected_where_it_lacks_structure(
             ),
             name="a free fermion chain with no gauge field",
         ),
-        parameters=ParameterSet((Parameter("L1'.m", Dimension.ENERGY, "mass"),)),
+        parameters=ParameterSet((Parameter("lattice_qed'.m", Dimension.ENERGY, "mass"),)),
         hamiltonian=OperatorSum(),
         origin="a second application-level theory, added from outside the package",
     )

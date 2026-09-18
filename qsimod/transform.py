@@ -141,7 +141,7 @@ class Transformation(ABC):
     Like an artifact, a transformation is a declaration before it is a computation.
 
     Attributes:
-        name: a short identifier, for instance ``"(a) spin-1/2 quantum-link truncation"``.
+        name: a short identifier, for instance ``"spin-1/2 quantum-link truncation"``.
         source_pattern: the structural type the transformation requires of its source.
         target_pattern: the structural type the transformation declares for its target; used
             to type-check a composition.

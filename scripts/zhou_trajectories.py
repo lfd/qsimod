@@ -2,8 +2,8 @@
 
 For the free-knob setting (the framework's solve) and the prescribed-knob setting (the
 experiment's own knobs), records at every sample time over the experiment's window the mean
-matter occupation under the device Hamiltonian ``L3a`` (``occupation_hw``) and under the
-effective theory ``L2c`` (``occupation_theory``),
+matter occupation under the device Hamiltonian ``bose_hubbard`` (``occupation_hw``) and under the
+effective theory ``effective_bosonic`` (``occupation_theory``),
 the weight outside the declared occupation subspace (leakage) and the gauge violation
 ``eta``.  The settings, request and window are those of ``examples/analogue_end_to_end.py``.
 
@@ -153,12 +153,12 @@ class FullSpaceBench:
 
     @property
     def device(self) -> OperatorSum:
-        """L3a's Hamiltonian, unbound."""
+        """The Hamiltonian of ``bose_hubbard``, unbound."""
         return self.bench.device
 
     @property
     def theory(self) -> OperatorSum:
-        """L2c's Hamiltonian, unbound."""
+        """The Hamiltonian of ``effective_bosonic``, unbound."""
         return self.bench.theory
 
     def build(self, operator: OperatorSum, values: Mapping[str, float]) -> Array:
@@ -176,8 +176,8 @@ class NumberSectorBench:
         initial: the ``|1 0 1 0 1 ...>`` initial state.
         occupation: the realised ``<n_matter>`` observable.
         violation: the realised gauge-violation observable.
-        device: L3a's Hamiltonian, unbound.
-        theory: L2c's Hamiltonian, unbound.
+        device: the Hamiltonian of ``bose_hubbard``, unbound.
+        theory: the Hamiltonian of ``effective_bosonic``, unbound.
 
     """
 
@@ -245,8 +245,8 @@ def free_knobs(matter_sites: int) -> dict[str, float]:
     """
     pipeline = build_graph(matter_sites).analogue
     targets = {
-        P.MASS_L1: from_hertz(TARGET_MASS_HZ),
-        P.COUPLING_L2A: from_hertz(TARGET_COUPLING_HZ),
+        P.MASS_LATTICE_QED: from_hertz(TARGET_MASS_HZ),
+        P.COUPLING_QUANTUM_LINK_STAGGERED: from_hertz(TARGET_COUPLING_HZ),
         P.ELECTRIC_GAP: ELECTRIC_GAP,
     }
     result = realise_parameters(
@@ -275,8 +275,8 @@ def trajectories(
 
     """
     effective = {
-        P.MASS_L2C: mass_map().evaluate_real(knobs),
-        P.COUPLING_L2C: coupling_map().evaluate_real(knobs),
+        P.MASS_EFFECTIVE_BOSONIC: mass_map().evaluate_real(knobs),
+        P.COUPLING_EFFECTIVE_BOSONIC: coupling_map().evaluate_real(knobs),
     }
     device = bench.build(bench.device, knobs)
     theory = sandwich(bench.build(bench.theory, effective), bench.projector)

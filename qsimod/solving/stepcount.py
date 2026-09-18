@@ -44,7 +44,7 @@ __all__ = [
 ]
 
 #: The name of the step count inside the constraint system.
-STEPS_SYMBOL = "L3b.n"
+STEPS_SYMBOL = "trotter.n"
 
 #: The largest step count the bisection considers.
 DEFAULT_MAX_STEPS = 1 << 22

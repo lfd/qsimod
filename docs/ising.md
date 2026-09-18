@@ -1,10 +1,10 @@
 # Guide: the Ising chain on a shared hardware model
 
 The use case [`qsimod.usecases.ising`][qsimod.usecases.ising] carries an antiferromagnetic
-Ising chain, the application model `K1`, to `L3a`, the tilted Bose-Hubbard chain of [the
+Ising chain, the application model `ising_magnet`, to `bose_hubbard`, the tilted Bose-Hubbard chain of [the
 Schwinger pipeline](schwinger.md), with its namespace, parameters and admissible set of knobs.
 This page assumes the machinery that guide introduces and states what differs.  Two
-transformations arrive at `L3a`, so one knob setting can be judged by both derivations.
+transformations arrive at `bose_hubbard`, so one knob setting can be judged by both derivations.
 
 The physics follows Simon et al., *Quantum simulation of antiferromagnetic spin chains in an
 optical lattice*, Nature **472**, 307-312 (2011), following Sachdev, Sengupta and Girvin.
@@ -20,26 +20,26 @@ hardware model.
 flowchart TB
     subgraph LV1["Application model &nbsp;·&nbsp; <code>models.application</code>"]
         direction LR
-        K1["<b>K1 &nbsp; H<sub>Ising</sub></b><br/>antiferromagnetic<br/>Ising chain<br/><i>Θ = {J<sub>z</sub>, h<sub>z</sub>, h<sub>x</sub>}</i>"]
+        ising_magnet["<b>ising_magnet &nbsp; H<sub>Ising</sub></b><br/>antiferromagnetic<br/>Ising chain<br/><i>Θ = {J<sub>z</sub>, h<sub>z</sub>, h<sub>x</sub>}</i>"]
     end
     subgraph LV2["Intermediate representations &nbsp;·&nbsp; <code>models.intermediate</code>"]
-        K2["<b>K2 &nbsp; H<sub>Ising</sub></b><br/>Ising chain,<br/>by three energies<br/><i>Θ = {J<sub>z</sub>, Γ, B}</i>"]
-        L2c["<b>L2c &nbsp; H<sub>IR3</sub></b><br/>boson encoding<br/><i>Θ<sub>IR3</sub> = {m, κ}</i>"]
+        ising_chain["<b>ising_chain &nbsp; H<sub>Ising</sub></b><br/>Ising chain,<br/>by three energies<br/><i>Θ = {J<sub>z</sub>, Γ, B}</i>"]
+        effective_bosonic["<b>effective_bosonic &nbsp; H<sub>IR3</sub></b><br/>boson encoding<br/><i>Θ<sub>IR3</sub> = {m, κ}</i>"]
     end
     subgraph LV3["Hardware model &nbsp;·&nbsp; <code>models.hardware</code>"]
         direction LR
-        L3a["<b>L3a &nbsp; H<sub>sim</sub></b><br/>tilted, staggered<br/>Bose–Hubbard chain<br/><i>Θ<sub>sim</sub> = {J, U, δ, Δ}</i>"]
+        bose_hubbard["<b>bose_hubbard &nbsp; H<sub>sim</sub></b><br/>tilted, staggered<br/>Bose–Hubbard chain<br/><i>Θ<sub>sim</sub> = {J, U, δ, Δ}</i>"]
     end
 
-    K1  ---> |"<b>(a)</b> field resolution<br/><i>exact</i>"| K2
-    K2  -. "<b>(b)</b> resonant dipole reduction,<br/>solved for the knob settings<br/><i>approximate, regime conditions</i>" .-> L3a
+    ising_magnet ---> |"<b>field resolution</b><br/><i>exact</i>"| ising_chain
+    ising_chain -. "<b>resonant dipole reduction,<br/>solved for the knob settings</b><br/><i>approximate, regime conditions</i>" .-> bose_hubbard
 
-    L2c -. "<b>(d)</b> degenerate perturbation theory,<br/>solved for the knob settings<br/><i>approximate, regime conditions</i>" .-> L3a
+    effective_bosonic -. "<b>degenerate perturbation theory,<br/>solved for the knob settings</b><br/><i>approximate, regime conditions</i>" .-> bose_hubbard
 
     classDef ham fill:#e0f2ee,stroke:#009371,color:#003e2f
     classDef ctx fill:#f3f3f3,stroke:#919191,color:#545454,stroke-dasharray:4 3
-    class K1,K2,L3a ham
-    class L2c ctx
+    class ising_magnet,ising_chain,bose_hubbard ham
+    class effective_bosonic ctx
     style LV1 fill:#f2f7fa,stroke:#b1d0e5,color:#103c5a
     style LV2 fill:#f2f7fa,stroke:#b1d0e5,color:#103c5a
     style LV3 fill:#f2f7fa,stroke:#b1d0e5,color:#103c5a
@@ -57,10 +57,10 @@ for edge in graph.incoming(DEVICE_TARGET):
 
 | Transformation | From | To | Exactness | Kind of approximation | Relation, forward direction | Relation, inverse direction |
 |---|---|---|---|---|---|---|
-| **(a)** [field resolution][qsimod.transformations.reparametrisations.field_resolution] | `K1` | `K2` | `EXACT` | — | `CLOSED_FORM` | `CLOSED_FORM` |
-| **(b)** [dipole reduction][qsimod.transformations.perturbative.dipole_reduction] | `K2` | `L3a` | `APPROXIMATE` | regime conditions | `CLOSED_FORM` | three equations, four knobs |
+| [field resolution][qsimod.transformations.reparametrisations.field_resolution] | `ising_magnet` | `ising_chain` | `EXACT` | — | `CLOSED_FORM` | `CLOSED_FORM` |
+| [dipole reduction][qsimod.transformations.perturbative.dipole_reduction] | `ising_chain` | `bose_hubbard` | `APPROXIMATE` | regime conditions | `CLOSED_FORM` | three equations, four knobs |
 
-## `K1`: the Ising magnet
+## `ising_magnet`: the Ising magnet
 
 **Use case:** [`magnet`][qsimod.usecases.ising.magnet] &nbsp;·&nbsp; **library:** [`ising_magnet`][qsimod.models.application.ising_magnet]
 
@@ -90,18 +90,18 @@ except StructureTypeError as error:
     print(error)
 ```
 
-## (a) `K1` -> `K2`: the field resolution
+## `ising_magnet` -> `ising_chain`: the field resolution
 
 ```
 Jz    -> Jz             Gamma = hx * Jz             B = hz * Jz
 ```
 
 **Exactness:** `EXACT` and invertible.  The transformation is the same reparametrisation as
-the [anisotropy resolution](heisenberg.md#a-m1-m2a-the-anisotropy-resolution) of the magnet,
+the [anisotropy resolution](heisenberg.md#xxz_magnet-xxz_chain-the-anisotropy-resolution) of the magnet,
 built by the same helper from the shared energy scale and one `(dimensionless parameter,
 energy)` pair per field.
 
-## `K2`: the Ising chain by three energies
+## `ising_chain`: the Ising chain by three energies
 
 **Use case:** [`ising_chain`][qsimod.usecases.ising.ising_chain] &nbsp;·&nbsp; **library:** [`ising_spin_chain`][qsimod.models.intermediate.ising_spin_chain]
 
@@ -109,9 +109,9 @@ energy)` pair per field.
 H_Ising = Jz sum_j S^z_j S^z_{j+1} - Gamma sum_j S^x_j - B sum_j S^z_j
 ```
 
-This is the Hamiltonian of `K1` with `Gamma = Jz hx` and `B = Jz hz`.
+This is the Hamiltonian of `ising_magnet` with `Gamma = Jz hx` and `B = Jz hz`.
 
-## (b) `K2` -> `L3a`: the resonant dipole reduction
+## `ising_chain` -> `bose_hubbard`: the resonant dipole reduction
 
 ```
 Jz    = U
@@ -162,7 +162,11 @@ knobs = {P.TUNNELLING: 0.0177, P.INTERACTION: 1.0, P.SUPERLATTICE: 0.0025, P.TIL
 print(
     round(coupling_map().evaluate_real(knobs), 4), round(transverse_map().evaluate_real(knobs), 4)
 )
-print(validity().report({**knobs, P.COUPLING_K2: 1.0, P.TRANSVERSE: 0.05, P.LONGITUDINAL: 0.967}))
+print(
+    validity().report(
+        {**knobs, P.COUPLING_ISING_CHAIN: 1.0, P.TRANSVERSE: 0.05, P.LONGITUDINAL: 0.967}
+    )
+)
 ```
 
 ### One convention, and one term that is not small
@@ -177,15 +181,15 @@ bulk only: since `sum_j z_j S^z_j = 2 sum_j S^z_j - (S^z_0 + S^z_{N-1})`, the tw
 see a field that is short by half a coupling each.
 [`end_magnetisation_term`][qsimod.models.magnetism.end_magnetisation_term] builds the term and
 [`dipole_boundary_field`][qsimod.transformations.perturbative.dipole_boundary_field] gives its
-strength; the identity is the same as in [transformation (c) of the
-magnet](heisenberg.md#what-transformation-c-also-produces).  The field amounts to half the
+strength; the identity is the same as in [the superexchange of the
+magnet](heisenberg.md#what-the-superexchange-also-produces).  The field amounts to half the
 coupling where the transverse field is a fiftieth of it.  `examples/shared_device.py` measures
 both: the spectrum agrees to `0.01` transverse fields with the term and deviates by `10` without
 it.
 
 ## The hardware model, read twice
 
-`L3a` is unchanged: the same builder, the same four knobs and the same Hamiltonian.  The two
+`bose_hubbard` is unchanged: the same builder, the same four knobs and the same Hamiltonian.  The two
 theories need different corners of its admissible set and pose their requests against
 different boxes:
 
@@ -214,21 +218,28 @@ One knob setting is judged by both derivations:
 ```python
 from qsimod.usecases import ising, schwinger
 
-knobs = {"L3a.J": 0.0177, "L3a.U": 1.0, "L3a.delta": 0.0025, "L3a.Delta": 1.033}
+knobs = {
+    "bose_hubbard.J": 0.0177,
+    "bose_hubbard.U": 1.0,
+    "bose_hubbard.delta": 0.0025,
+    "bose_hubbard.Delta": 1.033,
+}
 coupling = ising.coupling_map().evaluate_real(knobs)
 ising_report = ising.validity().report(
     {
         **knobs,
-        "K2.Jz": coupling,
-        "K2.Gamma": ising.transverse_map().evaluate_real(knobs),
-        "K2.B": ising.longitudinal_map().evaluate_real({**knobs, "K2.Jz": coupling}),
+        "ising_chain.Jz": coupling,
+        "ising_chain.Gamma": ising.transverse_map().evaluate_real(knobs),
+        "ising_chain.B": ising.longitudinal_map().evaluate_real(
+            {**knobs, "ising_chain.Jz": coupling}
+        ),
     }
 )
 gauge_report = schwinger.validity().report(
     {
         **knobs,
-        "L2c.m": schwinger.mass_map().evaluate_real(knobs),
-        "L2c.kappa": schwinger.coupling_map().evaluate_real(knobs),
+        "effective_bosonic.m": schwinger.mass_map().evaluate_real(knobs),
+        "effective_bosonic.kappa": schwinger.coupling_map().evaluate_real(knobs),
     }
 )
 print("Ising:", ising_report.is_valid, round(ising_report.weakest_margin, 2))

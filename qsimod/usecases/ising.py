@@ -1,15 +1,15 @@
 """The antiferromagnetic Ising chain, on the hardware model of the case study.
 
 ```
-K1   H_Ising    antiferromagnetic Ising chain, by its dimensionless fields   (application)
- |    (a) field resolution                                 EXACT
-K2   H_Ising    Ising chain, by three energies                              (intermediate)
- |    (b) resonant dipole reduction, solved for the knobs  APPROXIMATE (regime conditions)
-L3a  H_sim      tilted Bose-Hubbard chain     <-- the artifact the gauge theory reaches
+ising_magnet   H_Ising   antiferromagnetic Ising chain, by its dimensionless fields  (application)
+ |    field resolution                                 EXACT
+ising_chain    H_Ising   Ising chain, by three energies                             (intermediate)
+ |    resonant dipole reduction, solved for the knobs  APPROXIMATE (regime conditions)
+bose_hubbard   H_sim     tilted Bose-Hubbard chain     <-- the artifact the gauge theory reaches
 ```
 
-The hardware model is the artifact ``L3a`` of [`schwinger`][qsimod.usecases.schwinger], the
-analogue simulator model ``H_sim`` of the case study, with its namespace and parameters;
+The hardware model is the artifact ``bose_hubbard`` of [`schwinger`][qsimod.usecases.schwinger],
+the analogue simulator model ``H_sim`` of the case study, with its namespace and parameters;
 [`shared_graph`][qsimod.usecases.ising.shared_graph] holds both theories in one model graph.
 A dipole resides on a bond, so a register of ``2N-1`` sites carries ``2N-2`` spins.  The
 physics is that of Simon et al., *Quantum simulation of antiferromagnetic spin chains in an
@@ -87,30 +87,30 @@ __all__ = [
 # The namespaces this use case gives its models
 # ---------------------------------------------------------------------------
 
-K1 = Namespace("K1")
-K2 = Namespace("K2")
+ISING_MAGNET = Namespace("ising_magnet")
+ISING_CHAIN = Namespace("ising_chain")
 
 #: The namespace of the hardware model, which [`schwinger`][qsimod.usecases.schwinger] assigned
-#: to ``L3a``.
-DEVICE = schwinger.L3A
+#: to ``bose_hubbard``.
+DEVICE = schwinger.BOSE_HUBBARD
 
 #: Every namespace this use case reads, in pipeline order.
-NAMESPACES = (K1, K2, DEVICE)
+NAMESPACES = (ISING_MAGNET, ISING_CHAIN, DEVICE)
 
-SOURCE = "K1"
+SOURCE = "ising_magnet"
 DEVICE_TARGET = schwinger.ANALOGUE_TARGET
 
 
 class ParameterNames:
-    """The fully qualified parameter names of this use case; the hardware half is ``L3a``'s."""
+    """The fully qualified parameter names; the hardware half is that of ``bose_hubbard``."""
 
-    COUPLING_K1 = K1(names.LONGITUDINAL_COUPLING)
-    LONGITUDINAL_FIELD = K1(names.LONGITUDINAL_FIELD)
-    TRANSVERSE_FIELD = K1(names.TRANSVERSE_FIELD)
+    COUPLING_ISING_MAGNET = ISING_MAGNET(names.LONGITUDINAL_COUPLING)
+    LONGITUDINAL_FIELD = ISING_MAGNET(names.LONGITUDINAL_FIELD)
+    TRANSVERSE_FIELD = ISING_MAGNET(names.TRANSVERSE_FIELD)
 
-    COUPLING_K2 = K2(names.LONGITUDINAL_COUPLING)
-    TRANSVERSE = K2(names.TRANSVERSE_AMPLITUDE)
-    LONGITUDINAL = K2(names.LONGITUDINAL_BIAS)
+    COUPLING_ISING_CHAIN = ISING_CHAIN(names.LONGITUDINAL_COUPLING)
+    TRANSVERSE = ISING_CHAIN(names.TRANSVERSE_AMPLITUDE)
+    LONGITUDINAL = ISING_CHAIN(names.LONGITUDINAL_BIAS)
 
     TUNNELLING = schwinger.ParameterNames.TUNNELLING
     INTERACTION = schwinger.ParameterNames.INTERACTION
@@ -138,20 +138,24 @@ def spins_for(matter_sites: int) -> int:
 
 
 def magnet(matter_sites: int) -> HamiltonianModel:
-    """``K1``: the Ising chain stated by its two dimensionless fields."""
-    return ising_magnet(spins_for(matter_sites), K1, name="K1", hamiltonian_name="H_Ising")
+    """``ising_magnet``: the Ising chain stated by its two dimensionless fields."""
+    return ising_magnet(
+        spins_for(matter_sites), ISING_MAGNET, name="ising_magnet", hamiltonian_name="H_Ising"
+    )
 
 
 def ising_chain(matter_sites: int) -> HamiltonianModel:
-    """``K2``: the same chain, stated by three energies."""
-    return ising_spin_chain(spins_for(matter_sites), K2, name="K2", hamiltonian_name="H_Ising")
+    """``ising_chain``: the same chain, stated by three energies."""
+    return ising_spin_chain(
+        spins_for(matter_sites), ISING_CHAIN, name="ising_chain", hamiltonian_name="H_Ising"
+    )
 
 
 def lattice(
     matter_sites: int,
     admissible_set: AdmissibleSet | None = None,
 ) -> HamiltonianModel:
-    """``L3a``: the tilted Bose-Hubbard chain, the analogue simulator model of the case study."""
+    """``bose_hubbard``: the tilted Bose-Hubbard chain, the analogue simulator of the case study."""
     return schwinger.superlattice(matter_sites, admissible_set)
 
 
@@ -161,24 +165,26 @@ def lattice(
 
 
 def fields() -> FieldResolution:
-    """Transformation (a): the field resolution, ``K1 -> K2``."""
-    return field_resolution(K1, K2, target_name="K2", name="(a) field resolution")
+    """The field resolution, ``ising_magnet -> ising_chain``."""
+    return field_resolution(
+        ISING_MAGNET, ISING_CHAIN, target_name="ising_chain", name="field resolution"
+    )
 
 
 def dipoles(admissible_set: AdmissibleSet | None = None) -> DipoleReduction:
-    """Transformation (b): the resonant dipole reduction solved for the knobs, ``K2 -> L3a``."""
+    """The resonant dipole reduction solved for the knobs, ``ising_chain -> bose_hubbard``."""
     return dipole_reduction(
-        K2,
+        ISING_CHAIN,
         DEVICE,
         admissible_set=admissible_set or device_limits(),
         target_name=DEVICE_TARGET,
-        name="(b) resonant dipole reduction, inverted",
+        name="resonant dipole reduction, inverted",
     )
 
 
 def validity(**thresholds: float) -> Conjunction:
-    """The validity conditions of transformation (b), over the namespaces of this use case."""
-    return dipole_validity(K2, DEVICE, **thresholds)
+    """The validity conditions of the dipole reduction, over the namespaces of this use case."""
+    return dipole_validity(ISING_CHAIN, DEVICE, **thresholds)
 
 
 def coupling_map() -> Scalar:
@@ -202,7 +208,7 @@ def longitudinal_map() -> Scalar:
 
     The expression is stated over the namespaces of this use case.
     """
-    return dipole_longitudinal(K2, DEVICE)
+    return dipole_longitudinal(ISING_CHAIN, DEVICE)
 
 
 def detuning_map() -> Scalar:
@@ -211,7 +217,7 @@ def detuning_map() -> Scalar:
 
 
 def boundary_field() -> Scalar:
-    """The end-spin field ``Jz / 2`` that transformation (b) also produces.
+    """The end-spin field ``Jz / 2`` that the dipole reduction also produces.
 
     The field is not part of the target model; see
     [`dipole_boundary_field`][qsimod.transformations.perturbative.dipole_boundary_field].
@@ -283,7 +289,7 @@ class IsingGraph(UseCaseGraph):
     Attributes:
         matter_sites: the chain length ``N`` of the hardware model; the magnet has ``2N-2``
             spins.
-        device: ``K1 -> K2 -> L3a``.
+        device: the pipeline to the shared ``bose_hubbard``.
 
     """
 
@@ -324,15 +330,15 @@ def build_graph(
     graph.add_node(ising_chain(matter_sites))
     graph.add_node(lattice(matter_sites, limits))
 
-    step_a = fields()
-    step_b = dipoles(limits)
-    graph.add_edge(SOURCE, "K2", step_a)
-    graph.add_edge("K2", DEVICE_TARGET, step_b)
+    resolve = fields()
+    reduce = dipoles(limits)
+    graph.add_edge(SOURCE, "ising_chain", resolve)
+    graph.add_edge("ising_chain", DEVICE_TARGET, reduce)
 
     return IsingGraph(
         matter_sites=matter_sites,
         graph=graph,
-        device=Pipeline.of([step_a, step_b], name="device: K1 -> K2 -> L3a"),
+        device=Pipeline.of([resolve, reduce], name="device branch, to the shared lattice"),
     )
 
 
@@ -341,7 +347,7 @@ def shared_graph(
     *,
     admissible_set: AdmissibleSet | None = None,
 ) -> ModelGraph:
-    """One model graph carrying both theories, which meet at the artifact ``L3a``.
+    """One model graph carrying both theories, which meet at the artifact ``bose_hubbard``.
 
     Both requests are posed against the admissible set of the lattice from
     [`device_limits`][qsimod.usecases.ising.device_limits].
@@ -363,11 +369,12 @@ def shared_graph(
     for edge in gauge.graph.edges:
         graph.add_edge(edge.source, edge.target, edge.transformation)
 
-    # L3a is already registered; only the magnet's two nodes and the arriving edge are new.
+    # The hardware model is already registered; only the magnet's two nodes and the
+    # arriving edge are new.
     graph.add_node(magnet(matter_sites))
     graph.add_node(ising_chain(matter_sites))
-    graph.add_edge(SOURCE, "K2", fields())
-    graph.add_edge("K2", DEVICE_TARGET, dipoles(limits))
+    graph.add_edge(SOURCE, "ising_chain", fields())
+    graph.add_edge("ising_chain", DEVICE_TARGET, dipoles(limits))
     return graph
 
 

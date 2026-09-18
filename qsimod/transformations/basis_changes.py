@@ -156,7 +156,7 @@ class ParticleHoleTransformation(ModelTransformation):
     [`staggering_constant`][qsimod.transformations.basis_changes.staggering_constant], which is
     retained.  The two parities must be opposite: odd matter sites with even links pass ``+m``
     to the target, even matter sites with odd links ``-m``.  In the case study this is
-    transformation (b), from ``H_IR1`` to ``H_IR2``.
+    the step from ``H_IR1`` to ``H_IR2``.
 
     Attributes:
         convention: the quantum-link convention produced, which is the homogeneous convention.
@@ -271,7 +271,7 @@ class JordanWignerToQubits(ModelTransformation):
     adjacent matter sites, so the string reduces to a sign: ``+1`` for the pair coupling and
     ``-1`` for the hopping coupling under the alternating-sign convention of
     [`qsimod.realise.build`][qsimod.realise.build].  A coupling of longer range would leave a
-    string behind.  In the case study this is transformation (e), from ``H_IR2`` to ``H_IR4``.
+    string behind.  In the case study this is the step from ``H_IR2`` to ``H_IR4``.
 
     Attributes:
         convention: the quantum-link convention of the source.

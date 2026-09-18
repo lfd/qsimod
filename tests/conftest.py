@@ -50,9 +50,11 @@ def qubit_model(
     coupling: float = REFERENCE_COUPLING,
     mass: float = REFERENCE_MASS,
 ) -> HamiltonianModel:
-    """The bound L2d qubit Hamiltonian at the given mass and coupling."""
+    """The bound qubit Hamiltonian ``qubit_register`` at the given mass and coupling."""
     graph = build_graph(matter_sites)
-    staggered = graph.graph.node("L2a").bind(**{P.MASS_L2A: mass, P.COUPLING_L2A: coupling})
+    staggered = graph.graph.node("quantum_link_staggered").bind(
+        **{P.MASS_QUANTUM_LINK_STAGGERED: mass, P.COUPLING_QUANTUM_LINK_STAGGERED: coupling}
+    )
     model = to_qubits().apply(particle_hole().apply(staggered))
     assert isinstance(model, HamiltonianModel)
     return model

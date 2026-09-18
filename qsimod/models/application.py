@@ -85,7 +85,7 @@ def kogut_susskind_gauge_theory(
     """The Kogut-Susskind lattice Schwinger model with staggered fermions in 1+1 dimensions.
 
     The model is one-dimensional lattice quantum electrodynamics (QED), the application model
-    ``H_sys`` of the case study of the article, at the artifact ``L1``:
+    ``H_sys`` of the case study of the article, at the artifact ``lattice_qed``:
 
     ```
     H = (a/2) sum_l E^2_{l,l+1}

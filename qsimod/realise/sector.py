@@ -41,11 +41,11 @@ __all__ = [
 SECTOR_TOLERANCE = 1e-9
 
 
-def _amplitude_of(matrix: Array, column: int) -> tuple[int, complex] | None:
+def _amplitude_of(matrix: Array | np.ndarray, column: int) -> tuple[int, complex] | None:
     """The single nonzero entry of one column as ``(row, amplitude)``, or ``None`` if there is none.
 
     Args:
-        matrix: the local matrix of a single-site operator.
+        matrix: the local matrix of a single-site operator, as a JAX or a NumPy array.
         column: the occupation on which the operator acts.
 
     Returns:

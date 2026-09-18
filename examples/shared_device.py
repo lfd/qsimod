@@ -1,6 +1,6 @@
 """One tilted Bose-Hubbard chain solved for two theories, each setting evaluated against both.
 
-The analogue simulator model ``L3a`` (``H_sim`` of the article) is the target of the gauge
+The analogue simulator model ``bose_hubbard`` (``H_sim`` of the article) is the target of the gauge
 theory of the case study and of an antiferromagnetic Ising chain.  The Ising chain follows
 Simon et al., *Quantum simulation of antiferromagnetic spin chains in an optical lattice*,
 Nature **472**, 307-312 (2011) (`docs/references/paper_simon11.pdf`).  Section 4 recovers the
@@ -77,7 +77,7 @@ def solve_ising(limits: AdmissibleSet, longitudinal_field: float) -> SolveResult
     return realise_parameters(
         ising.build_graph(SITES, admissible_set=limits).device,
         targets={
-            K.COUPLING_K1: REQUEST_COUPLING,
+            K.COUPLING_ISING_MAGNET: REQUEST_COUPLING,
             K.TRANSVERSE_FIELD: REQUEST_TRANSVERSE_FIELD,
             K.LONGITUDINAL_FIELD: longitudinal_field,
         },
@@ -92,8 +92,8 @@ def solve_gauge(limits: AdmissibleSet) -> SolveResult:
     return realise_parameters(
         schwinger.build_graph(SITES, admissible_set=limits).analogue,
         targets={
-            S.MASS_L1: 0.0,
-            S.COUPLING_L2A: GAUGE_COUPLING,
+            S.MASS_LATTICE_QED: 0.0,
+            S.COUPLING_QUANTUM_LINK_STAGGERED: GAUGE_COUPLING,
             S.ELECTRIC_GAP: GAUGE_ELECTRIC_GAP,
         },
         unknowns=list(KNOBS),
@@ -136,13 +136,15 @@ class Verdict:
 
 
 def ising_environment(knobs: dict[str, float]) -> dict[str, float]:
-    """The Ising parameters of a knob setting, by the forward maps of transformation (b)."""
+    """The Ising parameters of a knob setting, by the forward maps of the dipole reduction."""
     coupling = ising.coupling_map().evaluate_real(knobs)
     return {
         **knobs,
-        K.COUPLING_K2: coupling,
+        K.COUPLING_ISING_CHAIN: coupling,
         K.TRANSVERSE: ising.transverse_map().evaluate_real(knobs),
-        K.LONGITUDINAL: ising.longitudinal_map().evaluate_real({**knobs, K.COUPLING_K2: coupling}),
+        K.LONGITUDINAL: ising.longitudinal_map().evaluate_real(
+            {**knobs, K.COUPLING_ISING_CHAIN: coupling}
+        ),
     }
 
 
@@ -150,8 +152,8 @@ def gauge_environment(knobs: dict[str, float]) -> dict[str, float]:
     """The gauge-theory parameters the same knob setting realises."""
     return {
         **knobs,
-        S.MASS_L2C: schwinger.mass_map().evaluate_real(knobs),
-        S.COUPLING_L2C: schwinger.coupling_map().evaluate_real(knobs),
+        S.MASS_EFFECTIVE_BOSONIC: schwinger.mass_map().evaluate_real(knobs),
+        S.COUPLING_EFFECTIVE_BOSONIC: schwinger.coupling_map().evaluate_real(knobs),
     }
 
 
@@ -253,7 +255,7 @@ class Bench:
 
         Args:
             knobs: the four hardware knobs.
-            end_field: whether the end-spin field of transformation ``(b)``, which the printed
+            end_field: whether the end-spin field of the dipole reduction, which the printed
                 Hamiltonian omits, is added.
 
         Returns:

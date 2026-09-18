@@ -132,7 +132,7 @@ def test_the_heisenberg_example_agrees_with_the_experiment_it_is_posed_against()
     # Section 6: the Methods-table anisotropies, quoted to +-0.1.
     assert comparison.worst_table_gap < 3e-3
 
-    # Section 7: the free-fermion band and step (b)'s exactness.
+    # Section 7: the free-fermion band and the exactness of the Jordan-Wigner step.
     band = comparison.band
     assert band.band_gap < 1e-12
     assert band.exactness_gap < 1e-10

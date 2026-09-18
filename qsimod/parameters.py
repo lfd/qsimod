@@ -1,7 +1,7 @@
 """Parameters, bindings, and the admissible set of knob settings a hardware model declares.
 
 Parameters are named symbols with a physical dimension, namespaced by the owning model, for
-instance ``"L3a.J"``.  An [`AdmissibleSet`][qsimod.parameters.AdmissibleSet] holds
+instance ``"bose_hubbard.J"``.  An [`AdmissibleSet`][qsimod.parameters.AdmissibleSet] holds
 [`Bound`][qsimod.parameters.Bound] records and
 [`InequalityConstraint`][qsimod.parameters.InequalityConstraint] expressions of the form
 ``expression >= 0``.
@@ -38,7 +38,7 @@ class Parameter:
 
     Attributes:
         name: the symbol name used in coefficient expressions, namespaced by the owning
-            model (``"L3a.J"``).
+            model (``"bose_hubbard.J"``).
         dimension: the physical dimension of the parameter.
         description: a one-line description, used in reports.
 

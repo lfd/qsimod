@@ -153,7 +153,7 @@ class SuzukiTrotter(NamespacedTransformation):
     The resource settings are fields of the transformation; the choice of the step count for a
     requested accuracy is the discrete solve of
     [`qsimod.solving.stepcount`][qsimod.solving.stepcount].  In the case study this is
-    transformation (f), from ``H_IR4`` to ``U_approx``.
+    the step from ``H_IR4`` to ``U_approx``.
 
     Attributes:
         time: the simulated time ``t``.

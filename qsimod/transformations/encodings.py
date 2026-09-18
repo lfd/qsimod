@@ -104,7 +104,7 @@ class HardcoreBosonEncoding(ModelTransformation):
 
     Matter positions carry the occupations ``n in {0, 1}`` and link positions ``n in {0, 2}``;
     a numerical realisation therefore requires an occupation cutoff of at least two.  In the
-    case study this is transformation (c), the boson encoding from ``H_IR2`` to ``H_IR3``.
+    case study this is the boson encoding from ``H_IR2`` to ``H_IR3``.
 
     Attributes:
         retain_staggering_constant: whether the constant ``-m * floor(N/2)`` carried by the

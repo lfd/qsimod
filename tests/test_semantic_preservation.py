@@ -41,8 +41,8 @@ from qsimod.usecases.base import UseCaseGraph
 from qsimod.usecases.heisenberg import build_graph as heisenberg_graph
 from qsimod.usecases.ising import build_graph as ising_graph
 from qsimod.usecases.schwinger import (
-    L2B,
-    L2C,
+    EFFECTIVE_BOSONIC,
+    QUANTUM_LINK_HOMOGENEOUS,
     canonical_state_configuration,
     effective_bosonic,
     homogeneous_quantum_link,
@@ -87,34 +87,36 @@ def test_both_hamiltonians_are_hermitian_and_gauge_invariant() -> None:
     knobs = window_point()
     effective_values = forward_map(knobs)
     effective = {
-        P.MASS_L2C: effective_values[P.MASS_L2C],
-        P.COUPLING_L2C: effective_values[P.COUPLING_L2C],
+        P.MASS_EFFECTIVE_BOSONIC: effective_values[P.MASS_EFFECTIVE_BOSONIC],
+        P.COUPLING_EFFECTIVE_BOSONIC: effective_values[P.COUPLING_EFFECTIVE_BOSONIC],
     }
     space = bosonic_space(matter_sites)
-    l3a = superlattice(matter_sites)
-    l2c = effective_bosonic(matter_sites)
+    device_model = superlattice(matter_sites)
+    theory_model = effective_bosonic(matter_sites)
 
-    bose_hubbard = build_operator(l3a.hamiltonian, space, knobs)
-    effective_operator = build_operator(l2c.hamiltonian, space, effective)
+    bose_hubbard = build_operator(device_model.hamiltonian, space, knobs)
+    effective_operator = build_operator(theory_model.hamiltonian, space, effective)
     assert hermiticity_defect(bose_hubbard) < TOLERANCE
     assert hermiticity_defect(effective_operator) < TOLERANCE
 
-    for constraint in l2c.constraint_operators:
+    for constraint in theory_model.constraint_operators:
         gauss = build_operator(constraint.operator, space, {})
         assert commutator_spectral_norm(effective_operator, gauss) < TOLERANCE
 
 
 def test_the_exact_step_l2b_to_l2c_preserves_the_spectrum_on_the_subspace() -> None:
-    """L2b and ``P H_eff P`` restricted to the occupation subspace have the same spectrum."""
+    """The homogeneous quantum-link model and ``P H_eff P`` on the subspace share a spectrum."""
     matter_sites = 3
     effective_values = forward_map(window_point())
-    mass = effective_values[P.MASS_L2C]
-    coupling = effective_values[P.COUPLING_L2C]
+    mass = effective_values[P.MASS_EFFECTIVE_BOSONIC]
+    coupling = effective_values[P.COUPLING_EFFECTIVE_BOSONIC]
 
-    l2b = homogeneous_quantum_link(matter_sites)
-    fermionic_space = HilbertSpace.of(l2b.structure)
+    homogeneous = homogeneous_quantum_link(matter_sites)
+    fermionic_space = HilbertSpace.of(homogeneous.structure)
     fermionic = build_operator(
-        l2b.hamiltonian, fermionic_space, {P.MASS_L2B: mass, P.COUPLING_L2B: coupling}
+        homogeneous.hamiltonian,
+        fermionic_space,
+        {P.MASS_QUANTUM_LINK_HOMOGENEOUS: mass, P.COUPLING_QUANTUM_LINK_HOMOGENEOUS: coupling},
     )
 
     space = bosonic_space(matter_sites)
@@ -125,7 +127,7 @@ def test_the_exact_step_l2b_to_l2c_preserves_the_spectrum_on_the_subspace() -> N
     bosonic = build_operator(
         effective_bosonic(matter_sites).hamiltonian,
         space,
-        {P.MASS_L2C: mass, P.COUPLING_L2C: coupling},
+        {P.MASS_EFFECTIVE_BOSONIC: mass, P.COUPLING_EFFECTIVE_BOSONIC: coupling},
     )
     restricted = restrict(bosonic, indices)
 
@@ -136,13 +138,13 @@ def test_the_exact_step_l2b_to_l2c_preserves_the_spectrum_on_the_subspace() -> N
 
 @pytest.mark.parametrize("matter_sites", [2, 3])
 def test_the_perturbative_deviation_decreases_monotonically(matter_sites: int) -> None:
-    """The L2c/L3a deviation and the subspace leakage fall monotonically as J/U halves."""
+    """The theory/device deviation and the subspace leakage fall monotonically as J/U halves."""
     ratios = (1 / 10, 1 / 20, 1 / 40, 1 / 80)
     space = bosonic_space(matter_sites)
     projector = local_subspace_projector(local_occupation_subspace(matter_sites), space)
     initial = space.basis_state(canonical_state_configuration(matter_sites))
     observable = build_operator(matter_occupation_observable(matter_sites), space, {})
-    l3a = superlattice(matter_sites)
+    device_model = superlattice(matter_sites)
 
     deviations: list[float] = []
     leakages: list[float] = []
@@ -156,11 +158,11 @@ def test_the_perturbative_deviation_decreases_monotonically(matter_sites: int) -
         }
         values = forward_map(knobs)
         effective = {
-            P.MASS_L2C: values[P.MASS_L2C],
-            P.COUPLING_L2C: values[P.COUPLING_L2C],
+            P.MASS_EFFECTIVE_BOSONIC: values[P.MASS_EFFECTIVE_BOSONIC],
+            P.COUPLING_EFFECTIVE_BOSONIC: values[P.COUPLING_EFFECTIVE_BOSONIC],
         }
-        coupling = effective[P.COUPLING_L2C]
-        bose_hubbard = build_operator(l3a.hamiltonian, space, knobs)
+        coupling = effective[P.COUPLING_EFFECTIVE_BOSONIC]
+        bose_hubbard = build_operator(device_model.hamiltonian, space, knobs)
         effective_operator = _effective_operator(matter_sites, effective)
         times = [5.0 / coupling * index / 20 for index in range(21)]
         bose_states = evolve_state(bose_hubbard, initial, times)
@@ -197,7 +199,7 @@ def test_the_effective_model_is_exact_only_after_projection(coupling: float) -> 
     operator = build_operator(
         effective_bosonic(matter_sites).hamiltonian,
         space,
-        {P.MASS_L2C: 0.41, P.COUPLING_L2C: coupling},
+        {P.MASS_EFFECTIVE_BOSONIC: 0.41, P.COUPLING_EFFECTIVE_BOSONIC: coupling},
     )
     leakage = spectral_norm(complement @ operator @ projector)
     assert leakage == pytest.approx(math.sqrt(2.0) * coupling, rel=1e-9)
@@ -207,7 +209,7 @@ def test_the_effective_model_is_exact_only_after_projection(coupling: float) -> 
 def test_the_round_trip_recovers_the_target_parameters() -> None:
     """(m, kappa) -> (J, U, delta, Delta) -> (m, kappa) recovers the targets to 1e-10."""
     step = perturbation()
-    targets = {P.MASS_L2C: WINDOW_MASS, P.COUPLING_L2C: 0.004525}
+    targets = {P.MASS_EFFECTIVE_BOSONIC: WINDOW_MASS, P.COUPLING_EFFECTIVE_BOSONIC: 0.004525}
     # Pin the energy scale and the tilt, then invert.
     pinned = {
         **targets,
@@ -236,10 +238,14 @@ def test_the_round_trip_recovers_the_target_parameters() -> None:
 def test_exact_diagonalisation_runs_and_reports_the_low_lying_spectrum(
     matter_sites: int,
 ) -> None:
-    """Exact diagonalisation of L2b returns a sorted low-lying spectrum."""
-    l2b = homogeneous_quantum_link(matter_sites)
-    space = HilbertSpace.of(l2b.structure)
-    operator = build_operator(l2b.hamiltonian, space, {P.MASS_L2B: 0.3, P.COUPLING_L2B: 0.83})
+    """Exact diagonalisation of the homogeneous quantum-link model returns a sorted spectrum."""
+    homogeneous = homogeneous_quantum_link(matter_sites)
+    space = HilbertSpace.of(homogeneous.structure)
+    operator = build_operator(
+        homogeneous.hamiltonian,
+        space,
+        {P.MASS_QUANTUM_LINK_HOMOGENEOUS: 0.3, P.COUPLING_QUANTUM_LINK_HOMOGENEOUS: 0.83},
+    )
     spectrum = low_lying_spectrum(operator, count=min(8, space.dimension))
     assert len(spectrum) == min(8, space.dimension)
     assert bool(jnp.all(spectrum[:-1] <= spectrum[1:] + 1e-12))
@@ -248,11 +254,15 @@ def test_exact_diagonalisation_runs_and_reports_the_low_lying_spectrum(
 def test_large_negative_mass_fills_the_matter_sites() -> None:
     """At large negative mass the ground state has every matter site occupied."""
     matter_sites = 3
-    l2b = homogeneous_quantum_link(matter_sites)
-    space = HilbertSpace.of(l2b.structure)
+    homogeneous = homogeneous_quantum_link(matter_sites)
+    space = HilbertSpace.of(homogeneous.structure)
     observable = build_operator(matter_occupation_observable(matter_sites), space, {})
 
-    operator = build_operator(l2b.hamiltonian, space, {P.MASS_L2B: -40.0, P.COUPLING_L2B: 0.83})
+    operator = build_operator(
+        homogeneous.hamiltonian,
+        space,
+        {P.MASS_QUANTUM_LINK_HOMOGENEOUS: -40.0, P.COUPLING_QUANTUM_LINK_HOMOGENEOUS: 0.83},
+    )
     _, vectors = eigensystem(operator)
     ground = vectors[:, 0]
     assert float(expectation(observable, ground)) == pytest.approx(1.0, abs=1e-3)
@@ -261,11 +271,15 @@ def test_large_negative_mass_fills_the_matter_sites() -> None:
 def test_large_positive_mass_empties_the_matter_sites() -> None:
     """At large positive mass the ground state has no matter site occupied."""
     matter_sites = 3
-    l2b = homogeneous_quantum_link(matter_sites)
-    space = HilbertSpace.of(l2b.structure)
+    homogeneous = homogeneous_quantum_link(matter_sites)
+    space = HilbertSpace.of(homogeneous.structure)
     observable = build_operator(matter_occupation_observable(matter_sites), space, {})
 
-    operator = build_operator(l2b.hamiltonian, space, {P.MASS_L2B: 40.0, P.COUPLING_L2B: 0.83})
+    operator = build_operator(
+        homogeneous.hamiltonian,
+        space,
+        {P.MASS_QUANTUM_LINK_HOMOGENEOUS: 40.0, P.COUPLING_QUANTUM_LINK_HOMOGENEOUS: 0.83},
+    )
     _, vectors = eigensystem(operator)
     ground = vectors[:, 0]
     assert float(expectation(observable, ground)) == pytest.approx(0.0, abs=1e-3)
@@ -320,7 +334,7 @@ def test_the_jordan_wigner_image_reproduces_the_realised_matrix() -> None:
     """The symbolic qubit image and the fermionic source realise to the same matrix."""
     matter_sites = 3
     source = homogeneous_quantum_link(matter_sites).bind(
-        **{P.MASS_L2B: WINDOW_MASS, P.COUPLING_L2B: 0.83}
+        **{P.MASS_QUANTUM_LINK_HOMOGENEOUS: WINDOW_MASS, P.COUPLING_QUANTUM_LINK_HOMOGENEOUS: 0.83}
     )
     assert isinstance(source, HamiltonianModel)
     image = fermions_to_qubits_image(source)
@@ -341,11 +355,13 @@ def test_a_wrong_exact_target_is_refused_when_the_step_is_applied() -> None:
     class WrongTarget(ParticleHoleTransformation):
         def build_target(self, matter_sites: int) -> HamiltonianModel:
             target = super().build_target(matter_sites)
-            extra = word(Symbol(P.MASS_L2B), number(0))
+            extra = word(Symbol(P.MASS_QUANTUM_LINK_HOMOGENEOUS), number(0))
             return replace(target, hamiltonian=target.hamiltonian + extra)
 
     wrong = WrongTarget(**{name: getattr(step, name) for name in step.__dataclass_fields__})
-    source = staggered_quantum_link(3).bind(**{P.MASS_L2A: 0.3, P.COUPLING_L2A: 0.7})
+    source = staggered_quantum_link(3).bind(
+        **{P.MASS_QUANTUM_LINK_STAGGERED: 0.3, P.COUPLING_QUANTUM_LINK_STAGGERED: 0.7}
+    )
     assert isinstance(step.apply(source), HamiltonianModel)
     with pytest.raises(ExactnessError, match="declared EXACT") as caught:
         wrong.apply(source)
@@ -356,13 +372,17 @@ def test_a_wrong_exact_target_is_refused_when_the_step_is_applied() -> None:
 def test_an_omitted_constant_is_recorded_rather_than_refused() -> None:
     """An exact step whose target drops the source's constant records it as dropped."""
     source = particle_hole().apply(
-        staggered_quantum_link(3).bind(**{P.MASS_L2A: 0.3, P.COUPLING_L2A: 0.7})
+        staggered_quantum_link(3).bind(
+            **{P.MASS_QUANTUM_LINK_STAGGERED: 0.3, P.COUPLING_QUANTUM_LINK_STAGGERED: 0.7}
+        )
     )
     assert isinstance(source, HamiltonianModel)
     assert source.hamiltonian.constant_part().evaluate_real(source.binding.as_dict()) == (
         pytest.approx(-0.3)
     )
-    dropping = hardcore_boson_encoding(L2B, L2C, retain_staggering_constant=False)
+    dropping = hardcore_boson_encoding(
+        QUANTUM_LINK_HOMOGENEOUS, EFFECTIVE_BOSONIC, retain_staggering_constant=False
+    )
     encoded = dropping.apply(source)
     assert isinstance(encoded, HamiltonianModel)
     assert len(encoded.dropped_constants) == 1

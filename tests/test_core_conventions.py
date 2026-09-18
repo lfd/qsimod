@@ -357,7 +357,9 @@ def test_a_bosonic_model_has_no_pauli_expansion_and_says_so() -> None:
     model = effective_bosonic(3)
     with pytest.raises(ValueError, match="two-level"):
         pauli_sum_from_operator(
-            model.hamiltonian, {"L2c.m": 0.1, "L2c.kappa": 0.2}, model.structure
+            model.hamiltonian,
+            {"effective_bosonic.m": 0.1, "effective_bosonic.kappa": 0.2},
+            model.structure,
         )
 
 
@@ -410,7 +412,7 @@ def test_the_subspace_projector_needs_the_declared_cutoff() -> None:
 
 def test_a_sector_realisation_agrees_exactly_with_the_dense_one() -> None:
     """The sector realisation has the spectrum of the projected dense operator."""
-    environment = {P.MASS_L2C: 0.31, P.COUPLING_L2C: 0.87}
+    environment = {P.MASS_EFFECTIVE_BOSONIC: 0.31, P.COUPLING_EFFECTIVE_BOSONIC: 0.87}
     for matter_sites in (2, 3, 4):
         model = effective_bosonic(matter_sites)
         subspace = local_occupation_subspace(matter_sites)
@@ -537,7 +539,11 @@ def test_the_propagator_is_unitary_and_the_evolution_exact() -> None:
     """The propagator is unitary and composes additively in time."""
     model = homogeneous_quantum_link(3)
     space = HilbertSpace.of(model.structure)
-    operator = build_operator(model.hamiltonian, space, {P.MASS_L2B: 0.3, P.COUPLING_L2B: 0.8})
+    operator = build_operator(
+        model.hamiltonian,
+        space,
+        {P.MASS_QUANTUM_LINK_HOMOGENEOUS: 0.3, P.COUPLING_QUANTUM_LINK_HOMOGENEOUS: 0.8},
+    )
     unitary = propagator(operator, 1.7)
     identity = space.identity()
     assert max_abs_deviation(unitary @ unitary.conj().T, identity) < 1e-13
@@ -629,16 +635,23 @@ def test_a_symmetry_can_be_declared_on_an_existing_structure() -> None:
 def test_the_graph_exposes_edges_in_both_directions_and_allows_a_node_swap() -> None:
     """The graph exposes incoming and outgoing edges and replaces a node by name."""
     graph = build_graph(3).graph
-    assert {edge.source for edge in graph.incoming("L2d")} == {"L2b"}
-    assert {edge.target for edge in graph.outgoing("L2b")} == {"L2c", "L2d"}
-    assert graph.incoming("L1") == ()
+    sources = {edge.source for edge in graph.incoming("qubit_register")}
+    assert sources == {"quantum_link_homogeneous"}
+    targets = {edge.target for edge in graph.outgoing("quantum_link_homogeneous")}
+    assert targets == {"effective_bosonic", "qubit_register"}
+    assert graph.incoming("lattice_qed") == ()
 
-    bound = graph.with_binding("L2a", **{P.MASS_L2A: 0.3, P.COUPLING_L2A: 0.7})
-    assert bound.binding[P.COUPLING_L2A] == pytest.approx(0.7)
+    bound = graph.with_binding(
+        "quantum_link_staggered",
+        **{P.MASS_QUANTUM_LINK_STAGGERED: 0.3, P.COUPLING_QUANTUM_LINK_STAGGERED: 0.7},
+    )
+    assert bound.binding[P.COUPLING_QUANTUM_LINK_STAGGERED] == pytest.approx(0.7)
     # The node itself is untouched until it is replaced.
-    assert graph.node("L2a").binding.get(P.COUPLING_L2A) is None
+    untouched = graph.node("quantum_link_staggered")
+    assert untouched.binding.get(P.COUPLING_QUANTUM_LINK_STAGGERED) is None
     graph.replace_node(bound)
-    assert graph.node("L2a").binding[P.COUPLING_L2A] == pytest.approx(0.7)
+    replaced = graph.node("quantum_link_staggered")
+    assert replaced.binding[P.COUPLING_QUANTUM_LINK_STAGGERED] == pytest.approx(0.7)
 
     with pytest.raises(KeyError, match="has no node named"):
         graph.replace_node(qubit_structure_node())
@@ -748,7 +761,7 @@ def test_the_truncation_records_the_electric_constant_it_drops() -> None:
     matter_sites = 3
     bound = theory(matter_sites).bind(
         **{
-            P.MASS_L1: 0.1,
+            P.MASS_LATTICE_QED: 0.1,
             P.LATTICE_SPACING: 1.0,
             P.GAUGE_COUPLING: 1.0,
             P.ELECTRIC_GAP: 0.5,

@@ -159,7 +159,7 @@ def tilted_bose_hubbard_chain(
     """A tilted, staggered Bose-Hubbard chain on an optical superlattice.
 
     The model is the analogue simulator model ``H_sim`` of the case study of the article, at
-    the artifact ``L3a``, with the knob set ``Theta_sim = {J, U, delta, Delta}``:
+    the artifact ``bose_hubbard``, with the knob set ``Theta_sim = {J, U, delta, Delta}``:
 
     ```
     H = sign * J sum_{j=0}^{2N-3} ( b^dag_j b_{j+1} + h.c. )

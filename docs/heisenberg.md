@@ -1,16 +1,16 @@
 # Guide: the Heisenberg magnet
 
 The use case [`qsimod.usecases.heisenberg`][qsimod.usecases.heisenberg] carries an anisotropic
-Heisenberg magnet, the application model `M1`, to a two-component optical lattice, the
-analogue simulator model `M3`.  It shares no artifact, transformation or convention with [the
+Heisenberg magnet, the application model `xxz_magnet`, to a two-component optical lattice, the
+analogue simulator model `two_component_bose_hubbard`.  It shares no artifact, transformation or convention with [the
 Schwinger pipeline](schwinger.md).  This page assumes the machinery that guide introduces,
 namely [the attributes of a transformation](schwinger.md#the-attributes-of-a-transformation),
 [the contents of an artifact](schwinger.md#what-an-artifact-carries) and [how a transformation
 is read](schwinger.md#reading-a-transformation), and states what differs.
 
 The physics follows Jepsen et al., *Spin transport in a tunable Heisenberg model realized with
-ultracold atoms*, Nature **588**, 403-407 (2020): Eq. (1) of that article is `M2a`, and the
-Methods section "Extended Hubbard model" is transformation (c).
+ultracold atoms*, Nature **588**, 403-407 (2020): Eq. (1) of that article is `xxz_chain`, and the
+Methods section "Extended Hubbard model" is the superexchange reduction.
 
 ## The model graph
 
@@ -22,23 +22,23 @@ A dotted arrow is an approximate transformation and a solid arrow an exact one.
 flowchart TB
     subgraph LV1["Application model &nbsp;·&nbsp; <code>models.application</code>"]
         direction LR
-        M1["<b>M1 &nbsp; H<sub>XXZ</sub></b><br/>Heisenberg XXZ magnet,<br/>by its anisotropy<br/><i>Θ = {J<sub>xy</sub>, Δ}</i>"]
+        xxz_magnet["<b>xxz_magnet &nbsp; H<sub>XXZ</sub></b><br/>Heisenberg XXZ magnet,<br/>by its anisotropy<br/><i>Θ = {J<sub>xy</sub>, Δ}</i>"]
     end
     subgraph LV2["Intermediate representations &nbsp;·&nbsp; <code>models.intermediate</code>"]
-        M2a["<b>M2a &nbsp; H<sub>XXZ</sub></b><br/>XXZ chain,<br/>by its two couplings<br/><i>Θ = {J<sub>xy</sub>, J<sub>z</sub>}</i>"]
-        M2b["<b>M2b &nbsp; H<sub>tV</sub></b><br/>spinless fermions,<br/>nearest-neighbour interaction<br/><i>Θ = {J<sub>xy</sub>, J<sub>z</sub>}</i>"]
+        xxz_chain["<b>xxz_chain &nbsp; H<sub>XXZ</sub></b><br/>XXZ chain,<br/>by its two couplings<br/><i>Θ = {J<sub>xy</sub>, J<sub>z</sub>}</i>"]
+        fermion_chain["<b>fermion_chain &nbsp; H<sub>tV</sub></b><br/>spinless fermions,<br/>nearest-neighbour interaction<br/><i>Θ = {J<sub>xy</sub>, J<sub>z</sub>}</i>"]
     end
     subgraph LV3["Hardware model &nbsp;·&nbsp; <code>models.hardware</code>"]
         direction LR
-        M3["<b>M3 &nbsp; H<sub>2BHM</sub></b><br/>two-component<br/>Bose–Hubbard chain<br/><i>Θ = {t, U<sub>↑↑</sub>, U<sub>↑↓</sub>, U<sub>↓↓</sub>}</i>"]
+        two_component_bose_hubbard["<b>two_component_bose_hubbard &nbsp; H<sub>2BHM</sub></b><br/>two-component<br/>Bose–Hubbard chain<br/><i>Θ = {t, U<sub>↑↑</sub>, U<sub>↑↓</sub>, U<sub>↓↓</sub>}</i>"]
     end
 
-    M1  ---> |"<b>(a)</b> anisotropy resolution<br/><i>exact</i>"| M2a
-    M2a ---> |"<b>(b)</b> Jordan–Wigner to spinless fermions<br/><i>exact</i>"| M2b
-    M2a -. "<b>(c)</b> second-order superexchange,<br/>solved for the knob settings<br/><i>approximate, regime conditions</i>" .-> M3
+    xxz_magnet ---> |"<b>anisotropy resolution</b><br/><i>exact</i>"| xxz_chain
+    xxz_chain ---> |"<b>Jordan–Wigner to spinless fermions</b><br/><i>exact</i>"| fermion_chain
+    xxz_chain -. "<b>second-order superexchange,<br/>solved for the knob settings</b><br/><i>approximate, regime conditions</i>" .-> two_component_bose_hubbard
 
     classDef ham fill:#e0f2ee,stroke:#009371,color:#003e2f
-    class M1,M2a,M2b,M3 ham
+    class xxz_magnet,xxz_chain,fermion_chain,two_component_bose_hubbard ham
     style LV1 fill:#f2f7fa,stroke:#b1d0e5,color:#103c5a
     style LV2 fill:#f2f7fa,stroke:#b1d0e5,color:#103c5a
     style LV3 fill:#f2f7fa,stroke:#b1d0e5,color:#103c5a
@@ -57,27 +57,28 @@ flowchart TB
 from qsimod.usecases.heisenberg import build_graph
 
 graph = build_graph(4)
-print(graph.targets())  # ('M2b', 'M3')
+print(graph.targets())  # ('fermion_chain', 'two_component_bose_hubbard')
 for node, level in graph.levels().items():
     print(f"{node:5} {level}")
 ```
 
-`M2b` is a terminal artifact of the intermediate layer: at `Jz = 0` it is a free-fermion model.
-The abstraction level is data on an artifact, not a type; `graph.graph.branches("M1")` lists
+`fermion_chain` is a terminal artifact of the intermediate layer: at `Jz = 0` it is a free-fermion model.
+The abstraction level is data on an artifact, not a type; `graph.graph.branches("xxz_magnet")` lists
 the branches.
 
 ## The transformations at a glance
 
 | Transformation | From | To | Exactness | Kind of approximation | Relation, forward direction | Relation, inverse direction |
 |---|---|---|---|---|---|---|
-| **(a)** [anisotropy resolution][qsimod.transformations.reparametrisations.anisotropy_resolution] | `M1` | `M2a` | `EXACT` | — | `CLOSED_FORM` | `CLOSED_FORM` |
-| **(b)** [Jordan-Wigner transformation to fermions][qsimod.transformations.basis_changes.jordan_wigner_to_fermions] | `M2a` | `M2b` | `EXACT` | — | `CLOSED_FORM` | `CLOSED_FORM` |
-| **(c)** [superexchange reduction][qsimod.transformations.perturbative.superexchange_reduction] | `M2a` | `M3` | `APPROXIMATE` | regime conditions | `CLOSED_FORM` | **`UNDER_DETERMINED`** |
+| [anisotropy resolution][qsimod.transformations.reparametrisations.anisotropy_resolution] | `xxz_magnet` | `xxz_chain` | `EXACT` | — | `CLOSED_FORM` | `CLOSED_FORM` |
+| [Jordan-Wigner transformation to fermions][qsimod.transformations.basis_changes.jordan_wigner_to_fermions] | `xxz_chain` | `fermion_chain` | `EXACT` | — | `CLOSED_FORM` | `CLOSED_FORM` |
+| [superexchange reduction][qsimod.transformations.perturbative.superexchange_reduction] | `xxz_chain` | `two_component_bose_hubbard` | `APPROXIMATE` | regime conditions | `CLOSED_FORM` | **`UNDER_DETERMINED`** |
 
-The relation of transformation (c) is derived from the hardware model to the theory; in the
+The relation of the superexchange reduction is derived from the hardware model to the
+theory; in the
 inverse direction, the knob settings are found by a solve.
 
-## `M1`: the XXZ magnet
+## `xxz_magnet`: the XXZ magnet
 
 **Use case:** [`magnet`][qsimod.usecases.heisenberg.magnet] &nbsp;·&nbsp; **library:** [`heisenberg_magnet`][qsimod.models.application.heisenberg_magnet]
 
@@ -96,17 +97,19 @@ from qsimod.realise import HilbertSpace, build_operator
 from qsimod.usecases.heisenberg import ParameterNames as P, magnet
 
 model = magnet(4)
-print(model.parameters)  # M1.Jxy [rad/ms], M1.Delta
+print(model.parameters)  # xxz_magnet.Jxy [rad/ms], xxz_magnet.Delta
 space = HilbertSpace.of(model.structure)
 print(space.dimension)  # 16
-operator = build_operator(model.hamiltonian, space, {P.TRANSVERSE_M1: 0.5, P.ANISOTROPY: 1.0})
+operator = build_operator(
+    model.hamiltonian, space, {P.TRANSVERSE_XXZ_MAGNET: 0.5, P.ANISOTROPY: 1.0}
+)
 print(operator.shape)  # (16, 16)
 ```
 
 The transverse term is stored in the ladder basis, `(Jxy/2)(S^+ S^- + h.c.)`, the operator
 vocabulary of [`Algebra.SPIN_HALF`][qsimod.structure.Algebra].
 
-## (a) `M1` -> `M2a`: the anisotropy resolution
+## `xxz_magnet` -> `xxz_chain`: the anisotropy resolution
 
 ```
 Jxy -> Jxy        (carried over)
@@ -127,12 +130,12 @@ print(step.forward_relation_kind)  # CLOSED_FORM
 print(step.inverse_relation_kind)  # CLOSED_FORM
 print(
     step.relation.is_invertible(
-        {P.TRANSVERSE_M1, P.ANISOTROPY}, {P.TRANSVERSE_M2A, P.LONGITUDINAL_M2A}
+        {P.TRANSVERSE_XXZ_MAGNET, P.ANISOTROPY}, {P.TRANSVERSE_XXZ_CHAIN, P.LONGITUDINAL_XXZ_CHAIN}
     )
 )  # True
 ```
 
-## `M2a`: the XXZ chain by two couplings
+## `xxz_chain`: the XXZ chain by two couplings
 
 **Use case:** [`spin_chain`][qsimod.usecases.heisenberg.spin_chain] &nbsp;·&nbsp; **library:** [`xxz_spin_chain`][qsimod.models.intermediate.xxz_spin_chain]
 
@@ -140,9 +143,9 @@ print(
 H_XXZ = sum_{j=0}^{N-2} [ (Jxy/2)( S^+_j S^-_{j+1} + h.c. ) + Jz S^z_j S^z_{j+1} ]
 ```
 
-This is the Hamiltonian of `M1`, parametrised by the two coupling energies `Jxy` and `Jz`.
+This is the Hamiltonian of `xxz_magnet`, parametrised by the two coupling energies `Jxy` and `Jz`.
 
-## (b) `M2a` -> `M2b`: the Jordan-Wigner transformation to spinless fermions
+## `xxz_chain` -> `fermion_chain`: the Jordan-Wigner transformation to spinless fermions
 
 ```
 S^+_j -> c^dag_j prod_{k<j} (1 - 2 n_k)        S^z_j -> n_j - 1/2
@@ -164,20 +167,20 @@ spin, fermions = spin_chain(6), fermion_chain(6)
 left = build_operator(
     spin.hamiltonian,
     HilbertSpace.of(spin.structure),
-    {P.TRANSVERSE_M2A: values["Jxy"], P.LONGITUDINAL_M2A: values["Jz"]},
+    {P.TRANSVERSE_XXZ_CHAIN: values["Jxy"], P.LONGITUDINAL_XXZ_CHAIN: values["Jz"]},
 )
 right = build_operator(
     fermions.hamiltonian,
     HilbertSpace.of(fermions.structure),
-    {P.TRANSVERSE_M2B: values["Jxy"], P.LONGITUDINAL_M2B: values["Jz"]},
+    {P.TRANSVERSE_FERMION_CHAIN: values["Jxy"], P.LONGITUDINAL_FERMION_CHAIN: values["Jz"]},
 )
 print(float(np.max(np.abs(np.asarray(left) - np.asarray(right)))) < 1e-12)  # True
 ```
 
 The two matrices are identical, since the model carries the alternating-sign Jordan-Wigner
-convention of the numerical realisation; see [`M2b`](#m2b-the-jordan-wigner-image).
+convention of the numerical realisation; see [`fermion_chain`](#fermion_chain-the-jordan-wigner-image).
 
-## `M2b`: the Jordan-Wigner image
+## `fermion_chain`: the Jordan-Wigner image
 
 **Use case:** [`fermion_chain`][qsimod.usecases.heisenberg.fermion_chain] &nbsp;·&nbsp; **library:** [`interacting_fermion_chain`][qsimod.models.intermediate.interacting_fermion_chain]
 
@@ -201,7 +204,7 @@ At `Jz = 0` the model is free: the single-particle band is `-Jxy cos(qa)`, the b
     `+Jxy cos(qa)`; the two conventions differ by `c_j -> (-1)^j c_j`, a relabelling of the band
     by `pi/a` that changes neither the spectrum nor the velocity.
 
-## (c) `M2a` -> `M3`: the second-order superexchange
+## `xxz_chain` -> `two_component_bose_hubbard`: the second-order superexchange
 
 ```
 Jxy = -4 t^2 / U_ud
@@ -243,8 +246,8 @@ report = validity().report(
         P.INTERACTION_UP: -51.6,
         P.INTERACTION_MIXED: -72.1,
         P.INTERACTION_DOWN: -125.4,
-        P.TRANSVERSE_M2A: 0.4975,
-        P.LONGITUDINAL_M2A: 0.4841,
+        P.TRANSVERSE_XXZ_CHAIN: 0.4975,
+        P.LONGITUDINAL_XXZ_CHAIN: 0.4841,
     }
 )
 print(report)
@@ -255,7 +258,7 @@ two couplings; the transformation poses the inverse direction, two equations in 
 as a solve for the knob settings, and the target artifact is returned with its parameters
 unbound.
 
-### What transformation (c) also produces
+### What the superexchange also produces
 
 The derivation also yields a longitudinal field
 
@@ -290,7 +293,7 @@ maximisation of the weakest margin that balances the `t << U` conditions, places
 `examples/heisenberg_end_to_end.py` reports the deviation of the spectra with and without the
 term.
 
-## `M3`: the two-component optical lattice
+## `two_component_bose_hubbard`: the two-component optical lattice
 
 **Use case:** [`lattice`][qsimod.usecases.heisenberg.lattice] &nbsp;·&nbsp; **library:** [`two_component_bose_hubbard_chain`][qsimod.models.hardware.two_component_bose_hubbard_chain]
 

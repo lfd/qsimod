@@ -200,15 +200,15 @@ class QuantumLinkConvention:
 STAGGERED_CONVENTION = QuantumLinkConvention(CouplingForm.HOPPING, MassPattern.STAGGERED)
 """The convention before a particle-hole transformation: hopping coupling and staggered mass.
 
-This is the convention of the quantum-link model ``H_IR1`` of the article, the artifact ``L2a``
-of the case study.
+This is the convention of the quantum-link model ``H_IR1`` of the article, the artifact
+``quantum_link_staggered`` of the case study.
 """
 
 HOMOGENEOUS_CONVENTION = QuantumLinkConvention(CouplingForm.PAIR, MassPattern.UNIFORM)
 """The convention after a particle-hole transformation: pair coupling and uniform mass.
 
-This is the convention of the quantum-link model ``H_IR2`` of the article, the artifact ``L2b``
-of the case study and its branch point.
+This is the convention of the quantum-link model ``H_IR2`` of the article, the artifact
+``quantum_link_homogeneous`` of the case study and its branch point.
 """
 
 
@@ -270,9 +270,9 @@ def quantum_link_model(
     ```
 
     In the case study of the article the staggered convention yields the quantum-link model
-    ``H_IR1`` at the artifact ``L2a``, and the homogeneous convention yields ``H_IR2`` at the
-    artifact ``L2b``, the branch point; both carry the parameter set
-    ``Theta_IR1 = Theta_IR2 = {m, kappa}``.
+    ``H_IR1`` at the artifact ``quantum_link_staggered``, and the homogeneous convention
+    yields ``H_IR2`` at the artifact ``quantum_link_homogeneous``, the branch point; both
+    carry the parameter set ``Theta_IR1 = Theta_IR2 = {m, kappa}``.
 
     Args:
         matter_sites: the chain length ``N``.
@@ -343,7 +343,7 @@ def bosonic_pair_coupling_model(
     ```
 
     In the case study of the article this is the effective bosonic model ``H_IR3`` at the
-    artifact ``L2c``, with the parameter set ``Theta_IR3 = {m, kappa}``.  The operator
+    artifact ``effective_bosonic``, with the parameter set ``Theta_IR3 = {m, kappa}``.  The operator
     identities of the encoding hold as ``P H P`` on the declared local occupation subspace,
     ``{0, 1}`` on matter positions and ``{0, 2}`` on links, so the encoding is exact on the
     encoded subspace; [`sandwich`][qsimod.realise.build.sandwich] builds the projected operator.
@@ -413,10 +413,11 @@ def k_local_qubit_model(
     ```
 
     In the case study of the article this is the qubit Hamiltonian ``H_IR4`` at the artifact
-    ``L2d``, the Jordan-Wigner image of ``H_IR2``, with the parameter set
-    ``Theta_IR4 = {m, kappa}``; the second digital branch reaches the artifact ``L2d_st`` from
-    ``L2a`` in the hopping convention.  In the pair convention the Pauli expansion of a coupling
-    term is ``(1/4)( X_aX_bX_c + X_aY_bY_c - Y_aX_bY_c + Y_aY_bX_c )``; the four strings commute
+    ``qubit_register``, the Jordan-Wigner image of ``H_IR2``, with the parameter set
+    ``Theta_IR4 = {m, kappa}``; the second digital branch reaches the artifact
+    ``qubit_register_staggered`` from ``quantum_link_staggered`` in the hopping convention.
+    In the pair convention the Pauli expansion of a coupling term is
+    ``(1/4)( X_aX_bX_c + X_aY_bY_c - Y_aX_bY_c + Y_aY_bX_c )``; the four strings commute
     mutually, and each commutes with every Gauss operator.  In the hopping convention the
     Jordan-Wigner string contributes a factor ``-1`` to the coupling.
 

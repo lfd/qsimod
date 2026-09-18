@@ -1,7 +1,7 @@
 """The digital branch of the Schwinger case study, end to end.
 
-The qubit Hamiltonian ``L2d`` (``H_IR4`` of the article) is bound at the reference parameters,
-the step count of the Trotter product formula ``L3b`` (the digital simulator model
+The qubit Hamiltonian ``qubit_register`` (``H_IR4`` of the article) is bound at the reference
+parameters, the step count of the Trotter product formula ``trotter`` (the digital simulator model
 ``U_approx``) that meets a target error bound is solved for, and the resource summary, the
 measured error against the a-priori error bound, and the Gauss-law violation before and after
 the product formula are reported.  The parameters ``m = 0.41``, ``g = 0.83``, ``t = 2`` are
@@ -70,9 +70,12 @@ def main(matter_sites: int = 4, *, verbose: bool = True) -> int:
     report.section("1. the digital pipeline")
     say(graph.digital)
 
-    # kappa is a free parameter from L2a on, so it is bound there.
-    staggered = graph.graph.node("L2a").bind(
-        **{P.MASS_L2A: TARGET_MASS, P.COUPLING_L2A: TARGET_COUPLING}
+    # kappa is a free parameter from quantum_link_staggered on, so it is bound there.
+    staggered = graph.graph.node("quantum_link_staggered").bind(
+        **{
+            P.MASS_QUANTUM_LINK_STAGGERED: TARGET_MASS,
+            P.COUPLING_QUANTUM_LINK_STAGGERED: TARGET_COUPLING,
+        }
     )
     homogeneous = particle_hole().apply(staggered)
     qubits = as_hamiltonian(to_qubits().apply(homogeneous), "the digital branch")

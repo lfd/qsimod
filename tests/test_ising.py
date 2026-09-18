@@ -41,7 +41,7 @@ def solve(longitudinal: float = CRITICAL_FIELD) -> SolveResult:
     return realise_parameters(
         ising.build_graph(3, admissible_set=limits).device,
         targets={
-            P.COUPLING_K1: COUPLING,
+            P.COUPLING_ISING_MAGNET: COUPLING,
             P.TRANSVERSE_FIELD: REQUEST_TRANSVERSE_FIELD,
             P.LONGITUDINAL_FIELD: longitudinal,
         },
@@ -58,7 +58,7 @@ def solve(longitudinal: float = CRITICAL_FIELD) -> SolveResult:
 
 def test_the_device_node_is_the_running_examples_own_object() -> None:
     """The Ising device is the same node, structure and parameter set as the Schwinger one."""
-    assert ising.DEVICE is schwinger.L3A
+    assert ising.DEVICE is schwinger.BOSE_HUBBARD
     assert ising.DEVICE_TARGET == schwinger.ANALOGUE_TARGET
     assert KNOBS == (
         schwinger.ParameterNames.TUNNELLING,
@@ -74,15 +74,15 @@ def test_the_device_node_is_the_running_examples_own_object() -> None:
 
 
 def test_the_shared_graph_reaches_one_device_from_two_theories() -> None:
-    """``L3a`` has two incoming edges, from ``L2c`` and ``K2``, and is a single node."""
+    """The hardware node has two incoming edges, from both theories, and is a single node."""
     graph = ising.shared_graph(3)
     incoming = graph.incoming(ising.DEVICE_TARGET)
     assert len(incoming) == 2
-    assert {edge.source for edge in incoming} == {"L2c", "K2"}
+    assert {edge.source for edge in incoming} == {"effective_bosonic", "ising_chain"}
 
-    assert graph.terminal_targets("K1") == ("L3a",)
-    assert "L3a" in graph.terminal_targets("L1")
-    assert graph.node("L3a") is graph.node(ising.DEVICE_TARGET)
+    assert graph.terminal_targets("ising_magnet") == ("bose_hubbard",)
+    assert "bose_hubbard" in graph.terminal_targets("lattice_qed")
+    assert graph.node("bose_hubbard") is graph.node(ising.DEVICE_TARGET)
 
 
 def test_the_spin_count_follows_the_register_rather_than_being_assumed() -> None:
@@ -129,11 +129,11 @@ def test_an_ising_step_refuses_a_chain_that_conserves_magnetisation() -> None:
 
 
 def test_the_levels_are_the_ones_the_pipeline_claims() -> None:
-    """Levels are application, intermediate, hardware; step (b) is regime-limited."""
+    """Levels are application, intermediate, hardware; the dipole reduction is regime-limited."""
     graph = ising.build_graph(3)
     levels = graph.levels()
-    assert levels["K1"] is AbstractionLevel.APPLICATION
-    assert levels["K2"] is AbstractionLevel.INTERMEDIATE
+    assert levels["ising_magnet"] is AbstractionLevel.APPLICATION
+    assert levels["ising_chain"] is AbstractionLevel.INTERMEDIATE
     assert levels[ising.DEVICE_TARGET] is AbstractionLevel.HARDWARE
 
     steps = list(graph.device)
@@ -148,11 +148,11 @@ def test_the_levels_are_the_ones_the_pipeline_claims() -> None:
 
 
 def test_the_field_resolution_is_invertible_and_leaves_the_hamiltonian_alone() -> None:
-    """Step (a) is a closed-form reparametrisation in both directions."""
+    """The field resolution is a closed-form reparametrisation in both directions."""
     step = ising.fields()
     assert step.relation.is_invertible(
-        {P.COUPLING_K1, P.LONGITUDINAL_FIELD, P.TRANSVERSE_FIELD},
-        {P.COUPLING_K2, P.LONGITUDINAL, P.TRANSVERSE},
+        {P.COUPLING_ISING_MAGNET, P.LONGITUDINAL_FIELD, P.TRANSVERSE_FIELD},
+        {P.COUPLING_ISING_CHAIN, P.LONGITUDINAL, P.TRANSVERSE},
     )
     assert step.forward_relation_kind is RelationKind.CLOSED_FORM
     assert step.inverse_relation_kind is RelationKind.CLOSED_FORM
@@ -167,7 +167,7 @@ def test_the_forward_maps_are_the_sources_own() -> None:
     environment = ising_environment(knobs)
     assert environment[P.LONGITUDINAL] == pytest.approx(1.0 - 0.05)
     # hz = 1 - (Delta - U) / Jz, the paper's dimensionless form.
-    assert environment[P.LONGITUDINAL] / environment[P.COUPLING_K2] == pytest.approx(0.95)
+    assert environment[P.LONGITUDINAL] / environment[P.COUPLING_ISING_CHAIN] == pytest.approx(0.95)
 
 
 def test_the_transition_line_comes_out_in_both_of_the_papers_forms() -> None:
@@ -212,7 +212,7 @@ def test_the_lattices_box_admits_a_request_the_running_examples_box_refuses() ->
     refused = realise_parameters(
         ising.build_graph(3, admissible_set=tight).device,
         targets={
-            P.COUPLING_K1: COUPLING,
+            P.COUPLING_ISING_MAGNET: COUPLING,
             P.TRANSVERSE_FIELD: REQUEST_TRANSVERSE_FIELD,
             P.LONGITUDINAL_FIELD: CRITICAL_FIELD,
         },
@@ -229,8 +229,8 @@ def test_the_gauge_theorys_answer_is_the_same_in_the_lattices_box() -> None:
     own = realise_parameters(
         schwinger.build_graph(3, admissible_set=schwinger.device_limits()).analogue,
         targets={
-            schwinger.ParameterNames.MASS_L1: 0.0,
-            schwinger.ParameterNames.COUPLING_L2A: 0.0045,
+            schwinger.ParameterNames.MASS_LATTICE_QED: 0.0,
+            schwinger.ParameterNames.COUPLING_QUANTUM_LINK_STAGGERED: 0.0045,
             schwinger.ParameterNames.ELECTRIC_GAP: 0.5,
         },
         unknowns=list(KNOBS),
