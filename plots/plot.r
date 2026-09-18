@@ -20,7 +20,7 @@ if (length(args) == 1) {
   LINE.SIZE <- 0.5
 }
 
-d <- read_csv("../results/zhou_trajectories.csv") |>
+d <- read_csv("results_paper/zhou_trajectories.csv") |>
   mutate(deviation = abs(occupation_hw - occupation_theory)) |>
   pivot_longer(
     c(occupation_hw, occupation_theory),
@@ -29,7 +29,7 @@ d <- read_csv("../results/zhou_trajectories.csv") |>
   ) |>
   filter(!(model == "occupation_theory" & setting == "free knobs"))
 
-d_dig <- read_csv("../results/zhou_digital_trajectories.csv") |>
+d_dig <- read_csv("results_paper/zhou_digital_trajectories.csv") |>
   filter(steps %in% c(10, 50, 100)) |>
   mutate(
     deviation = abs(occupation_hw - occupation_theory),

@@ -17,18 +17,18 @@ margin of every regime condition reported, and a **numerical realisation** layer
 declarations by exact diagonalisation (JAX) at small chain length.
 
 The package implements the metamodel of the article it accompanies; see
-[Citation](#citation).
+the [citation](#citation).
 
 ## Digital and analogue simulation
 
 ![Digital and analogue quantum simulation side by side: the evolution under H_sys Trotterised into n slices of gates on a universal gate set, and the same evolution mapped onto H_sim and compiled into control pulses.](docs/figures/analogue_vs_digital.svg){width=100%}
 
 Both modes start from the same object: the dynamics of a physical system, governed by a
-Hamiltonian `H_sys` and carried out by the unitary `U_sys` from the initial state at time `0`
-to the target state at time `t`.  **Digital** simulation discretises that evolution into `n`
+Hamiltonian $\hat H_\text{sys}$ and carried out by the unitary $\hat U_\text{sys}$ from the initial state at time $0$
+to the target state at time $t$.  **Digital** simulation discretises that evolution into `n`
 time slices, a *Trotterisation*, whose one- and two-qubit gates run on universal gate-based
-hardware and realise an implicit, approximate Hamiltonian `H_≈`.  **Analogue** simulation maps
-`H_sys` onto a Hamiltonian `H_sim` that a device realises natively and compiles it into
+hardware and realise an implicit, approximate Hamiltonian $\hat H_\approx$.  **Analogue** simulation maps
+$\hat H_\text{sys}$ onto a Hamiltonian $\hat H_\text{sim}$ that a device realises natively and compiles it into
 time-dependent control fields.  Both chains terminate in an instruction set: a universal gate
 set, portable across gate-based machines, or an analogue instruction set tailored to one
 platform.  Q-SiMod covers the chain down to the hardware model; the instruction sets
@@ -38,9 +38,9 @@ themselves are [out of scope](#out-of-scope).
 
 ![The metamodel: three abstraction layers from an application model over intermediate representations to a hardware model that splits into an analogue and a digital simulator model, with the attributes of an artifact and of a transformation and a numerical realisation lane.](docs/figures/overview.svg){width=100%}
 
-The chain above is organised in three abstraction layers: an application model, the
-intermediate representations it passes through, and a hardware model, which simulates either
-in analogue mode, `H_sim`, or in digital mode, `U_≈`.  The nodes of that chain are the
+The chain of modelling steps is organised in three abstraction layers: an application model,
+the intermediate representations it passes through, and a hardware model, which simulates
+either in analogue mode, $\hat H_\text{sim}$, or in digital mode, $\hat U_\approx$.  The nodes of that chain are the
 artifacts and its edges the transformations, with the attributes each of them declares shown
 beside them.  Because artifacts and transformations are declarative, nothing is computed to
 type-check a pipeline; the **numerical realisation** layer on the right is separate and
@@ -122,8 +122,8 @@ layer through intermediate representations to the hardware layer, and two of the
 theory via `L2c` and the Ising chain via `K2`, arrive at the same hardware model `L3a`.
 
 The `L…` artifacts form the case study of the article, a **one-dimensional lattice quantum
-electrodynamics** carried to an analogue simulator model `H_sim` and a digital simulator model
-`U_≈`
+electrodynamics** carried to an analogue simulator model $\hat H_\text{sim}$
+and a digital simulator model $\hat U_\approx$
 ([Zhou et al., Science **377**, 311 (2022)](https://doi.org/10.1126/science.abl6277)); the
 `M…` artifacts are a **Heisenberg magnet**
 ([Jepsen et al., Nature **588**, 403 (2020)](https://doi.org/10.1038/s41586-020-3033-y)), and
@@ -149,8 +149,9 @@ the solver backend and is imported only by `qsimod/solving/backends/scipy_nlp.py
 
 ## Quickstart
 
-The parameters of the application model are entered, the pipeline is type-checked, and the
-knob settings of the hardware model that realise the request are found by the solver:
+The application model is initialised with its parameters, the pipeline is
+type-checked, and the knob settings of the hardware model that realise the
+request are found by the solver:
 
 ```python
 from qsimod.usecases.schwinger import ParameterNames as P
@@ -173,9 +174,10 @@ result = realise_parameters(
 print(result)  # a status, a point, residuals, and every margin
 ```
 
-The result carries a status: `EXACT_SOLUTION`, `APPROXIMATE_SOLUTION` with a per-parameter
-residual, `INFEASIBLE` with the binding constraint named, which is proved by interval and
-affine arithmetic over the declared boxes before any search runs, or `UNSOLVED`.
+The result carries a status: `EXACT_SOLUTION`, `APPROXIMATE_SOLUTION` with a
+per-parameter residual, `UNSOLVED`, or `INFEASIBLE` with the binding constraint
+named, which is proved by interval and affine arithmetic over the declared
+boxes before any search runs.
 
 The digital branch, with the step count of the product formula found as an integer solve
 against the a-priori error bound:
@@ -196,17 +198,17 @@ print(trotterisation(time=2.0, steps=n, order=2).apply(qubits).resources())
 
 | Path | Contents |
 |---|---|
-| `qsimod/levels.py`, `scalar.py`, `affine.py`, `units.py`, `structure.py`, `symbolic.py`, `normal_form.py`, `parameters.py`, `artifact.py`, `relations.py`, `validity.py`, `transform.py`, `pipeline.py` | the **declaration layer**: symbolic artifacts, parameters, parameter relations, validity conditions, transformations and pipelines.  `normal_form.py` decides whether two symbolic sums are the same operator, which is how the claim of an `EXACT` transformation is checked.  No operator matrix is constructed and no solver is imported. |
-| `qsimod/pauli.py`, `qsimod/trotter/` | the **structural layer**: reasoning on the term structure without constructing operators, namely commutation, layer decompositions, product formulas, a-priori error bounds and resource counts. |
-| `qsimod/solving/` | the **solving layer**: parameter realisation, feasibility and step counts. |
-| `qsimod/realise/`, `qsimod/jax_setup.py` | the **realisation layer**: dense `complex128` operators in JAX. |
-| `qsimod/models/` | the **model library**, indexed by abstraction layer: `application`, `intermediate` and `hardware`, with `gauge` and `magnetism` for what each family of models shares. |
-| `qsimod/transformations/` | the **transformation library**, indexed by the kind of operation: truncations, basis changes, encodings, reparametrisations, perturbative reductions and Trotterisation. |
-| `qsimod/usecases/` | the **use cases**: which models, at which conventions, are related by which transformations and assembled into which model graph. |
-| `examples/` | five runnable end-to-end examples. |
-| `scripts/` | the two numerical studies of the article, which write `pandas` frames to `results/`, and the generator of the documentation figures. |
-| `plots/` | the R scripts that draw the figures of the article from `results/`. |
-| `docs/` | the documentation site: one guide per application model ([`schwinger.md`](docs/schwinger.md), [`heisenberg.md`](docs/heisenberg.md), [`ising.md`](docs/ising.md)) and an API reference generated from the docstrings. |
+| `qsimod/levels.py`, `scalar.py`, `affine.py`, `units.py`, `structure.py`, `symbolic.py`, `normal_form.py`, `parameters.py`, `artifact.py`, `relations.py`, `validity.py`, `transform.py`, `pipeline.py` | **Declaration Layer**: symbolic artifacts, parameters, parameter relations, validity conditions, transformations and pipelines.  `normal_form.py` decides whether two symbolic sums are the same operator, which is how the claim of an `EXACT` transformation is checked.  No operator matrix is constructed and no solver is imported. |
+| `qsimod/pauli.py`, `qsimod/trotter/` | **Structural Layer**: operations on the term structure without constructing operators, namely commutation, layer decompositions, product formulas, a-priori error bounds and resource counts. |
+| `qsimod/solving/` | **Solving Layer**: parameter realisation, feasibility and step counts. |
+| `qsimod/realise/`, `qsimod/jax_setup.py` | **Realisation Layer**: dense `complex128` operators in JAX. |
+| `qsimod/models/` | **Model Library**, indexed by abstraction layer: `application`, `intermediate` and `hardware`, with `gauge` and `magnetism` for what each family of models shares. |
+| `qsimod/transformations/` | **Transformation Library**, indexed by the kind of operation: truncations, basis changes, encodings, reparametrisations, perturbative reductions and Trotterisation. |
+| `qsimod/usecases/` | **Use Cases**: which models, at which conventions, are related by which transformations and assembled into which model graph. |
+| `examples/` | Five runnable end-to-end examples. |
+| `scripts/` | The two numerical studies of the article, which write `pandas` frames to `results/`, and the generator of the documentation figures. |
+| `plots/` | The R scripts that draw the figures of the article from `results/`. |
+| `docs/` | The documentation site: one guide per application model ([`schwinger.md`](docs/schwinger.md), [`heisenberg.md`](docs/heisenberg.md), [`ising.md`](docs/ising.md)) and an API reference generated from the docstrings. |
 
 ## Examples
 
@@ -234,7 +236,30 @@ leakage and the gauge violation for the free and the prescribed knob settings; t
 records the resources, the a-priori error bounds and the measured deviations of the digital
 simulator model over a ladder of step counts, and the step counts required to stay below given
 deviation thresholds.  Each writes CSV files to `results/` (gitignored); `plots/plot.r` draws
-the figures from them.  A run at `N = 6` takes several hours.
+the figures from a precomputed copy of these files in `plots/results_paper`.  A run at
+`N = 6` takes several hours.
+
+### Drawing the figures with R
+
+The figures of the article are drawn by the R scripts in `plots/`.  They need R with three
+packages; the TikZ route additionally needs a LaTeX installation providing `lualatex` and the
+`standalone`, `IEEEtran`, `tikz` and `quantikz` packages.
+
+```sh
+# R itself: apt install r-base (Debian/Ubuntu), brew install r (macOS)
+Rscript -e 'install.packages(c("tidyverse", "tikzDevice", "scales"))'
+```
+
+Then, from `plots/`:
+
+```sh
+make        # plot.r writes img-tikz/*.tex, lualatex renders them to img-gen/*.pdf
+make pdf    # standalone PDFs into img-pdf/ instead, no LaTeX needed
+```
+
+Both read `results_paper/zhou_trajectories.csv` and
+`results_paper/zhou_digital_trajectories.csv`; to redraw from your own run, copy those two
+files over from `results/`.
 
 The documentation figures are generated from the model graphs the use cases build; they are
 regenerated after adding an artifact or renaming a transformation (a test checks that they are
