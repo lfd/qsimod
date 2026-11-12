@@ -21,6 +21,7 @@ from examples.jepsen2020 import reproduce_checks
 from examples.shared_device import main as run_shared_device_example
 from examples.simon2011 import Bench as SimonBench
 from examples.simon2011 import lattice_limits, manifold_check, transition_line
+from examples.time_evolution import main as run_time_evolution_example
 from examples.zhou2022 import Bench as ZhouBench
 from examples.zhou2022 import experiment_knobs, reproduce_figures
 
@@ -165,6 +166,19 @@ def test_the_heisenberg_example_agrees_with_the_experiment_it_is_posed_against()
     assert [point.margin for point in reached] == sorted(
         (point.margin for point in reached), reverse=True
     )
+
+
+def test_the_time_evolution_example_tracks_the_exact_dynamics() -> None:
+    """``examples/time_evolution.py``: the Trotter trajectory follows the exact one."""
+    result = run_time_evolution_example(sites=4, verbose=False)
+
+    # The Neel state |0 1 0 1> has S^z = -1/2 on site 0, under either evolution.
+    assert result.exact[0] == pytest.approx(-0.5)
+    assert result.trotter[0] == pytest.approx(-0.5)
+    assert len(result.times) == len(result.exact) == len(result.trotter)
+
+    # Second order at step size 0.05: the two trajectories stay close.
+    assert result.deviation < 5e-2
 
 
 def test_the_shared_device_example_shows_two_theories_on_one_lattice() -> None:

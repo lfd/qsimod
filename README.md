@@ -227,6 +227,7 @@ uv run python examples/infeasible_request.py     # an unreachable request, with 
 uv run python examples/digital_end_to_end.py     # the digital branch, with the step count solved for
 uv run python examples/heisenberg_end_to_end.py  # the Heisenberg magnet, posed against Jepsen et al. 2020
 uv run python examples/shared_device.py          # two theories on one lattice, posed against Simon et al. 2011
+uv run python examples/time_evolution.py         # exact and Trotter time evolution of an XXZ chain, side by side
 ```
 
 ## Numerical validation of the case study
